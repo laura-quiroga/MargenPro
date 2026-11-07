@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="es" data-kit="abc-v2">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MargenPro — Tu negocio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes confetti { 0%{ transform:translateY(0) rotate(0); opacity:1; } 100%{ transform:translateY(240px) rotate(380deg); opacity:0; } }
+  .entrada { opacity:0; animation:fadeUp .4s cubic-bezier(.22,1,.36,1) forwards; }
+  @media (prefers-reduced-motion: reduce) { .entrada{ animation:none; opacity:1; } }
+
+  :root {
+    --bg:#FAFAF6; --surface:#FFFFFF; --sunken:#F0EFE9;
+    --text-1:#2B2A26; --text-2:#716C5F;
+    --accent:#3F7D6B; --accent-tint:63 125 107;
+    --error:#B3453A; --error-tint:179 69 58; --aviso:#C98A2C; --aviso-tint:201 138 44;
+    --radius-card:14px; --radius-btn:12px;
+    --font-display:'Fraunces', Georgia, serif; --font-body:'Manrope', 'Segoe UI', sans-serif;
+    --shadow-1: 0 1px 2px rgb(43 42 38 / .06);
+    --shadow-2: 0 16px 40px -16px rgb(43 42 38 / .18);
+  }
+  [data-tema="oscuro"] {
+    --bg:#1A1D1B; --surface:#232923; --sunken:#151715;
+    --text-1:#F3F1EA; --text-2:#A8A79C;
+    --accent:#6FB89E; --accent-tint:111 184 158;
+    --error:#E0837A; --error-tint:224 131 122; --aviso:#E0B15C; --aviso-tint:224 177 92;
+  }
+  body { background:var(--bg); color:var(--text-1); font-family:var(--font-body); line-height:1.5; min-height:100dvh; transition:background .2s, color .2s; }
+  img,svg { display:block; }
+  button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+  input,select { font-family:inherit; }
+  .acento { color:var(--accent); }
+  h1,h2,h3 { font-family:var(--font-display); font-weight:700; letter-spacing:-0.01em; }
+
+  .app-frame { max-width:420px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; background:var(--bg); position:relative; padding-bottom:78px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
+  .logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700; font-size:16px; }
+  .logo .mark { width:26px; height:26px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; }
+  .tema-toggle { width:36px; height:36px; border-radius:10px; background:var(--sunken); display:flex; align-items:center; justify-content:center; }
+  .tema-toggle svg { stroke:var(--text-2); width:17px; height:17px; }
+
+  .seccion { display:none; flex:1; flex-direction:column; padding:4px 20px 20px; }
+  .seccion.activa { display:flex; }
+
+  .chip-icono { width:44px; height:44px; border-radius:12px; background:rgb(var(--accent-tint)/.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .chip-icono svg { stroke:var(--accent); width:20px; height:20px; }
+  .chip-icono.aviso { background:rgb(var(--aviso-tint)/.14); }
+  .chip-icono.aviso svg { stroke:var(--aviso); }
+  .chip-icono.error { background:rgb(var(--error-tint)/.14); }
+  .chip-icono.error svg { stroke:var(--error); }
+
+  h2.titulo-seccion { font-size:21px; margin-bottom:4px; }
+  p.sub-seccion { color:var(--text-2); font-size:13.5px; margin-bottom:18px; }
+
+  /* TARJETAS GENÉRICAS */
+  .tarjeta { background:var(--surface); border-radius:var(--radius-card); padding:16px; box-shadow:var(--shadow-1); margin-bottom:12px; }
+  .tarjeta-fila { display:flex; align-items:center; gap:12px; }
+
+  /* PANORAMA */
+  .heroe-mes { border-radius:var(--radius-card); padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.55), transparent 70%); margin-bottom:16px; }
+  .heroe-mes > div { background:var(--surface); border-radius:12.5px; padding:22px 20px; }
+  .heroe-mes .label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
+  .heroe-mes .nav-mes { display:flex; align-items:center; gap:10px; }
+  .heroe-mes .nav-mes button { width:28px; height:28px; border-radius:8px; background:var(--sunken); display:flex; align-items:center; justify-content:center; }
+  .heroe-mes .nav-mes button svg { width:14px; height:14px; stroke:var(--text-2); }
+  .heroe-mes .ganancia { font-family:var(--font-display); font-size:38px; font-weight:700; color:var(--accent); margin-top:8px; }
+  .heroe-mes .detalle { display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--sunken); font-size:13px; }
+  .heroe-mes .detalle .num { font-weight:800; display:block; font-size:15px; margin-top:2px; }
+  .accesos-rapidos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+  .acceso-rapido { background:var(--surface); border-radius:var(--radius-card); padding:16px 14px; box-shadow:var(--shadow-1); text-align:left; }
+  .acceso-rapido .chip-icono { margin-bottom:10px; }
+  .acceso-rapido .txt { font-size:13.5px; font-weight:700; }
+
+  .aviso-precio { display:flex; gap:12px; background:rgb(var(--aviso-tint)/.10); border:1.5px solid rgb(var(--aviso-tint)/.28); border-radius:var(--radius-card); padding:14px; margin-bottom:16px; }
+  .aviso-precio p { font-size:12.5px; font-weight:600; line-height:1.4; }
+  .aviso-precio button.link { color:var(--accent); font-weight:800; font-size:12.5px; margin-top:4px; }
+
+  /* LISTAS: insumos / recetas / cotizaciones */
+  .fila-filtros { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; }
+  .filtro-chip { flex-shrink:0; padding:8px 14px; border-radius:999px; background:var(--sunken); font-size:12.5px; font-weight:700; color:var(--text-2); }
+  .filtro-chip.activo { background:var(--accent); color:#fff; }
+
+  .item-lista { display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:var(--radius-card); padding:14px; box-shadow:var(--shadow-1); margin-bottom:10px; }
+  .item-lista .info { flex:1; min-width:0; }
+  .item-lista .nombre { font-size:14px; font-weight:700; }
+  .item-lista .meta { font-size:12px; color:var(--text-2); margin-top:2px; }
+  .item-lista .cifra { text-align:right; font-weight:800; font-size:14px; flex-shrink:0; }
+  .item-lista .cifra .sub { display:block; font-size:11px; font-weight:600; color:var(--text-2); }
+
+  .estado-pill { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+  .estado-pill.vendida { background:rgb(var(--accent-tint)/.15); color:var(--accent); }
+  .estado-pill.pendiente { background:rgb(var(--aviso-tint)/.16); color:var(--aviso); }
+  .estado-pill.rechazada { background:rgb(var(--error-tint)/.14); color:var(--error); }
+
+  .btn-cta { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--accent); color:#fff; font-weight:700; font-size:14.5px; padding:15px 20px; border-radius:var(--radius-btn); box-shadow:0 10px 22px rgb(var(--accent-tint)/.3); transition:transform .15s ease-out; }
+  .btn-cta:active { transform:scale(.97); }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; padding:13px 18px; border-radius:var(--radius-btn); border:1.5px dashed rgb(var(--accent-tint)/.4); color:var(--accent); margin-bottom:14px; }
+  .btn-icono-sm { width:30px; height:30px; border-radius:9px; background:var(--sunken); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .btn-icono-sm svg { width:14px; height:14px; stroke:var(--text-2); }
+
+  /* FORM genérico */
+  .campo { margin-bottom:14px; }
+  .campo label { display:block; font-size:12px; font-weight:700; color:var(--text-2); margin-bottom:6px; }
+  .campo input, .campo select { width:100%; padding:13px 15px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:14.5px; }
+  .campo input:focus, .campo select:focus { outline:none; border-color:var(--accent); }
+  .campo-2 { display:flex; gap:8px; }
+  .campo-2 > div { flex:1; }
+
+  .insumo-chip { display:flex; align-items:center; gap:10px; background:var(--sunken); border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; margin-bottom:8px; }
+  .insumo-chip .nombre { flex:1; }
+  .insumo-chip button { width:22px; height:22px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .insumo-chip button svg { width:11px; height:11px; stroke:var(--text-2); }
+
+  .resultado-mini { background:rgb(var(--accent-tint)/.08); border:1.5px solid rgb(var(--accent-tint)/.25); border-radius:var(--radius-card); padding:16px; text-align:center; margin:14px 0; }
+  .resultado-mini .precio { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); }
+  .resultado-mini .sub { font-size:12px; color:var(--text-2); margin-top:4px; }
+
+  .slider-wrap { background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); margin-bottom:14px; }
+  .slider-valor { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:10px; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+
+  .toggle-switch { position:relative; width:44px; height:26px; border-radius:999px; background:var(--sunken); flex-shrink:0; transition:background .15s; }
+  .toggle-switch.on { background:var(--accent); }
+  .toggle-switch span { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .15s; box-shadow:var(--shadow-1); }
+  .toggle-switch.on span { transform:translateX(18px); }
+  .fila-config { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; border-bottom:1px solid var(--sunken); }
+  .fila-config .txt { flex:1; }
+  .fila-config .txt .n { font-size:14px; font-weight:700; }
+  .fila-config .txt .d { font-size:12px; color:var(--text-2); margin-top:2px; }
+
+  .nota-estimado { font-size:11px; color:var(--text-2); display:flex; gap:6px; align-items:flex-start; margin-top:-4px; margin-bottom:12px; }
+  .nota-estimado svg { width:13px; height:13px; stroke:var(--aviso); flex-shrink:0; margin-top:1px; }
+
+  .vacio { text-align:center; padding:40px 20px; color:var(--text-2); }
+  .vacio svg { stroke:var(--text-2); opacity:.5; margin:0 auto 12px; }
+
+  .confetti-zona { position:relative; height:0; }
+  .confetti-pieza { position:absolute; top:0; width:8px; height:8px; border-radius:2px; animation:confetti 1.1s ease-in forwards; z-index:50; }
+
+  .toast { position:fixed; left:50%; bottom:92px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; transition:all .25s cubic-bezier(.22,1,.36,1); background:var(--text-1); color:var(--bg); border-radius:12px; padding:13px 16px; display:flex; align-items:center; gap:10px; max-width:340px; box-shadow:var(--shadow-2); z-index:60; }
+  .toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast svg { stroke:var(--bg); width:18px; height:18px; flex-shrink:0; }
+  .toast p { font-size:13px; font-weight:600; }
+
+  /* TAB BAR */
+  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--sunken); display:flex; z-index:40; }
+  .tabbar-inner { max-width:420px; margin:0 auto; display:flex; width:100%; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); }
+  .tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; }
+  .tab-btn svg { width:21px; height:21px; stroke:var(--text-2); }
+  .tab-btn span { font-size:10px; font-weight:700; color:var(--text-2); }
+  .tab-btn.activo svg { stroke:var(--accent); }
+  .tab-btn.activo span { color:var(--accent); }
+
+  .seccion-sub { display:none; flex-direction:column; }
+  .seccion-sub.activa { display:flex; }
+  .btn-atras-sub { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:14px; width:fit-content; }
+  .btn-atras-sub svg { width:16px; height:16px; stroke:var(--text-2); }
+</style>
+</head>
+<body>
+<div class="app-frame">
+
+  <div class="topbar">
+    <div class="logo"><span class="mark">M</span> MargenPro</div>
+    <button class="tema-toggle" id="btnTema" aria-label="Cambiar tema">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+
+  <!-- 1. PANORAMA -->
+  <section class="seccion activa" id="s-panorama">
+    <div class="entrada">
+      <h2 class="titulo-seccion">Tu panorama</h2>
+      <p class="sub-seccion">Lo que gastaste y lo que de verdad ganaste este mes.</p>
+
+      <div id="avisoPrecio" class="aviso-precio" style="display:none;">
+        <div class="chip-icono aviso" style="width:36px;height:36px;"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <div>
+          <p><strong>El chocolate en polvo subió de precio</strong> — antes $24.000/kg, ahora $26.500/kg.</p>
+          <button class="link" onclick="irATab('recetas')">Ver qué recetas usan esto →</button>
+        </div>
+      </div>
+
+      <div class="heroe-mes">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="label">Noviembre 2026</span>
+            <div class="nav-mes">
+              <button aria-label="Mes anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <button aria-label="Mes siguiente" style="opacity:.35;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+          </div>
+          <span class="label" style="display:block;margin-top:14px;">Ganancia real este mes</span>
+          <div class="ganancia">$142.700</div>
+          <div class="detalle">
+            <div><span>Gastaste en insumos</span><span class="num">$186.400</span></div>
+            <div style="text-align:right;"><span>Cotizaciones vendidas</span><span class="num">7</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accesos-rapidos">
+        <button class="acceso-rapido" onclick="irATab('recetas'); mostrarConstructor();">
+          <div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="txt">Costear receta nueva</div>
+        </button>
+        <button class="acceso-rapido" onclick="irATab('cotizaciones'); mostrarNuevaCotizacion();">
+          <div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <div class="txt">Nueva cotización</div>
+        </button>
+      </div>
+
+      <h3 style="font-size:14px;margin-bottom:10px;">Tus últimas cotizaciones</h3>
+      <div id="panoramaCotizaciones"></div>
+    </div>
+  </section>
+
+  <!-- 2. INSUMOS -->
+  <section class="seccion" id="s-insumos">
+    <div class="entrada">
+      <h2 class="titulo-seccion">Tus insumos</h2>
+      <p class="sub-seccion">Lo que compras para producir — con su precio real.</p>
+
+      <button class="btn-secundario" onclick="abrirEscaneo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="16" height="16"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Escanear factura — te quedan <span id="escaneosRestantes">27</span> de 30 este mes
+      </button>
+
+      <div id="listaInsumos"></div>
+    </div>
+
+    <!-- Sub-pantalla: escaneo simulado -->
+    <div class="seccion-sub" id="sub-escaneo">
+      <button class="btn-atras-sub" onclick="cerrarEscaneo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Insumos</button>
+      <div id="escaneoPaso1" style="text-align:center;padding:30px 10px;">
+        <div class="chip-icono" style="width:60px;height:60px;border-radius:18px;margin:0 auto 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="26" height="26"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <h3 style="font-size:17px;margin-bottom:8px;">Toma una foto de tu recibo</h3>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:20px;">Simulación — en la app real, la cámara se abre aquí.</p>
+        <button class="btn-cta" onclick="simularEscaneo()">Simular foto del recibo →</button>
+      </div>
+      <div id="escaneoPaso2" style="display:none;text-align:center;padding:50px 10px;">
+        <div class="chip-icono" style="width:52px;height:52px;border-radius:16px;margin:0 auto 14px;animation:fadeUp .3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9" stroke-dasharray="40" stroke-dashoffset="10"/></svg></div>
+        <p style="font-size:14px;font-weight:700;">Leyendo tu recibo…</p>
+      </div>
+      <div id="escaneoPaso3" style="display:none;">
+        <p class="sub-seccion" style="margin-bottom:14px;">Detectamos esto — revísalo antes de guardar:</p>
+        <div class="tarjeta">
+          <div class="campo"><label>Insumo</label><input id="escNombre" value="Chocolate en polvo"></div>
+          <div class="campo-2">
+            <div class="campo"><label>Unidad</label><select id="escUnidad"><option value="kg" selected>Kilo</option></select></div>
+            <div class="campo"><label>Precio</label><input id="escPrecio" type="number" value="26500"></div>
+          </div>
+          <p style="font-size:12px;color:var(--aviso);font-weight:700;">⚠ Antes tenías $24.000/kg — subió $2.500</p>
+        </div>
+        <button class="btn-cta" onclick="confirmarEscaneo()">Confirmar y guardar →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. RECETAS -->
+  <section class="seccion" id="s-recetas">
+    <div class="entrada" id="recetasListaWrap">
+      <h2 class="titulo-seccion">Tus recetas</h2>
+      <p class="sub-seccion">Cada una con su costo real y el precio sugerido.</p>
+      <div id="listaRecetas"></div>
+      <button class="btn-cta" style="margin-top:4px;" onclick="mostrarConstructor()">+ Costear receta nueva</button>
+    </div>
+
+    <!-- Sub-pantalla: constructor de receta -->
+    <div class="seccion-sub" id="sub-constructor">
+      <button class="btn-atras-sub" onclick="cerrarConstructor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Recetas</button>
+      <h2 class="titulo-seccion" style="font-size:19px;">Costea tu producto</h2>
+      <div class="campo"><label>Nombre del producto</label><input id="crNombre" placeholder="Ej: Torta de vainilla x 10"></div>
+
+      <label style="display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;">Insumos que usas</label>
+      <div id="crInsumosUsados"></div>
+      <button class="btn-secundario" onclick="agregarFilaInsumoReceta()">+ Agregar insumo</button>
+
+      <div class="nota-estimado">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        Para harina, azúcar, mantequilla, aceite y leche puedes escribir en tazas o cucharadas en vez de gramos — es un estimado, ajústalo si lo sabes mejor.
+      </div>
+
+      <div class="slider-wrap">
+        <label style="font-size:12px;font-weight:700;color:var(--text-2);">Margen de ganancia que quieres</label>
+        <div class="slider-valor" id="crMargenValor">40%</div>
+        <input type="range" min="10" max="70" value="40" id="crMargenSlider" oninput="document.getElementById('crMargenValor').textContent=this.value+'%'">
+      </div>
+
+      <div class="fila-config" style="border:none;padding:0 0 14px;">
+        <div class="txt"><div class="n">¿Cuántas horas te toma hacerla?</div><div class="d">Solo si activaste "gastos reales" en Configuración</div></div>
+      </div>
+      <input id="crHoras" type="number" placeholder="Ej: 2" style="width:100%;padding:13px 15px;border-radius:12px;border:1.5px solid var(--sunken);background:var(--surface);color:var(--text-1);font-size:14.5px;margin-bottom:16px;">
+
+      <button class="btn-cta" onclick="calcularReceta()">Calcular precio →</button>
+
+      <div class="resultado-mini" id="crResultado" style="display:none;">
+        <div class="precio" id="crPrecioFinal">$0</div>
+        <div class="sub">precio sugerido · costo real <span id="crCostoFinal">$0</span></div>
+      </div>
+      <button class="btn-secundario" id="crGuardarBtn" style="display:none;border-style:solid;" onclick="guardarReceta()">Guardar receta</button>
+    </div>
+  </section>
+
+  <!-- 4. COTIZACIONES -->
+  <section class="seccion" id="s-cotizaciones">
+    <div class="entrada" id="cotizacionesListaWrap">
+      <h2 class="titulo-seccion">Cotizaciones</h2>
+      <p class="sub-seccion">Lo que le has cotizado a tus clientes.</p>
+      <div class="fila-filtros" id="filtrosCotizacion">
+        <button class="filtro-chip activo" data-f="todas" onclick="filtrarCotizaciones('todas')">Todas</button>
+        <button class="filtro-chip" data-f="vendida" onclick="filtrarCotizaciones('vendida')">Vendidas</button>
+        <button class="filtro-chip" data-f="pendiente" onclick="filtrarCotizaciones('pendiente')">Pendientes</button>
+        <button class="filtro-chip" data-f="rechazada" onclick="filtrarCotizaciones('rechazada')">Rechazadas</button>
+      </div>
+      <div id="listaCotizaciones"></div>
+      <button class="btn-cta" style="margin-top:4px;" onclick="mostrarNuevaCotizacion()">+ Nueva cotización</button>
+    </div>
+
+    <div class="seccion-sub" id="sub-nueva-cotizacion">
+      <button class="btn-atras-sub" onclick="cerrarNuevaCotizacion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Cotizaciones</button>
+      <h2 class="titulo-seccion" style="font-size:19px;">Nueva cotización</h2>
+      <div class="campo"><label>Nombre del cliente</label><input id="cotCliente" placeholder="Ej: Juliana Restrepo"></div>
+      <div class="campo"><label>¿Qué le vas a cobrar?</label>
+        <select id="cotProducto"><option>Torta de chocolate x 12 porciones</option><option>Brownies x 20</option><option>Pan de queso x 24</option></select>
+      </div>
+      <div class="tarjeta" style="text-align:center;">
+        <p style="font-size:12px;color:var(--text-2);">Tu logo (ejemplo)</p>
+        <div style="width:46px;height:46px;border-radius:12px;background:var(--accent);margin:10px auto;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-display);font-weight:700;">M</div>
+        <p style="font-weight:700;">MargenPro Repostería</p>
+        <p style="font-size:13px;color:var(--text-2);margin-top:6px;">Cotización lista para enviar por WhatsApp</p>
+      </div>
+      <button class="btn-cta" onclick="crearCotizacion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" width="16" height="16"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Revisar y enviar por WhatsApp
+      </button>
+    </div>
+  </section>
+
+  <!-- 5. CONFIGURACIÓN -->
+  <section class="seccion" id="s-config">
+    <div class="entrada">
+      <h2 class="titulo-seccion">Configuración</h2>
+      <p class="sub-seccion">Ajusta tu app a tu negocio.</p>
+
+      <h3 style="font-size:14px;margin-bottom:4px;">Gastos de tu negocio</h3>
+      <p style="font-size:12.5px;color:var(--text-2);margin-bottom:12px;">Opcional — si no lo llenas, seguimos usando un cálculo simple. Si lo llenas, tus precios van a ser más exactos.</p>
+
+      <div class="fila-config">
+        <div class="txt"><div class="n">Usar mis gastos reales</div><div class="d">En vez del cálculo simple</div></div>
+        <button class="toggle-switch" id="toggleGastosReales" onclick="toggleModoCalculo()"><span></span></button>
+      </div>
+
+      <div id="camposGastosReales" style="display:none;padding-top:14px;">
+        <div class="campo"><label>Arriendo + lo que te pagas a ti misma (al mes)</label><input id="cfgFijo" type="number" value="800000"></div>
+        <div class="campo"><label>Luz, gas, domicilios, publicidad (al mes)</label><input id="cfgVariable" type="number" value="250000"></div>
+        <div class="campo"><label>¿Cuántas tandas haces al mes, aprox?</label><input id="cfgTandas" type="number" value="20"></div>
+        <div class="campo"><label>¿Cuánto vale tu hora de trabajo?</label><input id="cfgValorHora" type="number" value="8000"></div>
+      </div>
+
+      <h3 style="font-size:14px;margin:18px 0 4px;">Moneda de tus insumos</h3>
+      <div class="campo"><select id="cfgMoneda" onchange="cambiarMonedaGlobal()"><option value="COP" selected>Peso colombiano (COP)</option><option value="MXN">Peso mexicano (MXN)</option><option value="PEN">Sol peruano (PEN)</option><option value="USD">Dólar (USD)</option></select></div>
+      <p style="font-size:11.5px;color:var(--text-2);margin-top:-8px;">Tu suscripción a MargenPro siempre se cobra en USD — esto es solo la moneda de tus insumos.</p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">
+    <div id="toastIcono"></div>
+    <p id="toastTexto"></p>
+  </div>
+
+  <div class="tabbar">
+    <div class="tabbar-inner">
+      <button class="tab-btn activo" data-tab="panorama" onclick="irATab('panorama')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+        <span>Panorama</span>
+      </button>
+      <button class="tab-btn" data-tab="insumos" onclick="irATab('insumos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        <span>Insumos</span>
+      </button>
+      <button class="tab-btn" data-tab="recetas" onclick="irATab('recetas')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span>Recetas</span>
+      </button>
+      <button class="tab-btn" data-tab="cotizaciones" onclick="irATab('cotizaciones')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span>Cotiza</span>
+      </button>
+      <button class="tab-btn" data-tab="config" onclick="irATab('config')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 003.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H8a1.65 1.65 0 001-1.51V2a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H22a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ───────────────────────────────────────────────────────────────────────
+  // LÓGICA DE COSTEO — idéntica a dev/onboarding-paywall-login.html (ESTADO.md
+  // la marca como "ESPECIFICACIÓN CERRADA": no se rediseña, se reutiliza tal cual).
+  // ───────────────────────────────────────────────────────────────────────
+  var SIMBOLOS_MONEDA = { COP:'$', MXN:'$', PEN:'S/', USD:'US$' };
+  var monedaActual = 'COP';
+
+  function costoPorUnidadBase(precioCompra, unidad, unidadesQueTrae){
+    switch (unidad) {
+      case 'kg': return precioCompra / 1000;
+      case 'g': return precioCompra;
+      case 'L': return precioCompra / 1000;
+      case 'ml': return precioCompra;
+      case 'libra': return precioCompra;
+      case 'unidad': return precioCompra / (unidadesQueTrae || 1);
+      case 'docena': return precioCompra / (unidadesQueTrae || 12);
+      case 'paquete': return precioCompra / (unidadesQueTrae || 1);
+      default: return precioCompra / 1000;
+    }
+  }
+
+  // AMPLIACIÓN — conversor a medidas de cocina (tazas/cucharadas/cucharaditas → gramos).
+  // Cada ingrediente tiene su propia densidad; nunca una conversión genérica única (ESTADO.md).
+  var DENSIDADES = {
+    'harina':        { taza:120, cda:7.5,  cdta:2.5 },
+    'azucar blanca': { taza:200, cda:12.5, cdta:4 },
+    'azucar morena': { taza:220, cda:13.5, cdta:4.5 },
+    'azucar':        { taza:200, cda:12.5, cdta:4 },
+    'mantequilla':   { taza:227, cda:14,   cdta:4.7 },
+    'aceite':        { taza:218, cda:13.6, cdta:4.5 },
+    'leche':         { taza:240, cda:15,   cdta:5 },
+    'agua':          { taza:240, cda:15,   cdta:5 },
+    'cacao':         { taza:90,  cda:5.6,  cdta:1.9 },
+    'chocolate en polvo': { taza:90, cda:5.6, cdta:1.9 },
+    'sal':           { taza:288, cda:18,   cdta:6 },
+    'polvo de hornear': { taza:192, cda:12, cdta:4.5 }
+  };
+  var DENSIDAD_GENERICA = { taza:200, cda:12.5, cdta:4.2 }; // sólido genérico — se avisa como estimado
+  function densidadPara(nombreInsumo){
+    var clave = Object.keys(DENSIDADES).find(function(k){ return nombreInsumo.toLowerCase().indexOf(k) !== -1; });
+    return clave ? DENSIDADES[clave] : DENSIDAD_GENERICA;
+  }
+  // Convierte lo que la usuaria escribió (cantidad + medida de cocina u otra unidad) a GRAMOS,
+  // para poder usar la misma costoPorUnidadBase() que ya calcula por gramo cuando el insumo
+  // se compró en kg/g.
+  function convertirAGramos(cantidad, medida, nombreInsumo){
+    if (medida === 'g') return cantidad;
+    var d = densidadPara(nombreInsumo);
+    if (medida === 'taza') return cantidad * d.taza;
+    if (medida === 'cda') return cantidad * d.cda;
+    if (medida === 'cdta') return cantidad * d.cdta;
+    return cantidad;
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // DATOS DE EJEMPLO (la app nunca se enseña vacía — 32-DEL-MVP-AL-PRODUCTO)
+  // ───────────────────────────────────────────────────────────────────────
+  var insumos = [
+    { id:0, nombre:'Harina de trigo', unidad:'kg', precio:12000, unidadesQueTrae:1 },
+    { id:1, nombre:'Azúcar blanca', unidad:'kg', precio:6000, unidadesQueTrae:1 },
+    { id:2, nombre:'Mantequilla', unidad:'kg', precio:18000, unidadesQueTrae:1 },
+    { id:3, nombre:'Chocolate en polvo', unidad:'kg', precio:24000, unidadesQueTrae:1 },
+    { id:4, nombre:'Huevos', unidad:'docena', precio:14000, unidadesQueTrae:12 }
+  ];
+  var siguienteInsumoId = 5;
+
+  function calcularCostoReceta(insumosUsados, margen, horas){
+    var costoInsumos = 0;
+    insumosUsados.forEach(function(u){
+      var ins = insumos.find(function(i){ return i.id === u.insumoId; });
+      if (!ins) return;
+      costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas;
+    });
+    var costoBase;
+    if (modoCalculo === 'real') {
+      var costoFijoPorTanda = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
+      var costoManoDeObra = (horas || 0) * cfg.valorHora;
+      costoBase = costoInsumos + costoFijoPorTanda + costoManoDeObra;
+    } else {
+      costoBase = costoInsumos * 1.35; // markup plano (modo simple)
+    }
+    costoBase = Math.round(costoBase);
+    var precioSugerido = Math.round(costoBase / (1 - margen/100));
+    return { costoInsumos: Math.round(costoInsumos), costoBase: costoBase, precioSugerido: precioSugerido };
+  }
+
+  // Recetas de ejemplo — construidas con la MISMA fórmula (no números inventados sueltos),
+  // así sirven de caso de verificación real.
+  var recetas = [
+    { id:0, nombre:'Torta de chocolate x 12 porciones', margen:40,
+      insumosUsados:[ {insumoId:0, cantidadGramosOPiezas:600}, {insumoId:1, cantidadGramosOPiezas:300}, {insumoId:2, cantidadGramosOPiezas:200} ] },
+    { id:1, nombre:'Brownies x 20', margen:40,
+      insumosUsados:[ {insumoId:3, cantidadGramosOPiezas:400}, {insumoId:2, cantidadGramosOPiezas:150}, {insumoId:1, cantidadGramosOPiezas:200} ] },
+    { id:2, nombre:'Pan de queso x 24', margen:35,
+      insumosUsados:[ {insumoId:0, cantidadGramosOPiezas:500}, {insumoId:4, cantidadGramosOPiezas:6}, {insumoId:2, cantidadGramosOPiezas:100} ] }
+  ];
+  var siguienteRecetaId = 3;
+
+  var cotizaciones = [
+    { cliente:'Ana Martínez', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'vendida', fecha:'hace 2 días' },
+    { cliente:'Carlos Pérez', producto:'Brownies x 20', monto:30375, estado:'pendiente', fecha:'hace 1 día' },
+    { cliente:'Lucía Gómez', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'rechazada', fecha:'hace 4 días' },
+    { cliente:'Pedro Ruiz', producto:'Pan de queso x 24', monto:30740, estado:'pendiente', fecha:'hoy' }
+  ];
+
+  var modoCalculo = 'simple';
+  var cfg = { fijo:800000, variable:250000, tandas:20, valorHora:8000 };
+
+  // ───────────────────────────────────────────────────────────────────────
+  // RENDER
+  // ───────────────────────────────────────────────────────────────────────
+  function simbolo(){ return SIMBOLOS_MONEDA[monedaActual] || '$'; }
+  function money(n){ return simbolo() + Math.round(n).toLocaleString('es-CO'); }
+
+  function etiquetaUnidad(u){
+    return { kg:'kg', g:'g', L:'L', ml:'ml', libra:'lb', unidad:'c/u', docena:'docena', paquete:'paquete' }[u] || u;
+  }
+
+  function renderInsumos(){
+    var cont = document.getElementById('listaInsumos');
+    if (!insumos.length) { cont.innerHTML = '<div class="vacio"><p>Todavía no registras insumos.</p></div>'; return; }
+    cont.innerHTML = insumos.map(function(i){
+      return '<div class="item-lista"><div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>' +
+        '<div class="info"><div class="nombre">' + i.nombre + '</div><div class="meta">por ' + etiquetaUnidad(i.unidad) + (i.unidadesQueTrae > 1 ? ' (' + i.unidadesQueTrae + ' und.)' : '') + '</div></div>' +
+        '<div class="cifra">' + money(i.precio) + '</div></div>';
+    }).join('');
+  }
+
+  function renderRecetas(){
+    var cont = document.getElementById('listaRecetas');
+    if (!recetas.length) { cont.innerHTML = '<div class="vacio"><p>Todavía no costeas ninguna receta.</p></div>'; return; }
+    cont.innerHTML = recetas.map(function(r){
+      var c = calcularCostoReceta(r.insumosUsados, r.margen, r.horas);
+      return '<div class="item-lista"><div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>' +
+        '<div class="info"><div class="nombre">' + r.nombre + '</div><div class="meta">costo real ' + money(c.costoBase) + '</div></div>' +
+        '<div class="cifra">' + money(c.precioSugerido) + '<span class="sub">' + r.margen + '% ganancia</span></div></div>';
+    }).join('');
+  }
+
+  var filtroActual = 'todas';
+  function filtrarCotizaciones(f){
+    filtroActual = f;
+    document.querySelectorAll('#filtrosCotizacion .filtro-chip').forEach(function(b){ b.classList.toggle('activo', b.dataset.f === f); });
+    renderCotizaciones();
+  }
+
+  function iconoEstado(estado){
+    if (estado === 'vendida') return '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg>';
+    if (estado === 'pendiente') return '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  }
+
+  function renderCotizaciones(){
+    var cont = document.getElementById('listaCotizaciones');
+    var lista = filtroActual === 'todas' ? cotizaciones : cotizaciones.filter(function(c){ return c.estado === filtroActual; });
+    if (!lista.length) { cont.innerHTML = '<div class="vacio"><p>No hay cotizaciones en este filtro.</p></div>'; return; }
+    cont.innerHTML = lista.map(function(c, idxVisible){
+      var idx = cotizaciones.indexOf(c);
+      return '<div class="tarjeta">' +
+        '<div class="tarjeta-fila" style="margin-bottom:10px;">' +
+          '<div class="chip-icono ' + (c.estado==='rechazada'?'error':c.estado==='pendiente'?'aviso':'') + '">' + iconoEstado(c.estado) + '</div>' +
+          '<div class="info"><div class="nombre">' + c.cliente + '</div><div class="meta">' + c.producto + ' · ' + c.fecha + '</div></div>' +
+          '<div class="cifra">' + money(c.monto) + '</div>' +
+        '</div>' +
+        '<span class="estado-pill ' + c.estado + '">' + c.estado + '</span>' +
+        (c.estado === 'pendiente' ?
+          '<div style="display:flex;gap:8px;margin-top:12px;">' +
+          '<button class="btn-secundario" style="margin:0;" onclick="cambiarEstadoCotizacion(' + idx + ',\'vendida\')">Marcar vendida</button>' +
+          '<button class="btn-secundario" style="margin:0;border-color:rgb(var(--error-tint)/.4);color:var(--error);" onclick="cambiarEstadoCotizacion(' + idx + ',\'rechazada\')">Rechazada</button>' +
+          '</div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  function renderPanoramaCotizaciones(){
+    document.getElementById('panoramaCotizaciones').innerHTML = cotizaciones.slice(0,3).map(function(c){
+      return '<div class="item-lista"><div class="info"><div class="nombre">' + c.cliente + '</div><div class="meta">' + c.producto + '</div></div>' +
+        '<div class="cifra">' + money(c.monto) + '<span class="sub"><span class="estado-pill ' + c.estado + '" style="margin-top:3px;">' + c.estado + '</span></span></div></div>';
+    }).join('');
+  }
+
+  // Los 3 momentos emocionales — ya no son demo aislada, funcionan sobre datos reales.
+  function cambiarEstadoCotizacion(idx, nuevoEstado){
+    cotizaciones[idx].estado = nuevoEstado;
+    renderCotizaciones();
+    renderPanoramaCotizaciones();
+    if (nuevoEstado === 'vendida') {
+      lanzarConfeti(20);
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', '¡Vendida! Esta es tu ganancia real de hoy.');
+    } else if (nuevoEstado === 'rechazada') {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8" transform="rotate(45 12 12)"/></svg>', 'Este cliente dijo que no — pero tu precio sigue siendo justo. Sigue cotizando.');
+    }
+  }
+
+  function lanzarConfeti(n){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var cont = document.createElement('div');
+    cont.className = 'confetti-zona';
+    cont.style.position = 'fixed'; cont.style.top='0'; cont.style.left='0'; cont.style.right='0';
+    document.body.appendChild(cont);
+    var colores = ['#3F7D6B','#C98A2C','#B3453A','#716C5F'];
+    for (var i=0;i<n;i++){
+      var p = document.createElement('div');
+      p.className = 'confetti-pieza';
+      p.style.left = (Math.random()*100) + '%';
+      p.style.background = colores[i % colores.length];
+      p.style.animationDelay = (Math.random()*0.2) + 's';
+      cont.appendChild(p);
+    }
+    setTimeout(function(){ cont.remove(); }, 1500);
+  }
+
+  function mostrarToast(icono, texto){
+    var t = document.getElementById('toast');
+    document.getElementById('toastIcono').innerHTML = icono;
+    document.getElementById('toastTexto').textContent = texto;
+    t.classList.add('visible');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.classList.remove('visible'); }, 3800);
+  }
+
+  // Recordatorio de seguimiento (pendiente) — se dispara al crear la cotización, no al tocarla.
+  function programarRecordatorio(cliente){
+    mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', 'Anotado. Te recordamos hacerle seguimiento a ' + cliente + ' en 2 días.');
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // NAVEGACIÓN entre tabs
+  // ───────────────────────────────────────────────────────────────────────
+  function irATab(tab){
+    document.querySelectorAll('.seccion').forEach(function(s){ s.classList.remove('activa'); });
+    document.getElementById('s-' + tab).classList.add('activa');
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('activo', b.dataset.tab === tab); });
+    window.scrollTo(0,0);
+  }
+
+  // ── Constructor de receta ──
+  var crInsumosFila = [];
+  function mostrarConstructor(){
+    document.getElementById('recetasListaWrap').style.display = 'none';
+    document.getElementById('sub-constructor').classList.add('activa');
+    document.getElementById('crResultado').style.display = 'none';
+    document.getElementById('crGuardarBtn').style.display = 'none';
+    document.getElementById('crNombre').value = '';
+    crInsumosFila = [];
+    document.getElementById('crInsumosUsados').innerHTML = '';
+    agregarFilaInsumoReceta();
+  }
+  function cerrarConstructor(){
+    document.getElementById('recetasListaWrap').style.display = '';
+    document.getElementById('sub-constructor').classList.remove('activa');
+  }
+  function agregarFilaInsumoReceta(){
+    var idx = crInsumosFila.length;
+    crInsumosFila.push({ insumoId: insumos[0].id, cantidad: 100, medida:'g' });
+    renderFilasInsumoReceta();
+  }
+  function quitarFilaInsumoReceta(idx){
+    crInsumosFila.splice(idx,1);
+    renderFilasInsumoReceta();
+  }
+  function renderFilasInsumoReceta(){
+    var cont = document.getElementById('crInsumosUsados');
+    cont.innerHTML = crInsumosFila.map(function(f, idx){
+      var ins = insumos.find(function(i){ return i.id === f.insumoId; });
+      var esPeso = ins.unidad === 'kg' || ins.unidad === 'g';
+      var opcionesInsumo = insumos.map(function(i){ return '<option value="'+i.id+'"'+(i.id===f.insumoId?' selected':'')+'>'+i.nombre+'</option>'; }).join('');
+      var opcionesMedida = esPeso ?
+        '<option value="g"'+(f.medida==='g'?' selected':'')+'>gramos</option><option value="taza"'+(f.medida==='taza'?' selected':'')+'>tazas</option><option value="cda"'+(f.medida==='cda'?' selected':'')+'>cucharadas</option><option value="cdta"'+(f.medida==='cdta'?' selected':'')+'>cucharaditas</option>' :
+        '<option value="pz">piezas</option>';
+      return '<div class="insumo-chip" style="flex-direction:column;align-items:stretch;gap:8px;">' +
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<select style="flex:1.4;padding:9px 8px;border-radius:9px;border:1.5px solid var(--sunken);background:var(--surface);font-size:12.5px;" onchange="crInsumosFila['+idx+'].insumoId=parseInt(this.value);renderFilasInsumoReceta();">' + opcionesInsumo + '</select>' +
+        '<input type="number" value="'+f.cantidad+'" style="width:64px;padding:9px 8px;border-radius:9px;border:1.5px solid var(--sunken);background:var(--surface);font-size:12.5px;" onchange="crInsumosFila['+idx+'].cantidad=parseFloat(this.value)||0;">' +
+        '<select style="flex:1;padding:9px 6px;border-radius:9px;border:1.5px solid var(--sunken);background:var(--surface);font-size:12.5px;" onchange="crInsumosFila['+idx+'].medida=this.value;">' + opcionesMedida + '</select>' +
+        '<button onclick="quitarFilaInsumoReceta('+idx+')" aria-label="Quitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+        '</div></div>';
+    }).join('');
+  }
+  function calcularReceta(){
+    var margen = parseInt(document.getElementById('crMargenSlider').value, 10);
+    var horas = parseFloat(document.getElementById('crHoras').value) || 0;
+    var insumosUsados = crInsumosFila.map(function(f){
+      var ins = insumos.find(function(i){ return i.id === f.insumoId; });
+      var cantidadBase = (ins.unidad === 'kg' || ins.unidad === 'g') ? convertirAGramos(f.cantidad, f.medida, ins.nombre) : f.cantidad;
+      return { insumoId: f.insumoId, cantidadGramosOPiezas: cantidadBase };
+    });
+    var c = calcularCostoReceta(insumosUsados, margen, horas);
+    document.getElementById('crPrecioFinal').textContent = money(c.precioSugerido);
+    document.getElementById('crCostoFinal').textContent = money(c.costoBase);
+    document.getElementById('crResultado').style.display = 'block';
+    document.getElementById('crGuardarBtn').style.display = 'flex';
+    window._crUltimoCalculo = { insumosUsados: insumosUsados, margen: margen, horas: horas };
+  }
+  function guardarReceta(){
+    var nombre = document.getElementById('crNombre').value || 'Mi producto';
+    var calc = window._crUltimoCalculo;
+    recetas.push({ id: siguienteRecetaId++, nombre: nombre, margen: calc.margen, horas: calc.horas, insumosUsados: calc.insumosUsados });
+    renderRecetas();
+    cerrarConstructor();
+    mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', 'Receta guardada — ya puedes cotizarla.');
+  }
+
+  // ── Nueva cotización ──
+  function mostrarNuevaCotizacion(){
+    document.getElementById('cotizacionesListaWrap').style.display = 'none';
+    document.getElementById('sub-nueva-cotizacion').classList.add('activa');
+  }
+  function cerrarNuevaCotizacion(){
+    document.getElementById('cotizacionesListaWrap').style.display = '';
+    document.getElementById('sub-nueva-cotizacion').classList.remove('activa');
+  }
+  function crearCotizacion(){
+    var cliente = document.getElementById('cotCliente').value || 'Tu cliente';
+    var producto = document.getElementById('cotProducto').value;
+    var receta = recetas.find(function(r){ return r.nombre === producto; });
+    var monto = receta ? calcularCostoReceta(receta.insumosUsados, receta.margen, receta.horas).precioSugerido : 20000;
+    cotizaciones.unshift({ cliente:cliente, producto:producto, monto:monto, estado:'pendiente', fecha:'hoy' });
+    renderCotizaciones();
+    renderPanoramaCotizaciones();
+    cerrarNuevaCotizacion();
+    programarRecordatorio(cliente);
+  }
+
+  // ── Escaneo simulado de factura ──
+  var escaneosUsados = 3;
+  function abrirEscaneo(){
+    document.getElementById('sub-escaneo').classList.add('activa');
+    document.getElementById('escaneoPaso1').style.display = 'block';
+    document.getElementById('escaneoPaso2').style.display = 'none';
+    document.getElementById('escaneoPaso3').style.display = 'none';
+  }
+  function cerrarEscaneo(){ document.getElementById('sub-escaneo').classList.remove('activa'); }
+  function simularEscaneo(){
+    document.getElementById('escaneoPaso1').style.display = 'none';
+    document.getElementById('escaneoPaso2').style.display = 'block';
+    setTimeout(function(){
+      document.getElementById('escaneoPaso2').style.display = 'none';
+      document.getElementById('escaneoPaso3').style.display = 'block';
+    }, 1400);
+  }
+  function confirmarEscaneo(){
+    var choco = insumos.find(function(i){ return i.nombre === 'Chocolate en polvo'; });
+    choco.precio = parseFloat(document.getElementById('escPrecio').value) || choco.precio;
+    escaneosUsados++;
+    document.getElementById('escaneosRestantes').textContent = Math.max(0, 30 - escaneosUsados);
+    renderInsumos();
+    cerrarEscaneo();
+    document.getElementById('avisoPrecio').style.display = 'flex';
+    mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', 'Insumo actualizado — ya avisamos qué recetas lo usan.');
+  }
+
+  // ── Configuración ──
+  function toggleModoCalculo(){
+    var on = modoCalculo === 'simple';
+    modoCalculo = on ? 'real' : 'simple';
+    document.getElementById('toggleGastosReales').classList.toggle('on', on);
+    document.getElementById('camposGastosReales').style.display = on ? 'block' : 'none';
+    renderRecetas();
+  }
+  ['cfgFijo','cfgVariable','cfgTandas','cfgValorHora'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', function(){
+      cfg.fijo = parseFloat(document.getElementById('cfgFijo').value) || 0;
+      cfg.variable = parseFloat(document.getElementById('cfgVariable').value) || 0;
+      cfg.tandas = parseFloat(document.getElementById('cfgTandas').value) || 1;
+      cfg.valorHora = parseFloat(document.getElementById('cfgValorHora').value) || 0;
+      renderRecetas();
+    });
+  });
+  function cambiarMonedaGlobal(){
+    monedaActual = document.getElementById('cfgMoneda').value;
+    renderInsumos(); renderRecetas(); renderCotizaciones(); renderPanoramaCotizaciones();
+  }
+
+  document.getElementById('btnTema').addEventListener('click', function(){
+    var actual = document.documentElement.getAttribute('data-tema');
+    document.documentElement.setAttribute('data-tema', actual === 'oscuro' ? 'claro' : 'oscuro');
+  });
+
+  // Estado inicial
+  renderInsumos();
+  renderRecetas();
+  renderCotizaciones();
+  renderPanoramaCotizaciones();
+</script>
+</body>
+</html>
