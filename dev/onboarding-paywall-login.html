@@ -156,6 +156,14 @@
   .nota-plan { font-size:12px; color:var(--text-2); margin-bottom:4px; }
   .ahorro { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:12px; }
   .trial-pill { display:inline-flex; align-items:center; gap:6px; background:var(--sunken); border-radius:999px; padding:6px 12px; font-size:11.5px; font-weight:700; color:var(--text-2); margin-top:14px; }
+  .timeline-trial { display:flex; align-items:flex-start; justify-content:space-between; margin-top:18px; padding:16px 10px; background:var(--sunken); border-radius:var(--radius-card); }
+  .punto-timeline { display:flex; flex-direction:column; align-items:center; text-align:center; width:76px; }
+  .punto-timeline .circulo { width:24px; height:24px; border-radius:50%; background:var(--surface); border:1.5px solid rgb(var(--accent-tint)/.4); color:var(--text-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+  .punto-timeline .circulo.activo { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .punto-timeline .texto { margin-top:6px; display:flex; flex-direction:column; gap:1px; }
+  .punto-timeline .texto strong { font-size:11.5px; font-weight:800; }
+  .punto-timeline .texto span { font-size:10.5px; color:var(--text-2); line-height:1.25; }
+  .linea-timeline { flex:1; height:1.5px; background:rgb(var(--accent-tint)/.3); margin-top:12px; }
   .trial-pill svg { width:13px; height:13px; stroke:var(--accent); }
 
   /* LOGIN */
@@ -381,12 +389,12 @@
   <section class="pantalla" id="p-paywall" data-paso="8">
     <div class="pantalla-contenido entrada">
       <div class="paso-indicador" style="text-align:center;">Tu primer costeo está listo</div>
-      <h2 style="font-size:21px;text-align:center;margin-bottom:4px;">Desbloquea recetas <span class="acento">ilimitadas</span></h2>
-      <p class="sub" style="text-align:center;font-size:13.5px;margin-bottom:4px;">Y que tus precios se actualicen solos cuando suban tus insumos.</p>
+      <h2 style="font-size:21px;text-align:center;margin-bottom:4px;">Asegura tu <span class="acento">ganancia real</span> en cada producto</h2>
+      <p class="sub" style="text-align:center;font-size:13.5px;margin-bottom:4px;">Sin recetas limitadas, y con tus precios actualizándose solos cuando suban tus insumos.</p>
       <div class="stack-valor">
-        <div class="linea"><span>MargenPro completo (12 meses)</span><span>$96</span></div>
-        <div class="linea"><span>Escaneo de facturas con IA (30/mes)</span><span>$30</span></div>
-        <div class="linea"><span>Cotizaciones por WhatsApp con tu logo</span><span>$20</span></div>
+        <div class="linea"><span>Recetas y cotizaciones ilimitadas</span><span>$96</span></div>
+        <div class="linea"><span>Escanea una factura y tus precios se actualizan solos</span><span>$30</span></div>
+        <div class="linea"><span>Manda cotizaciones con tu logo en 30 segundos</span><span>$20</span></div>
         <div class="total"><span>Valor total</span><span><span class="tachado">$146</span> hoy $5.99/mes</span></div>
       </div>
       <p class="nota-moneda" style="margin-top:-6px;">Este precio de MargenPro siempre es en USD, sin importar la moneda en la que anotes tus insumos.</p>
@@ -402,10 +410,17 @@
         <div class="precio-plan">$7.99 <span>/mes</span></div>
         <div class="nota-plan">Se cobra mes a mes · cancelas cuando quieras</div>
       </div>
-      <div style="text-align:center;"><div class="trial-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 7 días gratis — te avisamos antes de cobrarte</div></div>
+      <div class="timeline-trial">
+        <div class="punto-timeline"><div class="circulo activo">1</div><div class="texto"><strong>Hoy</strong><span>Pagas $0</span></div></div>
+        <div class="linea-timeline"></div>
+        <div class="punto-timeline"><div class="circulo">2</div><div class="texto"><strong>Día 6</strong><span>Te avisamos por correo</span></div></div>
+        <div class="linea-timeline"></div>
+        <div class="punto-timeline"><div class="circulo">3</div><div class="texto"><strong>Día 7</strong><span>Empieza tu plan</span></div></div>
+      </div>
+      <p class="sub" style="text-align:center;font-size:12.5px;margin-top:10px;">No te cobramos nada hoy. Cancela cuando quieras desde tu cuenta, en 1 toque.</p>
     </div>
     <div class="pantalla-footer">
-      <button class="btn-cta" onclick="irA(9)">Empezar mis 7 días gratis →</button>
+      <button class="btn-cta" onclick="irA(9)">Probar 7 días gratis →</button>
       <button class="btn-texto" onclick="irA(9)">Seguir con el plan gratis limitado</button>
     </div>
   </section>
