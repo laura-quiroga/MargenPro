@@ -43,7 +43,7 @@
   → Ángulo del hero: mecanismo al frente ("la calculadora que te dice el precio exacto en 60 segundos")
 
 ## Objeciones reales
-1. "Soy pésima para la tecnología y las matemáticas" → respuesta: la app hace la matemática sola, ella solo escribe nombre y precio del ingrediente → vive en: onboarding + FAQ landing
+1. "Soy pésima para la tecnología y las matemáticas" → respuesta: la app hace la matemática sola; para registrar insumos ni siquiera necesita escribir — le toma una foto al recibo del super y la app los agrega sola → vive en: onboarding + FAQ landing
 2. "Ya probé Excel/apps de notas y las abandono a los 3 días" → respuesta: hecha para usarse con una mano y con harina en la otra, sin fórmulas que se rompan → vive en: hero + demo de la landing
 3. "No quiero pagar suscripción si no estoy segura de que me haga ganar más de lo que cuesta" → respuesta: prueba gratis + ejemplo numérico de cuánto puede estar perdiendo hoy → vive en: paywall + landing
 4. "Mis ingredientes cambian de precio cada semana; no creo que se adapte a mi mercado local" → respuesta: ella registra SUS precios reales, no una base de datos genérica; actualizar 1 insumo actualiza todas sus recetas → vive en: onboarding + FAQ

@@ -26,7 +26,8 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Justificación: la avatar teme la tecnología y abandona herramientas rápido (objeción #3) — dejarla sentir el cálculo real ANTES de pedirle pago/cuenta baja la barrera de entrada y resuelve su objeción #2 ("no quiero pagar sin estar segura")
 - Diseño del paywall: aparece justo después de que ve su primera receta costeada con precio sugerido — "Tu primer costeo está listo. Desbloquea recetas ilimitadas y actualización automática de precios cuando suben tus insumos."
 - Trial: 7 días (el aha es inmediato — en minutos ya ve el precio calculado)
-- Pricing: $5.99/mes USD · $3.99/mes facturado anual ($47.88/año, "2 meses gratis") — ver FICHA-MERCADO §1
+- Pricing: $7.99/mes USD · $5.99/mes facturado anual ($71.88/año, "2 meses gratis") — subido desde la propuesta inicial ($5.99) porque ahora el plan incluye escaneo de facturas con IA (tiene un costo real por uso que hay que cubrir) — ver FICHA-MERCADO §1
+- Límite del plan: 30 escaneos de factura al mes (cubre de sobra una compra semanal de supermercado) · recetas, ingredientes y cotizaciones por WhatsApp ilimitadas
 - Países de venta: Colombia, México y Perú (Colombia por pedido del usuario; México y Perú por señales reales de demanda — ver FICHA-MERCADO)
 
 ## Secuencia maestra de construcción
@@ -38,13 +39,16 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Vite (la app en sí es una herramienta tras login, sin necesidad de SEO) — la landing se construye con el kit de `plantillas-codigo/landing`
 - Idioma de UI: español LATAM, mono-idioma
-- Features del MVP (del documento del usuario, en orden de prioridad):
+- Features del MVP (en orden de prioridad; 1-4 del documento del usuario, 5-6 aprobadas en Sesión 1 tras pasar el filtro de feature de 01-IDEACION):
   1. Base de insumos personalizada (nombre, unidad de compra, precio de compra)
   2. Constructor de recetas (seleccionar ingredientes, cantidades, costo total)
   3. Calculadora de margen de ganancia (% deseado → precio de venta sugerido)
   4. Conversor de unidades (kilos → gramos, etc.)
-- Fuera de la v1 (ya definido por el usuario): inventario en tiempo real con descuento de stock · facturación electrónica/contabilidad fiscal · punto de venta (POS) o pasarelas de cobro a clientes finales
+  5. Escaneo de factura/recibo de compra (IA): foto del recibo del super → extrae ingredientes y precios → la usuaria confirma antes de guardar → actualiza el costo de las recetas que usan ese insumo. Procesamiento asíncrono (subir foto → procesar en segundo plano → avisar cuando esté listo), con tope de 30 escaneos/mes para controlar el costo variable de la IA (circuit-breaker de costo, 48)
+  6. Cotización profesional por WhatsApp: genera una imagen/PDF de la cotización con el logo del negocio y el precio ya calculado; la usuaria la revisa antes de enviar y la comparte por WhatsApp (sin integración con WhatsApp Business API — es un botón de compartir, no envío automático)
+- Fuera de la v1 (ya definido por el usuario): inventario en tiempo real con descuento de stock · facturación electrónica/contabilidad fiscal · punto de venta (POS) o pasarelas de cobro a clientes finales · envío automático de cotizaciones sin revisión de la usuaria
 - Primera victoria (derivada del propio deseo del avatar): registrar su primer ingrediente y su primera receta, y ver aparecer al instante "esto te cuesta $X, cóbralo a $Y para ganar el [margen]% que elegiste"
+- Segunda victoria (loop de retención): generar y enviar su primera cotización profesional por WhatsApp — refuerza el deseo de identidad ("esto es un negocio de verdad")
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
 - [ ] Responder la pregunta de referencia visual cuando se la haga
