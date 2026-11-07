@@ -108,6 +108,7 @@
   .campo label { display:block; font-size:12px; font-weight:700; color:var(--text-2); margin-bottom:6px; }
   .campo input, .campo select { width:100%; padding:13px 15px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:14.5px; }
   .campo input:focus, .campo select:focus { outline:none; border-color:var(--accent); }
+  .ayuda-campo { font-size:11.5px; color:var(--text-2); margin:-8px 0 8px; line-height:1.4; }
   .campo-2 { display:flex; gap:8px; }
   .campo-2 > div { flex:1; }
 
@@ -359,7 +360,7 @@
       <div id="camposGastosReales" style="display:none;padding-top:14px;">
         <div class="campo"><label>Arriendo + lo que te pagas a ti misma (al mes)</label><input id="cfgFijo" type="number" value="800000"></div>
         <div class="campo"><label>Luz, gas, domicilios, publicidad (al mes)</label><input id="cfgVariable" type="number" value="250000"></div>
-        <div class="campo"><label>¿Cuántas tandas haces al mes, aprox?</label><input id="cfgTandas" type="number" value="20"></div>
+        <div class="campo"><label>¿Cuántos productos vendes al mes en total, aprox?</label><p class="ayuda-campo">Cuenta todo lo que vendes — tortas, hamburguesas, lo que sea, sumado. Ej: si haces 3 tandas de 12 cupcakes, son 36.</p><input id="cfgTandas" type="number" value="20"></div>
         <div class="campo"><label>¿Cuánto vale tu hora de trabajo?</label><input id="cfgValorHora" type="number" value="8000"></div>
       </div>
 
