@@ -1,7 +1,7 @@
 # ESTADO — RecetarioPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: países de venta decididos (Colombia, México, Perú) y precio propuesto / Siguiente acción exacta: hacer la PREGUNTA DE REFERENCIA visual (B4) y presentar el Plan Maestro (B5)
+⏸️ CHECKPOINT — Última acción completada: mostradas 3 direcciones A/B/C (dev/direcciones-abc.html); usuario pidió fusionar composición de A+C y preguntó por multi-tema (color/tipografía a elección del cliente) — se le explicó por qué no y se ofreció modo claro/oscuro en su lugar / Siguiente acción exacta: esperar su elección de paleta única, cerrar FICHA-ARTE.md y hacer EL TOUR DE LA APP (54)
 
 ## Qué es esta app (3 líneas máximo)
 Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
