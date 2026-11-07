@@ -50,7 +50,7 @@
 ## 7. GARANTÍA
 - nombre: "la Garantía del Primer Precio Real"
 - condiciónMarked: "Si ya pagaste y en tus primeros 7 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. [b]Sin preguntas[/b]."
-- pisoLegal: "Respaldada por la garantía Hotmart de 7 días" — ⚠️ PENDIENTE DE CONFIRMAR el plazo exacto al configurar el producto en Hotmart (Sesión 6)
+- pisoLegal: "Respaldada por la garantía estándar de Hotmart" — corregido tras veredicto del revisor-visual (2026-11-07): ya no se afirma un plazo específico de Hotmart sin confirmar (riesgo de claim falso, gate 61). La garantía de 7 días que SÍ se promete es propia de MargenPro (tied al trial), no una cifra atribuida a Hotmart.
 
 ## 8. FAQ (fuente: campo Objeciones, literal)
 1. "¿Necesito saber de tecnología o matemáticas para usar esto?" → "No. Escribes el nombre y precio de lo que compras, o le tomas una foto al recibo y la app hace el resto." (Objeción #1)
