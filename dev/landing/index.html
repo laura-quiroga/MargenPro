@@ -84,6 +84,17 @@
   .telefono-frame .pantalla { flex:1; padding:6px 16px 16px; display:flex; flex-direction:column; }
   .heroe-tarjeta { margin-top:10px; border-radius:14px; padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.55), transparent 65%); }
   .heroe-tarjeta > div { background:var(--surface); border-radius:12.5px; padding:16px; }
+  .mini-accesos { display:flex; gap:8px; margin-top:12px; }
+  .mini-acceso { flex:1; background:var(--surface); border-radius:11px; padding:10px 8px; box-shadow:var(--shadow-1); }
+  .mini-chip { width:24px; height:24px; border-radius:8px; background:linear-gradient(160deg, rgb(var(--accent-tint)/.22), rgb(var(--accent-tint)/.09)); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+  .mini-acceso span { font-size:9.5px; font-weight:700; color:var(--text-1); line-height:1.2; display:block; }
+  .mini-lista { margin-top:10px; display:flex; flex-direction:column; gap:7px; }
+  .mini-item { display:flex; justify-content:space-between; align-items:center; background:var(--surface); border-radius:10px; padding:9px 11px; font-size:10.5px; font-weight:700; color:var(--text-1); box-shadow:var(--shadow-1); }
+  .mini-badge { font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; padding:3px 7px; border-radius:999px; background:rgb(var(--accent-tint)/.18); color:var(--accent); }
+  .mini-badge.pendiente { background:rgb(201 138 44/.2); color:#9a6a1f; }
+  .mini-tabbar { display:flex; justify-content:space-around; align-items:center; background:#20231F; padding:10px 8px calc(10px + env(safe-area-inset-bottom)); margin-top:auto; }
+  .mini-tab { color:#8a8d85; display:flex; }
+  .mini-tab.activo { color:var(--accent); }
   .paso-indicador { font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); margin-bottom:8px; }
   .precio-heroe { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); }
   .precio-heroe .sm { font-size:12px; font-weight:600; color:var(--text-2); display:block; font-family:var(--font-body); }
@@ -224,6 +235,20 @@
               <div class="fila-dato"><span>Tu ganancia</span><span style="color:var(--accent);font-weight:700">43%</span></div>
             </div>
           </div>
+          <div class="mini-accesos">
+            <div class="mini-acceso"><div class="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><span>Costear receta</span></div>
+            <div class="mini-acceso"><div class="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 11a8.5 8.5 0 0117-.5z"/></svg></div><span>Nueva cotización</span></div>
+          </div>
+          <div class="mini-lista">
+            <div class="mini-item"><span>Brownies x 20</span><span class="mini-badge">Vendida</span></div>
+            <div class="mini-item"><span>Pan de queso x 24</span><span class="mini-badge pendiente">Pendiente</span></div>
+          </div>
+        </div>
+        <div class="mini-tabbar">
+          <div class="mini-tab activo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg></div>
+          <div class="mini-tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>
+          <div class="mini-tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+          <div class="mini-tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 11a8.5 8.5 0 0117-.5z"/></svg></div>
         </div>
       </div>
     </div>
