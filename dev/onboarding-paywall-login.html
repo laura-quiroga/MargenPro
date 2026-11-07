@@ -121,6 +121,8 @@
   .insumo-chip { display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow-1); margin-bottom:10px; font-size:13.5px; font-weight:600; }
   .insumo-chip .nombre { flex:1; }
   .insumo-chip .precio { color:var(--text-2); font-weight:700; }
+  .insumo-chip .quitar-insumo { width:24px; height:24px; border-radius:50%; background:var(--sunken); display:flex; align-items:center; justify-content:center; color:var(--text-2); flex-shrink:0; }
+  .btn-agregar-insumo { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; color:var(--accent); padding:10px; border:1.5px dashed rgb(var(--accent-tint)/.4); border-radius:var(--radius-btn); margin-bottom:10px; }
 
   /* 4. RESULTADO */
   #p-resultado .pantalla-contenido { align-items:center; text-align:center; gap:8px; justify-content:center; }
@@ -173,7 +175,12 @@
 
 <div class="app-frame">
   <div class="topbar">
-    <div class="logo"><span class="mark">M</span> MargenPro</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="tema-toggle" id="btnAtras" aria-label="Volver" onclick="volverAtras()" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="logo"><span class="mark">M</span> MargenPro</div>
+    </div>
     <button class="tema-toggle" id="btnTema" aria-label="Cambiar tema">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
     </button>
@@ -296,6 +303,10 @@
       </div>
       <p class="nota-moneda">Detectamos tu moneda por tu país — puedes cambiarla. Esto es solo para TUS insumos; el precio de MargenPro siempre se cobra en USD.</p>
       <div id="insumoChips"></div>
+      <button type="button" class="btn-agregar-insumo" id="btnAgregarInsumo" onclick="agregarOtroInsumo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar otro insumo (hasta 3)
+      </button>
     </div>
     <div class="pantalla-footer">
       <button class="btn-cta" onclick="agregarInsumo()">Agregar y seguir →</button>
@@ -306,15 +317,12 @@
   <section class="pantalla" id="p-receta" data-paso="5">
     <div class="pantalla-contenido entrada">
       <h2 style="font-size:22px;margin-bottom:6px;">Ahora arma tu producto</h2>
-      <p class="sub" style="color:var(--text-2);font-size:14px;margin-bottom:18px;">¿Cuánto de ese insumo usas, y qué margen de ganancia quieres?</p>
+      <p class="sub" style="color:var(--text-2);font-size:14px;margin-bottom:18px;">¿Cuánto usas de cada insumo, y qué margen de ganancia quieres?</p>
       <div class="campo">
         <label for="recetaNombre">Nombre del producto</label>
         <input id="recetaNombre" type="text" placeholder="Ej: Torta de chocolate x 12 porciones" value="Torta de chocolate x 12 porciones">
       </div>
-      <div class="campo">
-        <label for="cantidadUsada" id="labelCantidadUsada">¿Cuántos gramos usas?</label>
-        <input id="cantidadUsada" type="number" inputmode="decimal" placeholder="600" value="600">
-      </div>
+      <div id="usoInsumosContainer"></div>
       <div class="campo campo-prefijo">
         <label for="precioActual">¿Cuánto cobras HOY por esto?</label>
         <span id="simboloMonedaActual">$</span>
@@ -451,13 +459,40 @@
   var SIMBOLOS_MONEDA = { COP:'$', MXN:'$', PEN:'S/', USD:'US$' };
 
   // Textos de ejemplo por tipo de negocio (personalización — mejora aprobada tras comparar con la propuesta de Gemini)
-  // Todos compran su insumo principal por kilo en este ejemplo; el selector de unidad igual queda
-  // disponible para cualquier insumo real que la usuaria registre (líquidos, piezas, docenas, paquetes).
+  // Cada ejemplo trae 2-3 insumos reales (mejora: hasta 3 insumos por receta, pedido del usuario)
+  // para que la simulación se sienta como una receta de verdad, no un solo ingrediente suelto.
+  var MAX_INSUMOS = 3;
   var EJEMPLOS_NEGOCIO = {
-    'reposteria':    { insumoNombre:'Harina de trigo', insumoPrecio:12000, insumoUnidad:'kg', productoNombre:'Torta de chocolate x 12 porciones', cantidad:600, precioActual:18000, palabra:'torta' },
-    'comida-rapida': { insumoNombre:'Carne molida', insumoPrecio:22000, insumoUnidad:'kg', productoNombre:'Hamburguesa clásica x 1', cantidad:150, precioActual:9000, palabra:'hamburguesa' },
-    'panaderia':     { insumoNombre:'Harina panadera', insumoPrecio:9000, insumoUnidad:'kg', productoNombre:'Pan artesanal x unidad', cantidad:300, precioActual:3500, palabra:'pan' },
-    'otro':          { insumoNombre:'Insumo principal', insumoPrecio:15000, insumoUnidad:'kg', productoNombre:'Tu producto estrella', cantidad:400, precioActual:12000, palabra:'producto' }
+    'reposteria': {
+      insumos: [
+        { nombre:'Harina de trigo', precio:12000, unidad:'kg', cantidadUsada:600 },
+        { nombre:'Azúcar blanca', precio:6000, unidad:'kg', cantidadUsada:300 },
+        { nombre:'Mantequilla', precio:18000, unidad:'kg', cantidadUsada:200 }
+      ],
+      productoNombre:'Torta de chocolate x 12 porciones', precioActual:18000, palabra:'torta'
+    },
+    'comida-rapida': {
+      insumos: [
+        { nombre:'Carne molida', precio:22000, unidad:'kg', cantidadUsada:150 },
+        { nombre:'Pan para hamburguesa', precio:800, unidad:'unidad', unidadesQueTrae:1, cantidadUsada:1 },
+        { nombre:'Queso cheddar', precio:15000, unidad:'kg', cantidadUsada:40 }
+      ],
+      productoNombre:'Hamburguesa clásica x 1', precioActual:9000, palabra:'hamburguesa'
+    },
+    'panaderia': {
+      insumos: [
+        { nombre:'Harina panadera', precio:9000, unidad:'kg', cantidadUsada:300 },
+        { nombre:'Levadura', precio:4000, unidad:'kg', cantidadUsada:8 }
+      ],
+      productoNombre:'Pan artesanal x unidad', precioActual:3500, palabra:'pan'
+    },
+    'otro': {
+      insumos: [
+        { nombre:'Insumo principal', precio:15000, unidad:'kg', cantidadUsada:400 },
+        { nombre:'Insumo secundario', precio:8000, unidad:'kg', cantidadUsada:150 }
+      ],
+      productoNombre:'Tu producto estrella', precioActual:12000, palabra:'producto'
+    }
   };
 
   function elegirTipoNegocio(tipo){
@@ -465,16 +500,76 @@
     document.querySelectorAll('#p-tipo-negocio .opcion-grande').forEach(function(b){ b.classList.remove('elegida'); });
     event.currentTarget.classList.add('elegida');
     var ej = EJEMPLOS_NEGOCIO[tipo] || EJEMPLOS_NEGOCIO['otro'];
-    document.getElementById('insumoNombre').value = ej.insumoNombre;
-    document.getElementById('insumoNombre').placeholder = 'Ej: ' + ej.insumoNombre;
-    document.getElementById('insumoUnidad').value = ej.insumoUnidad;
+    // Precarga todos menos el último insumo como "ya confirmados" (chips); el último queda
+    // en el formulario visible, lista para "Agregar y seguir" — mismo patrón que si la
+    // usuaria los hubiera ido agregando uno a uno con el botón "+ Agregar otro insumo".
+    insumos = ej.insumos.slice(0, -1).map(function(i){ return Object.assign({moneda: monedaActual}, i); });
+    renderInsumoChips();
+    var ultimo = ej.insumos[ej.insumos.length - 1];
+    document.getElementById('insumoNombre').value = ultimo.nombre;
+    document.getElementById('insumoNombre').placeholder = 'Ej: ' + ultimo.nombre;
+    document.getElementById('insumoUnidad').value = ultimo.unidad;
     cambiarUnidadInsumo();
-    document.getElementById('insumoPrecio').value = ej.insumoPrecio;
+    if (ultimo.unidadesQueTrae) document.getElementById('insumoUnidadesTrae').value = ultimo.unidadesQueTrae;
+    document.getElementById('insumoPrecio').value = ultimo.precio;
     document.getElementById('recetaNombre').value = ej.productoNombre;
     document.getElementById('recetaNombre').placeholder = 'Ej: ' + ej.productoNombre;
-    document.getElementById('cantidadUsada').value = ej.cantidad;
     document.getElementById('precioActual').value = ej.precioActual;
     setTimeout(function(){ irA(3); }, 300);
+  }
+
+  // Lista de insumos ya confirmados (chips) en el paso de registrar insumo, con botón para quitar.
+  // El botón "+ Agregar otro insumo" se oculta al llegar al tope (el formulario visible cuenta
+  // como el insumo #N pendiente de confirmar vía "Agregar y seguir").
+  function renderInsumoChips(){
+    var cont = document.getElementById('insumoChips');
+    cont.innerHTML = '';
+    insumos.forEach(function(ins, idx){
+      var simbolo = SIMBOLOS_MONEDA[ins.moneda] || '$';
+      var div = document.createElement('div');
+      div.className = 'insumo-chip';
+      div.innerHTML = '<span class="nombre">' + ins.nombre + '</span>' +
+        '<span class="precio">' + simbolo + Math.round(ins.precio).toLocaleString('es-CO') + '</span>' +
+        '<button type="button" class="quitar-insumo" onclick="quitarInsumo(' + idx + ')" aria-label="Quitar insumo">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>';
+      cont.appendChild(div);
+    });
+    var btn = document.getElementById('btnAgregarInsumo');
+    btn.style.display = insumos.length < (MAX_INSUMOS - 1) ? 'flex' : 'none';
+  }
+
+  function quitarInsumo(idx){
+    insumos.splice(idx, 1);
+    renderInsumoChips();
+  }
+
+  function leerFormularioInsumoActual(){
+    return {
+      nombre: document.getElementById('insumoNombre').value || 'Insumo',
+      precio: parseFloat(document.getElementById('insumoPrecio').value) || 0,
+      moneda: monedaActual,
+      unidad: document.getElementById('insumoUnidad').value,
+      unidadesQueTrae: parseFloat(document.getElementById('insumoUnidadesTrae').value) || (document.getElementById('insumoUnidad').value === 'docena' ? 12 : 1)
+    };
+  }
+
+  function limpiarFormularioInsumo(){
+    document.getElementById('insumoNombre').value = '';
+    document.getElementById('insumoNombre').placeholder = 'Ej: Azúcar';
+    document.getElementById('insumoPrecio').value = '';
+    document.getElementById('insumoUnidad').value = 'kg';
+    cambiarUnidadInsumo();
+  }
+
+  // Confirma el insumo que está en el formulario como un insumo más (chip) y limpia el
+  // formulario para registrar el siguiente — hasta llegar a MAX_INSUMOS.
+  function agregarOtroInsumo(){
+    if (insumos.length >= MAX_INSUMOS - 1) return;
+    var ins = leerFormularioInsumoActual();
+    if (!ins.precio) return;
+    insumos.push(ins);
+    renderInsumoChips();
+    limpiarFormularioInsumo();
   }
 
   // Unidad de compra del insumo: muestra/oculta "¿cuántas unidades trae?" para docena/paquete
@@ -490,14 +585,28 @@
     }
   }
 
-  // La pregunta "¿cuánto usas?" se adapta a cómo se compró el insumo — nunca asume gramos.
-  function actualizarEtiquetaCantidad(unidad){
-    var label = document.getElementById('labelCantidadUsada');
-    var input = document.getElementById('cantidadUsada');
-    if (unidad === 'kg' || unidad === 'g') { label.textContent = '¿Cuántos gramos usas?'; input.placeholder = '600'; }
-    else if (unidad === 'L' || unidad === 'ml') { label.textContent = '¿Cuántos mililitros usas?'; input.placeholder = '250'; }
-    else if (unidad === 'libra') { label.textContent = '¿Cuántas libras usas?'; input.placeholder = '1'; }
-    else { label.textContent = '¿Cuántas piezas usas?'; input.placeholder = '2'; }
+  // La pregunta "¿cuánto usas?" se adapta a cómo se compró CADA insumo — nunca asume gramos.
+  function etiquetaCantidadPara(unidad){
+    if (unidad === 'kg' || unidad === 'g') return '¿Cuántos gramos usas';
+    if (unidad === 'L' || unidad === 'ml') return '¿Cuántos mililitros usas';
+    if (unidad === 'libra') return '¿Cuántas libras usas';
+    return '¿Cuántas piezas usas';
+  }
+
+  // Construye un campo "¿cuánto usas?" por cada insumo confirmado (1 a 3) en el paso de armar
+  // producto — reemplaza el campo único anterior, que solo soportaba 1 insumo.
+  function renderCamposUsoInsumos(){
+    var cont = document.getElementById('usoInsumosContainer');
+    cont.innerHTML = '';
+    insumos.forEach(function(ins, idx){
+      var etiqueta = etiquetaCantidadPara(ins.unidad);
+      var valorDefecto = (ins.cantidadUsada != null) ? ins.cantidadUsada : (ins.unidad === 'unidad' || ins.unidad === 'docena' || ins.unidad === 'paquete' ? 1 : 100);
+      var div = document.createElement('div');
+      div.className = 'campo';
+      div.innerHTML = '<label for="usoInsumo' + idx + '">' + etiqueta + ' de <strong>' + ins.nombre + '</strong>?</label>' +
+        '<input id="usoInsumo' + idx + '" type="number" inputmode="decimal" value="' + valorDefecto + '">';
+      cont.appendChild(div);
+    });
   }
 
   // Costo de 1 unidad BASE (1 gramo, 1 ml, 1 pieza o 1 libra) según cómo se compró el insumo —
@@ -548,30 +657,55 @@
     } else {
       wrap.style.display = 'none';
     }
+    document.getElementById('btnAtras').style.display = (n > 1 && n <= TOTAL_PASOS) ? 'flex' : 'none';
     window.scrollTo(0,0);
   }
 
+  // Botón "atrás": preserva lo ya escrito. Caso especial — al volver del paso de "armar
+  // producto" al de "insumo", se deshace el último insumo confirmado (se saca del array y
+  // se vuelve a mostrar en el formulario editable) para que "Agregar y seguir" no lo duplique
+  // al avanzar de nuevo.
+  function volverAtras(){
+    var actual = parseInt(document.querySelector('.pantalla.activa').dataset.paso, 10);
+    if (actual <= 1) return;
+    if (actual === 5) {
+      var ultimo = insumos.pop();
+      if (ultimo) {
+        document.getElementById('insumoNombre').value = ultimo.nombre;
+        document.getElementById('insumoUnidad').value = ultimo.unidad;
+        cambiarUnidadInsumo();
+        if (ultimo.unidadesQueTrae) document.getElementById('insumoUnidadesTrae').value = ultimo.unidadesQueTrae;
+        document.getElementById('insumoPrecio').value = ultimo.precio;
+      }
+      renderInsumoChips();
+    }
+    irA(actual - 1);
+  }
+
+  // Confirma el insumo del formulario como el ÚLTIMO de la lista (hasta 3 en total) y pasa
+  // a armar el producto, con un campo "¿cuánto usas?" por cada insumo.
   function agregarInsumo(){
-    var nombre = document.getElementById('insumoNombre').value || 'Insumo';
-    var precio = parseFloat(document.getElementById('insumoPrecio').value) || 0;
-    var unidad = document.getElementById('insumoUnidad').value;
-    var unidadesQueTrae = parseFloat(document.getElementById('insumoUnidadesTrae').value) || (unidad === 'docena' ? 12 : 1);
-    insumos = [{nombre: nombre, precio: precio, moneda: monedaActual, unidad: unidad, unidadesQueTrae: unidadesQueTrae}];
-    actualizarEtiquetaCantidad(unidad);
+    var ins = leerFormularioInsumoActual();
+    insumos.push(ins);
+    renderCamposUsoInsumos();
     irA(5);
   }
 
   function calcularYMostrar(){
-    var insumo = insumos[0] || {nombre:'Harina de trigo', precio:12000, moneda:'COP', unidad:'kg', unidadesQueTrae:1};
-    var cantidadUsada = parseFloat(document.getElementById('cantidadUsada').value) || 0;
     var margen = parseInt(document.getElementById('margenSlider').value, 10) || 40;
     var nombreReceta = document.getElementById('recetaNombre').value || 'Tu producto';
     var precioActual = parseFloat(document.getElementById('precioActual').value) || 0;
     var simbolo = SIMBOLOS_MONEDA[monedaActual] || '$';
-    // costo real: costo de 1 unidad base (gramo/ml/pieza/libra, según cómo se compró) × cuánto se usó
+    // costo real: suma, para CADA insumo, del costo de 1 unidad base (gramo/ml/pieza/libra,
+    // según cómo se compró) × cuánto se usó de ese insumo — hasta 3 insumos por receta.
+    var costoInsumo = 0;
+    insumos.forEach(function(ins, idx){
+      var cantidadUsada = parseFloat(document.getElementById('usoInsumo' + idx).value) || 0;
+      ins.cantidadUsada = cantidadUsada; // se conserva para que el botón "atrás" no la pierda
+      var costoPorBase = costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae);
+      costoInsumo += costoPorBase * cantidadUsada;
+    });
     // + costo operativo base ilustrativo (empaques, etc. — placeholder hasta la app real)
-    var costoPorBase = costoPorUnidadBase(insumo.precio, insumo.unidad, insumo.unidadesQueTrae);
-    var costoInsumo = costoPorBase * cantidadUsada;
     var costoBase = Math.round(costoInsumo + costoInsumo * 0.35);
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
 
@@ -666,6 +800,8 @@
     var actual = document.documentElement.getAttribute('data-tema');
     document.documentElement.setAttribute('data-tema', actual === 'oscuro' ? 'claro' : 'oscuro');
   });
+
+  renderInsumoChips(); // estado inicial del botón "+ Agregar otro insumo" y la lista vacía
 </script>
 </body>
 </html>
