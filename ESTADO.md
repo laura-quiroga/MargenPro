@@ -1,13 +1,13 @@
-# ESTADO — RecetarioPro
+# ESTADO — MargenPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: revisor-visual auditó la landing (veredicto NO LISTA: 29/40 usabilidad, 11/20 craft, 16/20 copy — docs/revisiones/landing-veredicto.md) y se corrigieron 4 de los 5 hallazgos (footer con nota de desarrollo expuesta, espacio vacío en el carrusel, contradicción sobre la tarjeta del trial, faltaban animaciones baseline); el 5º hallazgo (similitud con un ejemplo "Capítulo" del banco de direcciones) se descartó por ser inexistente en los archivos del sistema (verificado con grep) / Siguiente acción exacta: re-tomar un screenshot fresco de la landing (el navegador de esta sesión tuvo fallas intermitentes de scroll/captura) y volver a pasar el revisor-visual para confirmar el puntaje ≥36/40 y ≥16/20 antes de declarar la landing 100% lista; mientras tanto, presentársela al usuario para su aprobación de contenido
+⏸️ CHECKPOINT — Última acción completada: PIVOTE 2026-11-07 ejecutado — renombrado RecetarioPro → MargenPro en todo el proyecto, nicho ampliado a cualquier negocio de comida independiente (manteniendo el mismo perfil emocional, con multi-ejemplo en el copy en vez de genérico), sub-avatar masculino agregado para lenguaje inclusivo, landing rediseñada con más profundidad/ritmo visual (mesh gradients sutiles + bloque de acento en oferta) sin caer en look genérico de IA / Siguiente acción exacta: re-tomar un screenshot fresco de la landing y volver a pasar el revisor-visual para confirmar el puntaje ≥36/40 y ≥16/20 (el veredicto NO LISTA de la ronda anterior sigue sin una segunda pasada confirmada) antes de declarar la landing 100% lista; mientras tanto, presentarle al usuario el resultado del pivote
 
 ## Qué es esta app (3 líneas máximo)
-Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
+Calculadora de costeo para negocios de comida independientes (repostería, comida rápida, panadería, catering, dark kitchens, menús del día): registra ingredientes/insumos con su precio, arma recetas o productos, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que el usuario defina. Vendida por suscripción mensual vía Hotmart.
 
 ## Promesa central
-"Esta app ayuda a reposteras caseras de LATAM a saber exactamente cuánto cobrar por cada postre para asegurar una ganancia real, sin pelear con Excel ni hacer matemática compleja, mediante una calculadora de costeo pensada para usarse con una mano desde el celular."
+"Esta app ayuda a emprendedores gastronómicos de LATAM a saber exactamente cuánto cobrar por cada producto para asegurar una ganancia real, sin pelear con Excel ni hacer matemática compleja, mediante una calculadora de costeo pensada para usarse con una mano desde el celular."
 
 ## Reporte de validación (Sesión 1)
 - Veredicto: Viable, con diferencial claro (⚠️ FICHA-MODELO queda en BORRADOR: solo un tipo de señal de revenue encontrada, sin acceso a Sensor Tower/Ads Library en esta sesión)
@@ -26,7 +26,8 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 
 ## Avatar y venta (Sesión 1)
 - FICHA-AVATAR.md: existe, APROBADA (2026-11-07)
-- Resumen: María Alejandra, repostera casera, 31 años · dolor #1: "siento que trabajo como una esclava para terminar el mes sin un peso" · deseo #1: que la app le diga el precio exacto con el margen que quiere · nivel de consciencia: consciente del problema y de la solución (3/5) · sofisticación: media (2.5/5 — ya probó Excel/apps de notas, sin líder fuerte en español)
+- Resumen: María Alejandra, repostera casera, 31 años (avatar principal, con toda la evidencia) + Andrés, dueño de comida rápida/food truck, 34 años (sub-avatar agregado 2026-11-07 para lenguaje inclusivo de género) · dolor #1: "siento que trabajo como una esclava para terminar el mes sin un peso" · deseo #1: que la app le diga el precio exacto con el margen que quiere · nivel de consciencia: consciente del problema y de la solución (3/5) · sofisticación: media (2.5/5 — ya probó Excel/apps de notas, sin líder fuerte en español)
+- Nicho ampliado 2026-11-07: de solo repostería a cualquier negocio de comida independiente (comida rápida, panadería, catering, dark kitchens, menús del día) — mismo perfil emocional, copy con multi-ejemplo de rubros en vez de genérico (decisión informada al usuario, ver razón en FICHA-AVATAR.md)
 - Mecanismo bautizado: "el Radar de Ganancia" (aparece en hero, solución y oferta de la landing — 19)
 - Big Idea: "María Alejandra no pierde dinero por ser mala repostera — pierde dinero porque calcula sus precios a ojo, sin ver lo que de verdad le cuesta cada receta. El Radar de Ganancia se lo muestra en segundos, para que cada postre que venda le deje una ganancia real."
 - Landing (Sesión 3): código EN REVISIÓN (no lista — ver Problemas conocidos) — `dev/landing/index.html` (preview estático HTML/CSS, 10 secciones canónicas de 19) + copy marcado y trazado en `docs/copy/landing.md`. Verificada a 375px y 1440px, sin desbordes. CTAs → `/onboarding` (Modelo 2, onboarding-first anónimo). ⚠️ PENDIENTE: (a) escalar esto a los componentes reales del kit `plantillas-codigo/landing/` (React/Vite) cuando se haga el scaffold técnico del proyecto — por ahora es un preview fiel, no el código de producción; (b) confirmar el plazo exacto de garantía al configurar Hotmart (se usó 7 días, el mismo que el ejemplo del sistema); (c) páginas legales (privacidad/términos/reembolsos/aviso de IA) son placeholders, pendientes de redactar con el archivo 47; (d) email de soporte pendiente del dominio que el usuario compre; (e) carrusel "la app por dentro" con placeholders rotulados — se reemplaza por capturas reales cuando la app esté construida
@@ -43,9 +44,9 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Países de venta: Colombia, México y Perú (Colombia por pedido del usuario; México y Perú por señales reales de demanda — ver FICHA-MERCADO)
 
 ## Secuencia maestra de construcción
-- Estado de la secuencia: Landing EN REVISIÓN (código listo, veredicto del revisor-visual todavía NO LISTA — ver Problemas conocidos) — Onboarding/Paywall/Login/App interna pendientes
+- Estado de la secuencia: página de ventas con revisión pendiente de cerrar (detalle en Problemas conocidos) — Onboarding/Paywall/Login/App interna pendientes
 - Ruta aprobada: `/` → `/onboarding` → `/paywall` → `/login` → `/app`
-- Landing: código construido y corregido (dev/landing/index.html) — se aplicaron las reglas de escaneabilidad mobile (bloques ≤4 líneas, íconos en Problema/Agitación/Solución, FAQ en acordeón, oferta/garantía en cajas, ritmo visual alternado, CTA repetido en hero/mecanismo/carrusel/garantía/final + sticky), headline a 9 palabras, y los 4 defectos del veredicto NO LISTA del revisor-visual ya corregidos en el código. Verificado sin desborde horizontal a 375px y ~600px (pane). ⚠️ NO está "lista": falta la segunda pasada del `revisor-visual` con screenshot fresco que confirme ≥36/40 y ≥16/20 — ver docs/revisiones/landing-veredicto.md y Problemas conocidos
+- Página de ventas: el agente ajustó el código tras el veredicto del subagente revisor — ese gate sigue abierto, el detalle de puntajes y pendientes vive en Problemas conocidos y en docs/revisiones/landing-veredicto.md. Archivo fuente: dev/landing/index.html
 - Onboarding / Paywall / Login / App interna: pendientes (Sesión 4-5)
 - Servicios externos: bloqueados hasta aprobar las etapas anteriores
 
@@ -68,7 +69,7 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Loop mensual de retención (gatillo→acción→recompensa): fin de mes (gatillo) → abre el resumen mensual (acción) → ve en números si ganó o perdió, y cuánto (recompensa) → eso decide sus precios del mes siguiente (inversión) — es el mecanismo que responde directo a su ansiedad nocturna
 
 ## Problemas conocidos ⚠️
-- [veredicto:landing] El revisor-visual puntuó la landing NO LISTA (29/40 · 11/20 · 16/20 — docs/revisiones/landing-veredicto.md). Se corrigieron 4 de 5 defectos reales directamente en el código; falta re-tomar un screenshot fresco (el navegador de esta sesión falló al hacer scroll/capturar de forma consistente) y correr una segunda pasada del revisor-visual para confirmar ≥36/40 y ≥16/20 antes de declarar la landing lista para vender.
+- [veredicto:landing] El revisor-visual puntuó la landing NO LISTA (29/40 · 11/20 · 16/20 — docs/revisiones/landing-veredicto.md) antes del pivote a MargenPro. Se corrigieron 4 de 5 defectos del veredicto, y además se ejecutó el pivote completo (2026-11-07): renombre a MargenPro, nicho ampliado con copy multi-rubro, lenguaje inclusivo (sub-avatar Andrés), y rediseño visual con mesh gradients sutiles (blobs 7-16% opacidad en hero/solución/app-por-dentro/oferta) + nueva sección "hundido" (agitación) para un 3er nivel de profundidad. Verificado sin desborde horizontal ni errores de consola a 375px tras el pivote. Sigue pendiente: re-tomar screenshot fresco y correr una pasada del revisor-visual sobre la versión MargenPro para confirmar ≥36/40 y ≥16/20 antes de declarar la landing lista para vender — el navegador de esta sesión tuvo fallas intermitentes de scroll en rondas anteriores, revisar si persisten.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
 - Ninguno pendiente de su parte por ahora — esperando la revisión final de la landing

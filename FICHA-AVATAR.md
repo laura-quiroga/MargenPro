@@ -1,6 +1,7 @@
-# FICHA DE AVATAR — RecetarioPro
+# FICHA DE AVATAR — MargenPro
 
 - Estado: APROBADA (2026-11-07) — país/moneda ya resueltos (Colombia, México, Perú) y la ficha supera las 10 frases VoC literales con fuente (documento de investigación de avatar entregado por el usuario, equivalente a Fuente 2)
+- ⚠️ PIVOTE 2026-11-07 (decisión del usuario, informada y ejecutada): el nicho se amplía de "repostería" a CUALQUIER negocio de comida independiente (comida rápida, panadería, postres, dark kitchens, catering, menús del día). El perfil emocional y los dolores/deseos/objeciones de abajo son universales a todo ese grupo (calcular a ojo, miedo a subir precios, ansiedad de no saber si ganó o perdió) y NO cambian de fondo. Decisión de copy: en vez de un ejemplo 100% genérico (convierte peor — "las riquezas están en los nichos"), el copy usa EJEMPLOS DE VARIOS RUBROS (repostería, comida rápida, catering) para que cada quien se vea reflejado. María Alejandra se mantiene como avatar principal (tiene toda la evidencia e investigación); se agrega sub-avatar masculino abajo para lenguaje inclusivo de género.
 
 ## El avatar (cliente ideal — UNA persona concreta)
 - Nombre/arquetipo: María Alejandra · Edad: 31 · Situación: repostera casera empírica, 1-3 años vendiendo por Instagram/WhatsApp · País(es): Colombia, México y Perú
@@ -8,7 +9,7 @@
 - IDENTIDAD (cómo se describe a sí mismo, literal): "siento que trabajo como una esclava en la cocina"
 - MOMENTO DEL DÍA en que el problema duele: 10:00 PM, limpiando la mesa llena de harina, sacando una libreta manchada de aceite para sumar gastos vs. lo que le pagaron
 - MOMENTO DEL AÑO: pedidos grandes de temporada (fiestas, día de la madre, cumpleaños) donde debe cotizar un pedido grande y se paraliza
-- Sub-avatar secundario: N/A — avatar único y bien definido en el documento fuente
+- Sub-avatar secundario (agregado 2026-11-07, lenguaje inclusivo de género): Andrés, 34 años, dueño de un local de comida rápida/food truck, 2-4 años en el negocio, mismo perfil de dolor (cobra a ojo, no sabe su margen real, paraliza con pedidos grandes tipo catering de eventos). Sus 3 diferencias de léxico: dice "el negocio" en vez de "mi emprendimiento" · habla de "porciones/combos" en vez de "postres/tortas" · su disparador de compra típico es un pedido de catering para una empresa, no un pastel de cumpleaños. El resto de dolores/deseos/objeciones de esta ficha le aplican igual (son del emprendedor gastronómico independiente, no del género).
 - Ya intentó: cuadernos/agendas y plantillas de Excel → las abandonó porque se manchan, se pierden, las fórmulas se rompen en el celular y no le dicen rápido cuánto cobrar cuando sube un insumo
 - Dónde pasa tiempo online: Instagram y WhatsApp (ahí vende y cotiza)
 
@@ -48,7 +49,7 @@
 3. "No quiero pagar suscripción si no estoy segura de que me haga ganar más de lo que cuesta" → respuesta: prueba gratis + ejemplo numérico de cuánto puede estar perdiendo hoy → vive en: paywall + landing
 4. "Mis ingredientes cambian de precio cada semana; no creo que se adapte a mi mercado local" → respuesta: ella registra SUS precios reales, no una base de datos genérica; actualizar 1 insumo actualiza todas sus recetas → vive en: onboarding + FAQ
 5. Pago/checkout LATAM ("¿es seguro pagar?") → respuesta: pago por pasarela reconocida, sin guardar tarjeta en la app → vive en: microcopy bajo el botón de compra
-6. (del nicho) "Hacer repostería no es un negocio serio, es un hobby" → respuesta: la app la trata y la organiza como una dueña de negocio, con números profesionales → vive en: paywall + mensajes de logro
+6. (del nicho) "Vender comida desde casa/un local pequeño no es un negocio serio, es un hobby/algo informal" → respuesta: la app lo trata y lo organiza como dueño de negocio, con números profesionales, sin importar si vende tortas, hamburguesas o catering → vive en: paywall + mensajes de logro
 
 ## Lenguaje
 - Verbos de percepción/acción del avatar: "cobrar", "ganarle", "regalar el trabajo", "costear", "subir el precio"

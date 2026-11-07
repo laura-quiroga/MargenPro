@@ -1,7 +1,7 @@
-# FICHA DE MERCADO — RecetarioPro
+# FICHA DE MERCADO — MargenPro
 
 ## Alcance de esta ficha
-- Nicho/categoría exacta: calculadora de costeo de recetas y precios para reposteras/gastronomía casera
+- Nicho/categoría exacta: calculadora de costeo de recetas/productos y precios para negocios de comida independientes (repostería, comida rápida, panadería, dark kitchens, catering, menús del día) — ampliado 2026-11-07, antes solo repostería; los competidores investigados abajo (bakers/pastry) siguen siendo la referencia más cercana por falta de datos de otros sub-rubros en esta sesión
 - País(es) donde se va a vender: Colombia, México y Perú (decidido — ver justificación abajo) · Moneda de cobro: USD como precio base en Hotmart (la pasarela muestra el equivalente en moneda local al pagar)
 - Fecha de investigación: 2026-11-07 · Vence el: 2027-05-07
 - Pasarela/plataforma de venta elegida: Hotmart (default del SO)

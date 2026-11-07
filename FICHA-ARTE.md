@@ -1,4 +1,4 @@
-# FICHA DE DIRECCIÓN DE ARTE — RecetarioPro
+# FICHA DE DIRECCIÓN DE ARTE — MargenPro
 
 ## Referencia del usuario (CONTRATO — ver 16)
 - ¿Hay imagen(es) de referencia del usuario?: NO → se usó el PROTOCOLO A/B/C (54), fusión de líderes

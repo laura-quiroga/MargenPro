@@ -1,4 +1,4 @@
-# FICHA-MODELO — el plano de la app que ya gana — RecetarioPro
+# FICHA-MODELO — el plano de la app que ya gana — MargenPro
 
 - Estado: BORRADOR (una sola señal de revenue por app — estimado de agregador, no verificado con 2 fuentes independientes; sin acceso a Sensor Tower/Meta Ads Library en esta sesión)
 
