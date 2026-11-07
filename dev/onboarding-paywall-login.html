@@ -65,6 +65,37 @@
   .chip-icono svg { stroke:var(--accent); }
   .chip-icono.grande { width:64px; height:64px; border-radius:18px; }
 
+  /* OPCIONES TOCABLES (tipo de negocio / diagnóstico del dolor) */
+  .opciones-lista { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .opcion-grande { display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:var(--surface); border:1.5px solid var(--sunken); border-radius:var(--radius-card); padding:14px 16px; box-shadow:var(--shadow-1); transition:border-color .15s ease-out, transform .15s ease-out; }
+  .opcion-grande:active { transform:scale(.98); }
+  .opcion-grande.elegida { border-color:var(--accent); background:rgb(var(--accent-tint)/.07); }
+  .opcion-grande .texto { font-size:14.5px; font-weight:700; }
+  .opcion-grande .chip-icono { width:42px; height:42px; border-radius:11px; }
+
+  /* Micro-respuesta empática del diagnóstico del dolor */
+  .respuesta-empatica { display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px; justify-content:center; flex:1; }
+  .respuesta-empatica p { font-size:16px; font-weight:700; max-width:28ch; }
+
+  /* Selector de moneda junto al precio del insumo */
+  .campo-con-moneda { display:flex; gap:8px; }
+  .campo-con-moneda .campo-prefijo { flex:1; }
+  .selector-moneda { width:84px; flex-shrink:0; padding:14px 8px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:13.5px; font-weight:700; }
+  .selector-moneda:focus { outline:none; border-color:var(--accent); }
+  .nota-moneda { font-size:11.5px; color:var(--text-2); margin-top:-10px; margin-bottom:16px; }
+
+  /* Comparación precio actual vs ideal (resultado) */
+  .comparacion-actual { width:100%; border-radius:var(--radius-card); padding:16px 18px; margin-bottom:14px; text-align:left; }
+  .comparacion-actual.es-error { background:rgb(179 69 58 / .09); border:1.5px solid rgb(179 69 58 / .25); }
+  .comparacion-actual.es-aviso { background:rgb(201 138 44 / .10); border:1.5px solid rgb(201 138 44 / .28); }
+  .comparacion-actual.es-exito { background:rgb(var(--accent-tint)/.10); border:1.5px solid rgb(var(--accent-tint)/.3); }
+  .comparacion-actual .fila-cmp { display:flex; align-items:flex-start; gap:10px; }
+  .comparacion-actual .fila-cmp svg { flex-shrink:0; margin-top:1px; }
+  .comparacion-actual.es-error svg { stroke:var(--error); }
+  .comparacion-actual.es-aviso svg { stroke:var(--aviso); }
+  .comparacion-actual.es-exito svg { stroke:var(--accent); }
+  .comparacion-actual p { font-size:13.5px; font-weight:700; line-height:1.4; }
+
   /* 1. BIENVENIDA */
   #p-bienvenida .pantalla-contenido { align-items:center; justify-content:center; text-align:center; gap:18px; }
   #p-bienvenida h1 { font-size:26px; line-height:1.2; }
@@ -149,8 +180,8 @@
   </div>
 
   <div class="paso-indicador-wrap" id="progresoWrap">
-    <div class="paso-indicador" id="pasoTexto">Paso 1 de 7</div>
-    <div class="progreso-barra"><div id="progresoFill" style="width:14%"></div></div>
+    <div class="paso-indicador" id="pasoTexto">Paso 1 de 9</div>
+    <div class="progreso-barra"><div id="progresoFill" style="width:11%"></div></div>
   </div>
 
   <!-- 1. BIENVENIDA -->
@@ -168,8 +199,65 @@
     <div class="pantalla-footer"><button class="btn-cta" onclick="irA(2)">Empezar →</button></div>
   </section>
 
-  <!-- 2. REGISTRAR INSUMO -->
-  <section class="pantalla" id="p-insumo" data-paso="2">
+  <!-- 2. TIPO DE NEGOCIO -->
+  <section class="pantalla" id="p-tipo-negocio" data-paso="2">
+    <div class="pantalla-contenido entrada">
+      <h2 style="font-size:21px;margin-bottom:6px;">¿Qué tipo de negocio lideras hoy?</h2>
+      <p class="sub" style="color:var(--text-2);font-size:13.5px;margin-bottom:18px;">Así tus ejemplos van a ser de tu propio rubro, no genéricos.</p>
+      <div class="opciones-lista">
+        <button class="opcion-grande" onclick="elegirTipoNegocio('reposteria')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M9 3.5l1 1.5M15 3.5l-1 1.5"/><path d="M4 11c0-2 1.8-3 4-3h8c2.2 0 4 1 4 3"/><path d="M3 11h18l-1.4 8.2A2 2 0 0117.6 21H6.4a2 2 0 01-2-1.8L3 11z"/><path d="M8 15h8"/></svg></div>
+          <span class="texto">Repostería y pastelería</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirTipoNegocio('comida-rapida')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a8 8 0 0116 0z"/><path d="M3 10h18"/><path d="M3 14h18"/><path d="M2.5 14c0 3.5 2.5 6 9.5 6s9.5-2.5 9.5-6"/></svg></div>
+          <span class="texto">Comida rápida y street food</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirTipoNegocio('panaderia')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13c0-5 3.5-9 8-9s8 4 8 9"/><path d="M3 13h18c0 3.5-2 6.5-5 7.5-1-.8-2-1-4-1s-3 .2-4 1c-3-1-5-4-5-7.5z"/></svg></div>
+          <span class="texto">Panadería artesanal</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirTipoNegocio('otro')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v7M4 2v7M4 9h3M5.5 9v13"/><path d="M18.5 2c-2 1-3 3-3 6s1 4 3 4v10"/></svg></div>
+          <span class="texto">Menús, catering u otro</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DIAGNÓSTICO DEL DOLOR -->
+  <section class="pantalla" id="p-dolor" data-paso="3">
+    <div class="pantalla-contenido entrada" id="dolorPreguntaWrap">
+      <h2 style="font-size:21px;margin-bottom:6px;">¿Cómo calculas tus precios hoy?</h2>
+      <p class="sub" style="color:var(--text-2);font-size:13.5px;margin-bottom:18px;">No hay respuesta mala — por eso estás aquí.</p>
+      <div class="opciones-lista">
+        <button class="opcion-grande" onclick="elegirDolor('a-ojo', 'Vamos a cambiar eso ahora mismo.')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <span class="texto">A ojo o copiando a la competencia</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirDolor('cuadernos', 'Dile adiós a la libreta manchada de aceite.')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13a2 2 0 012 2v14a2 2 0 01-2 2H4z"/><path d="M4 4v18M8 9h7M8 13h7"/></svg></div>
+          <span class="texto">En cuadernos o notas de papel</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirDolor('excel', 'Tranquilo/a, vamos a dejar atrás las fórmulas que se rompen.')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></div>
+          <span class="texto">En hojas de Excel que se enredan</span>
+        </button>
+        <button class="opcion-grande" onclick="elegirDolor('no-se', 'Eso termina hoy: en un minuto lo vas a saber con certeza.')">
+          <div class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 1.8-2.5 3.5"/><path d="M12 17h.01"/></svg></div>
+          <span class="texto">No estoy seguro/a de si gano o pierdo</span>
+        </button>
+      </div>
+    </div>
+    <div class="respuesta-empatica" id="dolorRespuestaWrap" style="display:none;">
+      <div class="chip-icono grande"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="stroke:var(--accent);" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg></div>
+      <p id="dolorRespuestaTexto"></p>
+      <button class="btn-cta" style="margin-top:6px;" onclick="irA(4)">Continuar →</button>
+    </div>
+  </section>
+
+  <!-- 4. REGISTRAR INSUMO -->
+  <section class="pantalla" id="p-insumo" data-paso="4">
     <div class="pantalla-contenido entrada">
       <h2 style="font-size:22px;margin-bottom:6px;">¿Qué compraste para producir?</h2>
       <p class="sub" style="color:var(--text-2);font-size:14px;margin-bottom:22px;">Un insumo real tuyo — harina, carne, empaques, lo que sea. Lo puedes editar después.</p>
@@ -177,11 +265,19 @@
         <label for="insumoNombre">Nombre del insumo</label>
         <input id="insumoNombre" type="text" placeholder="Ej: Harina de trigo (kilo)" value="Harina de trigo (kilo)">
       </div>
-      <div class="campo campo-prefijo">
-        <label for="insumoPrecio">Precio de compra</label>
-        <span>$</span>
-        <input id="insumoPrecio" type="number" inputmode="decimal" placeholder="12000" value="12000">
+      <label for="insumoPrecio" style="display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:7px;">Precio de compra</label>
+      <div class="campo-con-moneda">
+        <div class="campo-prefijo"><span id="simboloMoneda">$</span>
+          <input id="insumoPrecio" type="number" inputmode="decimal" placeholder="12000" value="12000">
+        </div>
+        <select class="selector-moneda" id="selectorMoneda" onchange="cambiarMoneda()">
+          <option value="COP">COP</option>
+          <option value="MXN">MXN</option>
+          <option value="PEN">PEN</option>
+          <option value="USD">USD</option>
+        </select>
       </div>
+      <p class="nota-moneda">Detectamos tu moneda por tu país — puedes cambiarla. Esto es solo para TUS insumos; el precio de MargenPro siempre se cobra en USD.</p>
       <div id="insumoChips"></div>
     </div>
     <div class="pantalla-footer">
@@ -189,8 +285,8 @@
     </div>
   </section>
 
-  <!-- 3. ARMAR RECETA -->
-  <section class="pantalla" id="p-receta" data-paso="3">
+  <!-- 5. ARMAR RECETA -->
+  <section class="pantalla" id="p-receta" data-paso="5">
     <div class="pantalla-contenido entrada">
       <h2 style="font-size:22px;margin-bottom:6px;">Ahora arma tu producto</h2>
       <p class="sub" style="color:var(--text-2);font-size:14px;margin-bottom:18px;">¿Cuánto de ese insumo usas, y qué margen de ganancia quieres?</p>
@@ -201,6 +297,11 @@
       <div class="campo">
         <label for="cantidadUsada">¿Cuánto usas de tu insumo? (gramos)</label>
         <input id="cantidadUsada" type="number" inputmode="decimal" placeholder="600" value="600">
+      </div>
+      <div class="campo campo-prefijo">
+        <label for="precioActual">¿Cuánto cobras HOY por esto?</label>
+        <span id="simboloMonedaActual">$</span>
+        <input id="precioActual" type="number" inputmode="decimal" placeholder="18000" value="18000">
       </div>
       <div class="slider-wrap">
         <div class="paso-indicador" style="margin-bottom:4px;">Margen de ganancia que quieres</div>
@@ -213,12 +314,18 @@
     </div>
   </section>
 
-  <!-- 4. RESULTADO (primera victoria) -->
-  <section class="pantalla" id="p-resultado" data-paso="4">
+  <!-- 6. RESULTADO (primera victoria) -->
+  <section class="pantalla" id="p-resultado" data-paso="6">
     <div class="pantalla-contenido entrada">
       <div class="paso-indicador" style="text-align:center;">Tu primer costeo</div>
       <h2 id="resultadoNombre" style="font-size:20px;text-align:center;margin-bottom:4px;">Torta de chocolate x 12 porciones</h2>
       <div class="confetti-zona" id="confettiZona"></div>
+      <div class="comparacion-actual" id="comparacionActual" style="display:none;">
+        <div class="fila-cmp">
+          <svg id="comparacionIcono" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+          <p id="comparacionTexto"></p>
+        </div>
+      </div>
       <div class="heroe-tarjeta"><div>
         <div class="precio-heroe"><span id="precioResultado">$0</span><span class="sm">precio sugerido por unidad</span></div>
         <div class="fila-dato"><span>Costo real</span><span id="costoResultado">$0</span></div>
@@ -226,11 +333,11 @@
       </div></div>
       <p class="sub" style="text-align:center;margin-top:16px;font-size:13.5px;">Así de simple es cada vez — y esto fue con datos reales tuyos.</p>
     </div>
-    <div class="pantalla-footer"><button class="btn-cta" onclick="irA(5)">Ver qué más hace MargenPro →</button></div>
+    <div class="pantalla-footer"><button class="btn-cta" onclick="irA(7)">Ver qué más hace MargenPro →</button></div>
   </section>
 
-  <!-- 5. TOUR "ASÍ SE VE TU APP POR DENTRO" -->
-  <section class="pantalla" id="p-tour" data-paso="5">
+  <!-- 7. TOUR "ASÍ SE VE TU APP POR DENTRO" -->
+  <section class="pantalla" id="p-tour" data-paso="7">
     <div class="pantalla-contenido entrada">
       <h2 style="font-size:21px;margin-bottom:4px;">Esto es lo que vas a <span class="acento">ver y usar</span></h2>
       <p class="sub" style="color:var(--text-2);font-size:13.5px;margin-bottom:6px;">Vistas ilustrativas — la app real está en construcción.</p>
@@ -242,11 +349,11 @@
       </div>
       <p class="sub" style="text-align:center;margin-top:18px;font-size:13px;">Marca una cotización <strong>vendida</strong> y celebramos contigo 🎉</p>
     </div>
-    <div class="pantalla-footer"><button class="btn-cta" onclick="irA(6)">Quiero usar todo esto →</button></div>
+    <div class="pantalla-footer"><button class="btn-cta" onclick="irA(8)">Quiero usar todo esto →</button></div>
   </section>
 
-  <!-- 6. PAYWALL -->
-  <section class="pantalla" id="p-paywall" data-paso="6">
+  <!-- 8. PAYWALL -->
+  <section class="pantalla" id="p-paywall" data-paso="8">
     <div class="pantalla-contenido entrada">
       <div class="paso-indicador" style="text-align:center;">Tu primer costeo está listo</div>
       <h2 style="font-size:21px;text-align:center;margin-bottom:4px;">Desbloquea recetas <span class="acento">ilimitadas</span></h2>
@@ -257,6 +364,7 @@
         <div class="linea"><span>Cotizaciones por WhatsApp con tu logo</span><span>$20</span></div>
         <div class="total"><span>Valor total</span><span><span class="tachado">$146</span> hoy $5.99/mes</span></div>
       </div>
+      <p class="nota-moneda" style="margin-top:-6px;">Este precio de MargenPro siempre es en USD, sin importar la moneda en la que anotes tus insumos.</p>
       <div class="plan recomendado"><div class="inner">
         <span class="badge">MÁS POPULAR</span>
         <div class="nombre-plan">Anual</div>
@@ -272,13 +380,13 @@
       <div style="text-align:center;"><div class="trial-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 7 días gratis — te avisamos antes de cobrarte</div></div>
     </div>
     <div class="pantalla-footer">
-      <button class="btn-cta" onclick="irA(7)">Empezar mis 7 días gratis →</button>
-      <button class="btn-texto" onclick="irA(7)">Seguir con el plan gratis limitado</button>
+      <button class="btn-cta" onclick="irA(9)">Empezar mis 7 días gratis →</button>
+      <button class="btn-texto" onclick="irA(9)">Seguir con el plan gratis limitado</button>
     </div>
   </section>
 
-  <!-- 7. LOGIN -->
-  <section class="pantalla" id="p-login" data-paso="7">
+  <!-- 9. LOGIN -->
+  <section class="pantalla" id="p-login" data-paso="9">
     <div class="pantalla-contenido entrada">
       <div class="chip-icono grande" style="margin:0 auto;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
       <h2 style="font-size:21px;text-align:center;margin:14px 0 4px;">Para guardar tu progreso</h2>
@@ -287,9 +395,9 @@
         <label for="loginEmail">Tu correo</label>
         <input id="loginEmail" type="email" placeholder="tucorreo@ejemplo.com">
       </div>
-      <button class="btn-cta" onclick="irA(8)">Enviarme el enlace para entrar</button>
+      <button class="btn-cta" onclick="irA(10)">Enviarme el enlace para entrar</button>
       <div class="login-divider">o</div>
-      <button class="btn-google" onclick="irA(8)">
+      <button class="btn-google" onclick="irA(10)">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.7-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.1-4 1.1-3.1 0-5.7-2.1-6.6-4.9H1.3v3.1C3.3 21.3 7.3 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.3c-.2-.7-.4-1.5-.4-2.3s.1-1.6.4-2.3V6.6H1.3C.5 8.2 0 10 0 12s.5 3.8 1.3 5.4z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.3 0 3.3 2.7 1.3 6.6l4.1 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
         Continuar con Google
       </button>
@@ -297,8 +405,8 @@
     </div>
   </section>
 
-  <!-- 8. BIENVENIDA FINAL (demo de los 3 momentos emocionales del historial) -->
-  <section class="pantalla" id="p-final" data-paso="8">
+  <!-- 10. BIENVENIDA FINAL (demo de los 3 momentos emocionales del historial) -->
+  <section class="pantalla" id="p-final" data-paso="10">
     <div class="pantalla-contenido entrada" style="align-items:center;justify-content:center;text-align:center;gap:14px;">
       <div class="chip-icono grande" style="margin:0 auto;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <h1 style="font-size:24px;">Ya eres parte de MargenPro</h1>
@@ -318,8 +426,52 @@
 </div>
 
 <script>
-  var TOTAL_PASOS = 7; // la 8 es demo, no cuenta en la barra de progreso
+  var TOTAL_PASOS = 9; // la 10 es demo, no cuenta en la barra de progreso
   var insumos = [];
+  var tipoNegocio = 'reposteria'; // valor por defecto antes de elegir
+  var dolorElegido = null;
+  var monedaActual = 'COP'; // simulado como "detectado por país" — en producción se detecta por geo-IP o el país de la cuenta de Hotmart (18-VENTA-HOTMART); esto es solo la moneda de SUS insumos, nunca la de la suscripción
+  var SIMBOLOS_MONEDA = { COP:'$', MXN:'$', PEN:'S/', USD:'US$' };
+
+  // Textos de ejemplo por tipo de negocio (personalización — mejora aprobada tras comparar con la propuesta de Gemini)
+  var EJEMPLOS_NEGOCIO = {
+    'reposteria':    { insumoNombre:'Harina de trigo (kilo)', insumoPrecio:12000, productoNombre:'Torta de chocolate x 12 porciones', cantidad:600, precioActual:18000, palabra:'torta' },
+    'comida-rapida': { insumoNombre:'Carne molida (kilo)', insumoPrecio:22000, productoNombre:'Hamburguesa clásica x 1', cantidad:150, precioActual:9000, palabra:'hamburguesa' },
+    'panaderia':     { insumoNombre:'Harina panadera (kilo)', insumoPrecio:9000, productoNombre:'Pan artesanal x unidad', cantidad:300, precioActual:3500, palabra:'pan' },
+    'otro':          { insumoNombre:'Insumo principal (kilo)', insumoPrecio:15000, productoNombre:'Tu producto estrella', cantidad:400, precioActual:12000, palabra:'producto' }
+  };
+
+  function elegirTipoNegocio(tipo){
+    tipoNegocio = tipo;
+    document.querySelectorAll('#p-tipo-negocio .opcion-grande').forEach(function(b){ b.classList.remove('elegida'); });
+    event.currentTarget.classList.add('elegida');
+    var ej = EJEMPLOS_NEGOCIO[tipo] || EJEMPLOS_NEGOCIO['otro'];
+    document.getElementById('insumoNombre').value = ej.insumoNombre;
+    document.getElementById('insumoNombre').placeholder = 'Ej: ' + ej.insumoNombre;
+    document.getElementById('insumoPrecio').value = ej.insumoPrecio;
+    document.getElementById('recetaNombre').value = ej.productoNombre;
+    document.getElementById('recetaNombre').placeholder = 'Ej: ' + ej.productoNombre;
+    document.getElementById('cantidadUsada').value = ej.cantidad;
+    document.getElementById('precioActual').value = ej.precioActual;
+    setTimeout(function(){ irA(3); }, 300);
+  }
+
+  function elegirDolor(opcion, respuesta){
+    dolorElegido = opcion;
+    document.getElementById('dolorPreguntaWrap').style.display = 'none';
+    var wrap = document.getElementById('dolorRespuestaWrap');
+    wrap.style.display = 'flex';
+    document.getElementById('dolorRespuestaTexto').textContent = respuesta;
+    setTimeout(function(){ irA(4); }, 1100);
+  }
+
+  function cambiarMoneda(){
+    monedaActual = document.getElementById('selectorMoneda').value;
+    var s = SIMBOLOS_MONEDA[monedaActual];
+    document.getElementById('simboloMoneda').textContent = s;
+    var elActual = document.getElementById('simboloMonedaActual');
+    if (elActual) elActual.textContent = s;
+  }
 
   function irA(n){
     document.querySelectorAll('.pantalla').forEach(function(p){ p.classList.remove('activa'); });
@@ -341,37 +493,69 @@
   function agregarInsumo(){
     var nombre = document.getElementById('insumoNombre').value || 'Insumo';
     var precio = parseFloat(document.getElementById('insumoPrecio').value) || 0;
-    insumos = [{nombre: nombre, precio: precio}];
-    irA(3);
+    insumos = [{nombre: nombre, precio: precio, moneda: monedaActual}];
+    irA(5);
   }
 
   function calcularYMostrar(){
-    var insumo = insumos[0] || {nombre:'Harina de trigo (kilo)', precio:12000};
+    var insumo = insumos[0] || {nombre:'Harina de trigo (kilo)', precio:12000, moneda:'COP'};
     var cantidadG = parseFloat(document.getElementById('cantidadUsada').value) || 600;
     var margen = parseInt(document.getElementById('margenSlider').value, 10) || 40;
     var nombreReceta = document.getElementById('recetaNombre').value || 'Tu producto';
+    var precioActual = parseFloat(document.getElementById('precioActual').value) || 0;
+    var simbolo = SIMBOLOS_MONEDA[monedaActual] || '$';
     // costo simplificado: precio del insumo (por kilo) * (gramos usados/1000) + costo operativo base ilustrativo
     var costoInsumo = (insumo.precio / 1000) * cantidadG;
     var costoBase = Math.round(costoInsumo + costoInsumo * 0.35); // + empaques/operativo ilustrativo
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
 
     document.getElementById('resultadoNombre').textContent = nombreReceta;
-    document.getElementById('costoResultado').textContent = '$' + costoBase.toLocaleString('es-CO');
+    document.getElementById('costoResultado').textContent = simbolo + costoBase.toLocaleString('es-CO');
     document.getElementById('margenResultado').textContent = margen + '%';
-    animarConteo('precioResultado', precioSugerido);
+    animarConteo('precioResultado', precioSugerido, simbolo);
     lanzarConfeti('confettiZona', 14);
-    irA(4);
+    mostrarComparacion(precioActual, costoBase, precioSugerido, simbolo);
+    irA(6);
   }
 
-  function animarConteo(id, fin){
+  // Comparación rojo/aviso/verde del precio que YA cobra vs. costo real y precio ideal —
+  // el verdadero momento "ajá": si está regalando trabajo, lo ve en números, sin alarmismo.
+  function mostrarComparacion(precioActual, costoBase, precioSugerido, simbolo){
+    var caja = document.getElementById('comparacionActual');
+    var icono = document.getElementById('comparacionIcono');
+    var texto = document.getElementById('comparacionTexto');
+    if (!precioActual || precioActual <= 0) { caja.style.display = 'none'; return; }
+    caja.style.display = 'block';
+    caja.classList.remove('es-error', 'es-aviso', 'es-exito');
+
+    if (precioActual <= costoBase) {
+      var diferencia = costoBase - precioActual;
+      caja.classList.add('es-error');
+      icono.innerHTML = '<path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/>';
+      texto.textContent = 'Con ' + simbolo + precioActual.toLocaleString('es-CO') + ' estás perdiendo ' + simbolo + diferencia.toLocaleString('es-CO') + ' en cada uno — por eso al final del mes la plata no alcanza.';
+    } else if (precioActual < precioSugerido) {
+      var margenReal = Math.round(((precioActual - costoBase) / precioActual) * 100);
+      caja.classList.add('es-aviso');
+      icono.innerHTML = '<path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/>';
+      texto.textContent = 'Con ' + simbolo + precioActual.toLocaleString('es-CO') + ' tu ganancia real es solo del ' + margenReal + '% — no estás perdiendo, pero puedes ganar más.';
+    } else {
+      caja.classList.add('es-exito');
+      var margenReal2 = Math.round(((precioActual - costoBase) / precioActual) * 100);
+      icono.innerHTML = '<path d="M20 6L9 17l-5-5"/>';
+      texto.textContent = '¡Vas bien! Con ' + simbolo + precioActual.toLocaleString('es-CO') + ' ya tienes una ganancia real del ' + margenReal2 + '%.';
+    }
+  }
+
+  function animarConteo(id, fin, simbolo){
+    simbolo = simbolo || '$';
     var el = document.getElementById(id);
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = '$' + fin.toLocaleString('es-CO'); return; }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = simbolo + fin.toLocaleString('es-CO'); return; }
     var inicio = null, duracion = 800;
     function paso(ts){
       if (!inicio) inicio = ts;
       var prog = Math.min((ts - inicio) / duracion, 1);
       var curr = Math.round(fin * (1 - Math.pow(1 - prog, 3)));
-      el.textContent = '$' + curr.toLocaleString('es-CO');
+      el.textContent = simbolo + curr.toLocaleString('es-CO');
       if (prog < 1) requestAnimationFrame(paso);
     }
     requestAnimationFrame(paso);
