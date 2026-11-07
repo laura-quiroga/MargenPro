@@ -1,7 +1,7 @@
 # ESTADO — RecetarioPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: mostradas 3 direcciones A/B/C (dev/direcciones-abc.html); usuario pidió fusionar composición de A+C y preguntó por multi-tema (color/tipografía a elección del cliente) — se le explicó por qué no y se ofreció modo claro/oscuro en su lugar / Siguiente acción exacta: esperar su elección de paleta única, cerrar FICHA-ARTE.md y hacer EL TOUR DE LA APP (54)
+⏸️ CHECKPOINT — Última acción completada: FICHA-ARTE.md creada y cerrada (fusión A+C, verde salvia) + tour de la app construido y verificado en claro/oscuro a 375px (dev/vista-previa-app.html) / Siguiente acción exacta: mostrarle el tour al usuario para su aprobación final; si aprueba, FICHA-ARTE queda cosa juzgada y se pasa a Sesión 3 (landing)
 
 ## Qué es esta app (3 líneas máximo)
 Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
@@ -15,6 +15,14 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Lo que los usuarios odian de la competencia (nuestra oportunidad): no separan bien ingrediente de empaque/consumible · no avisan ni actualizan rápido cuando sube el precio de un insumo · "le faltan funciones de manejo de ingredientes"
 - Brecha LATAM confirmada: SÍ — las apps en español encontradas (Control Receta, Cost Recipes) tienen calificaciones bajas (~3.0), ningún líder fuerte en español
 - Precio de referencia del mercado: la mayoría freemium con compra dentro de la app; un competidor web cobra $29/mes (apunta a negocios grandes, no es nuestra referencia) — precio final PENDIENTE de saber el país del usuario
+
+## Dirección de Arte (Sesión 2 — NO cambiar sin justificación)
+- FICHA-ARTE.md: existe y aprobada por el usuario (2026-11-07) — fusión de Opción A (tarjeta-héroe) + Opción C (claridad de pasos), color de C
+- Resumen: fondo claro #FAFAF6 (oscuro #1A1D1B) · acento #3F7D6B claro / #6FB89E oscuro · Display "Fraunces" (solo precio/titulares) · Body "Manrope" · radio 14px
+- Personalidad: cálida · clara · confiable
+- Modo oscuro: toggle explícito (pedido por el usuario), verificado visualmente en dev/vista-previa-app.html
+- REGISTRO ANTI-REPETICIÓN: paleta verde salvia (#3F7D6B) + par Fraunces/Manrope quedan vetados para el próximo proyecto del SO
+- Tour de la app: dev/vista-previa-app.html (onboarding, pantalla principal, paywall, resumen mensual, cotización WhatsApp) — pendiente de aprobación final del usuario
 
 ## Avatar y venta (Sesión 1)
 - FICHA-AVATAR.md: existe, BORRADOR (el usuario ya trajo una investigación completa de avatar en su documento — falta solo confirmar país/moneda)

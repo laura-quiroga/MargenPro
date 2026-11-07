@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es" data-kit="abc-v2" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tour de la app — RecetarioPro (fusión A+C)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  :root {
+    --bg: #FAFAF6; --surface: #FFFFFF; --sunken: #F0EFE9;
+    --text-1: #2B2A26; --text-2: #716C5F;
+    --accent: #3F7D6B; --accent-tint: 63 125 107;
+    --exito: #3F7D6B; --error: #B3453A; --aviso: #C98A2C;
+    --radius-card: 14px; --radius-btn: 12px;
+    --font-display: 'Fraunces', serif; --font-body: 'Manrope', sans-serif;
+  }
+  html[data-theme="dark"] {
+    --bg: #1A1D1B; --surface: #232923; --sunken: #151715;
+    --text-1: #F3F1EA; --text-2: #A8A79C;
+    --accent: #6FB89E; --accent-tint: 111 184 158;
+    --exito: #6FB89E; --error: #E0837A; --aviso: #E0B15C;
+  }
+
+  body {
+    background: linear-gradient(180deg, #ececec, #e2e2e2);
+    color: #1c1c1f; font-family: var(--font-body);
+    padding: 28px 20px 70px;
+  }
+  html[data-theme="dark"] body { background: linear-gradient(180deg, #111312, #0c0d0c); color: #f3f1ea; }
+
+  .cabecera { max-width: 1240px; margin: 0 auto 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .cabecera h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+  .cabecera p { margin-top: 6px; font-size: 13.5px; color: #65656d; max-width: 62ch; }
+  html[data-theme="dark"] .cabecera p { color: #9a9a9e; }
+
+  .toggle-tema {
+    display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #d9d9de;
+    border-radius: 999px; padding: 6px 6px 6px 14px; font-size: 12.5px; font-weight: 600; color: #3a3a40;
+    cursor: pointer; user-select: none; flex-shrink: 0;
+  }
+  html[data-theme="dark"] .toggle-tema { background: #232923; border-color: #343a34; color: #e8e6df; }
+  .toggle-tema .switch {
+    width: 40px; height: 22px; border-radius: 999px; background: #d9d9de; position: relative; transition: background .2s;
+  }
+  html[data-theme="dark"] .toggle-tema .switch { background: var(--accent); }
+  .toggle-tema .switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgb(0 0 0 / .3);
+  }
+  html[data-theme="dark"] .toggle-tema .switch::after { transform: translateX(18px); }
+
+  .tira { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px;
+          grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .vista { display: flex; flex-direction: column; gap: 10px; }
+  .vista .rotulo { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #85858e; text-align: center; }
+  html[data-theme="dark"] .vista .rotulo { color: #8c8c90; }
+
+  .telefono {
+    width: 100%; max-width: 230px; margin: 0 auto; aspect-ratio: 9/19.5;
+    border: 9px solid #101014; border-radius: 38px; box-shadow: 0 20px 48px rgb(20 18 24 / .28);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+    background: var(--bg); color: var(--text-1); font-family: var(--font-body);
+  }
+  .statusbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 4px; font-size: 11px; font-weight: 600; }
+  .statusbar svg { display: block; }
+  .home-indicator { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 90px; height: 4px; border-radius: 999px; background: var(--text-1); opacity: .85; }
+  .pantalla { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 14px; }
+
+  .chip-icono { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: rgb(var(--accent-tint) / .12); }
+  .cta { display: flex; align-items: center; justify-content: center; height: 40px; font-size: 12.5px; font-weight: 700; border-radius: var(--radius-btn); background: var(--accent); color: var(--bg); margin-top: auto; box-shadow: 0 6px 16px rgb(var(--accent-tint) / .3); }
+
+  .tabbar { display: flex; align-items: stretch; justify-content: space-around; margin: 8px -14px 0; padding: 6px 4px 12px; border-top: 1px solid rgb(var(--accent-tint) / .18); background: rgb(255 255 255 / .02); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 7.5px; font-weight: 700; color: var(--text-2); text-decoration: none; }
+  .tabbar a.activa { color: var(--accent); }
+  .tabbar .tab-chip { display: flex; align-items: center; justify-content: center; width: 26px; height: 20px; border-radius: 7px; }
+  .tabbar a.activa .tab-chip { background: rgb(var(--accent-tint) / .14); }
+
+  /* ---- Tarjeta-héroe (dispositivo ownable, de la Opción A) ---- */
+  .heroe {
+    margin-top: 10px; border-radius: var(--radius-card); padding: 12px;
+    border: 1.5px solid transparent;
+    background: linear-gradient(var(--surface), var(--surface)) padding-box,
+                linear-gradient(135deg, rgb(var(--accent-tint) / .5), transparent 60%) border-box;
+    box-shadow: 0 8px 20px -10px rgb(var(--accent-tint) / .25);
+  }
+  .heroe .label { font-size: 10px; font-weight: 600; color: var(--text-2); }
+  .heroe .dato { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .heroe .dato small { font-size: 11px; font-weight: 600; color: var(--text-2); }
+  .heroe .insight { margin-top: 2px; font-size: 10.5px; color: var(--accent); font-weight: 700; }
+
+  /* ---- Indicador de paso (dispositivo de la Opción C) ---- */
+  .paso-pill { display: inline-flex; font-size: 9px; font-weight: 700; letter-spacing: .04em; color: var(--text-2);
+               background: rgb(var(--accent-tint) / .1); padding: 3px 9px; border-radius: 999px; margin-top: 8px; }
+
+  .tarjeta { margin-top: 8px; background: var(--surface); border-radius: var(--radius-card); border: 1px solid rgb(var(--accent-tint) / .14); padding: 10px; display: flex; gap: 9px; align-items: flex-start; }
+  .tarjeta h4 { font-size: 11.5px; font-weight: 700; }
+  .tarjeta p { margin-top: 1px; font-size: 10px; color: var(--text-2); line-height: 1.4; }
+
+  h3.titulo { font-family: var(--font-display); font-size: 17px; font-weight: 600; line-height: 1.15; margin-top: 10px; }
+  .saludo { margin-top: 8px; font-size: 10px; font-weight: 600; color: var(--text-2); }
+
+  .check { width: 16px; height: 16px; border-radius: 999px; background: var(--exito); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .check svg { width: 9px; height: 9px; }
+
+  .pie { max-width: 1240px; margin: 36px auto 0; font-size: 12px; color: #6a6a72; border-top: 1px solid #d0d0d6; padding-top: 12px; line-height: 1.6; }
+  html[data-theme="dark"] .pie { color: #9a9a9e; border-color: #2c2e2c; }
+</style>
+</head>
+<body>
+
+<header class="cabecera">
+  <div>
+    <h1>Así se ve tu app por dentro — fusión A + C</h1>
+    <p>5 pantallas reales con el estilo elegido: la tarjeta-héroe cálida de la opción A, la claridad de pasos de la opción C, y el verde salvia. Datos de ejemplo, no reales.</p>
+  </div>
+  <div class="toggle-tema" id="toggleTema" role="button" aria-pressed="false">
+    <span id="toggleLabel">Modo claro</span>
+    <span class="switch"></span>
+  </div>
+</header>
+
+<div class="tira">
+
+  <!-- 1. ONBOARDING -->
+  <div class="vista">
+    <p class="rotulo">1 · Bienvenida</p>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="pantalla">
+        <p class="saludo">Antes de empezar</p>
+        <h3 class="titulo">¿Cuál es tu primer postre estrella?</h3>
+        <div class="tarjeta">
+          <span class="chip-icono"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/></svg></span>
+          <div><h4>Escribe su nombre</h4><p>Ej: "Torta de chocolate x 12 porciones".</p></div>
+        </div>
+        <div class="tarjeta">
+          <span class="chip-icono"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+          <div><h4>Tarda 2 minutos</h4><p>En nada vas a ver cuánto te cuesta de verdad.</p></div>
+        </div>
+        <div class="cta">Empezar</div>
+        <nav class="tabbar"><a class="activa">Inicio</a><a>Insumos</a><a>Cotizaciones</a><a>Resumen</a></nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 2. PANTALLA PRINCIPAL / M0 -->
+  <div class="vista">
+    <p class="rotulo">2 · Tu precio, calculado</p>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="pantalla">
+        <p class="saludo">Torta de chocolate · 12 porciones</p>
+        <span class="paso-pill">PASO 3 DE 3</span>
+        <h3 class="titulo" style="margin-top:6px">Tu precio ya está listo</h3>
+        <div class="heroe">
+          <p class="label">Precio de venta sugerido</p>
+          <p class="dato">$84.000<small> /torta</small></p>
+          <p class="insight">Te cuesta $48.000 → ganas 43% limpio</p>
+        </div>
+        <div class="tarjeta">
+          <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <div><h4>Insumos y receta guardados</h4><p>Ya puedes volver a usar este costo cuando quieras.</p></div>
+        </div>
+        <div class="cta">Guardar esta receta</div>
+        <nav class="tabbar"><a class="activa">Inicio</a><a>Insumos</a><a>Cotizaciones</a><a>Resumen</a></nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 3. PAYWALL -->
+  <div class="vista">
+    <p class="rotulo">3 · Pantalla de planes</p>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="pantalla">
+        <p class="saludo">Tu primer costeo quedó perfecto</p>
+        <h3 class="titulo">Desbloquea el resto de tu negocio</h3>
+        <div class="tarjeta"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><h4>Recetas e insumos ilimitados</h4></div></div>
+        <div class="tarjeta"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><h4>Escanea tus facturas</h4></div></div>
+        <div class="tarjeta"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><h4>Cotiza por WhatsApp con tu logo</h4></div></div>
+        <div class="heroe" style="margin-top:8px">
+          <p class="label">7 días gratis, luego</p>
+          <p class="dato" style="font-size:20px">$7.99<small>/mes</small></p>
+        </div>
+        <div class="cta">Empezar mi prueba gratis</div>
+        <nav class="tabbar"><a>Inicio</a><a>Insumos</a><a>Cotizaciones</a><a>Resumen</a></nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 4. RESUMEN MENSUAL -->
+  <div class="vista">
+    <p class="rotulo">4 · Resumen del mes</p>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="pantalla">
+        <p class="saludo">‹ Octubre 2026 ›</p>
+        <h3 class="titulo">Así te fue este mes</h3>
+        <div class="heroe">
+          <p class="label">Ganancia real de octubre</p>
+          <p class="dato">$612.000</p>
+          <p class="insight">De 14 pedidos vendidos</p>
+        </div>
+        <div class="tarjeta"><span class="chip-icono"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/></svg></span><div><h4>Gastaste en insumos</h4><p>$398.000 en total</p></div></div>
+        <div class="tarjeta"><span class="chip-icono"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/></svg></span><div><h4>3 cotizaciones pendientes</h4><p>Aún no sabes si se venden</p></div></div>
+        <div class="cta">Ver el detalle</div>
+        <nav class="tabbar"><a>Inicio</a><a>Insumos</a><a>Cotizaciones</a><a class="activa">Resumen</a></nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 5. COTIZACIÓN WHATSAPP -->
+  <div class="vista">
+    <p class="rotulo">5 · Cotización con tu logo</p>
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+      <div class="pantalla">
+        <p class="saludo">Lista para enviar</p>
+        <h3 class="titulo">Cotización — Pastel 30 personas</h3>
+        <div class="heroe">
+          <p class="label">Dulce Hogar Repostería</p>
+          <p class="dato" style="font-size:22px">$180.000</p>
+          <p class="insight">Incluye decoración especial</p>
+        </div>
+        <div class="tarjeta"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><div><h4>Con tu logo y tus datos</h4></div></div>
+        <div class="tarjeta"><span class="chip-icono"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-9 8.38 8.5 8.5 0 0 1-4.08-1.07L3 20l1.19-4.92A8.38 8.38 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/></svg></span><div><h4>La revisas antes de enviar</h4><p>Nada sale sin que tú lo apruebes.</p></div></div>
+        <div class="cta">Enviar por WhatsApp</div>
+        <nav class="tabbar"><a>Inicio</a><a>Insumos</a><a class="activa">Cotizaciones</a><a>Resumen</a></nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="pie">
+  Tour de la app (54) — nace del frame tematizado de dev/direcciones-abc.html (marcador data-kit="abc-v2" intacto).
+  Fusión aprobada por el usuario: composición de la Opción A (tarjeta-héroe) + claridad de pasos de la Opción C,
+  color verde salvia de C. Modo oscuro disponible con el interruptor de arriba — probar ambos antes de aprobar.
+  Pendiente: aprobación final del usuario para cerrar FICHA-ARTE.md como cosa juzgada.
+</footer>
+
+<script>
+  const html = document.documentElement;
+  const toggle = document.getElementById('toggleTema');
+  const label = document.getElementById('toggleLabel');
+  toggle.addEventListener('click', () => {
+    const dark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', dark ? 'light' : 'dark');
+    toggle.setAttribute('aria-pressed', String(!dark));
+    label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+  });
+</script>
+
+</body>
+</html>
