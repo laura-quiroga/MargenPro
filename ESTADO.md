@@ -1,7 +1,7 @@
 # ESTADO — RecetarioPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: FICHA-ARTE.md creada y cerrada (fusión A+C, verde salvia) + tour de la app construido y verificado en claro/oscuro a 375px (dev/vista-previa-app.html) / Siguiente acción exacta: mostrarle el tour al usuario para su aprobación final; si aprueba, FICHA-ARTE queda cosa juzgada y se pasa a Sesión 3 (landing)
+⏸️ CHECKPOINT — Última acción completada: usuario aprobó el tour y dio luz verde a seguir ("Sí, sigamos") → landing construida (Sesión 3, dev/landing/index.html) con las 10 secciones canónicas, copy trazado en docs/copy/landing.md, verificada a 375px y 1440px sin desbordes / Siguiente acción exacta: presentarle la landing al usuario para su aprobación; si aprueba, pasar a Sesión 4 (onboarding, paywall y login)
 
 ## Qué es esta app (3 líneas máximo)
 Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
@@ -22,12 +22,14 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Personalidad: cálida · clara · confiable
 - Modo oscuro: toggle explícito (pedido por el usuario), verificado visualmente en dev/vista-previa-app.html
 - REGISTRO ANTI-REPETICIÓN: paleta verde salvia (#3F7D6B) + par Fraunces/Manrope quedan vetados para el próximo proyecto del SO
-- Tour de la app: dev/vista-previa-app.html (onboarding, pantalla principal, paywall, resumen mensual, cotización WhatsApp) — pendiente de aprobación final del usuario
+- Tour de la app: dev/vista-previa-app.html (onboarding, pantalla principal, paywall, resumen mensual, cotización WhatsApp) — APROBADO por el usuario (dio luz verde a seguir a la landing)
 
 ## Avatar y venta (Sesión 1)
-- FICHA-AVATAR.md: existe, BORRADOR (el usuario ya trajo una investigación completa de avatar en su documento — falta solo confirmar país/moneda)
+- FICHA-AVATAR.md: existe, APROBADA (2026-11-07)
 - Resumen: María Alejandra, repostera casera, 31 años · dolor #1: "siento que trabajo como una esclava para terminar el mes sin un peso" · deseo #1: que la app le diga el precio exacto con el margen que quiere · nivel de consciencia: consciente del problema y de la solución (3/5) · sofisticación: media (2.5/5 — ya probó Excel/apps de notas, sin líder fuerte en español)
-- Landing: pendiente de construir (Sesión 3) — sigue la estructura canónica de 10 secciones
+- Mecanismo bautizado: "el Radar de Ganancia" (aparece en hero, solución y oferta de la landing — 19)
+- Big Idea: "María Alejandra no pierde dinero por ser mala repostera — pierde dinero porque calcula sus precios a ojo, sin ver lo que de verdad le cuesta cada receta. El Radar de Ganancia se lo muestra en segundos, para que cada postre que venda le deje una ganancia real."
+- Landing (Sesión 3): CONSTRUIDA — `dev/landing/index.html` (preview estático HTML/CSS, 10 secciones canónicas de 19) + copy marcado y trazado en `docs/copy/landing.md`. Verificada a 375px y 1440px, sin desbordes. CTAs → `/onboarding` (Modelo 2, onboarding-first anónimo). ⚠️ PENDIENTE: (a) escalar esto a los componentes reales del kit `plantillas-codigo/landing/` (React/Vite) cuando se haga el scaffold técnico del proyecto — por ahora es un preview fiel, no el código de producción; (b) confirmar el plazo exacto de garantía al configurar Hotmart (se usó 7 días, el mismo que el ejemplo del sistema); (c) páginas legales (privacidad/términos/reembolsos/aviso de IA) son placeholders, pendientes de redactar con el archivo 47; (d) email de soporte pendiente del dominio que el usuario compre; (e) carrusel "la app por dentro" con placeholders rotulados — se reemplaza por capturas reales cuando la app esté construida
 
 ## Estrategia de monetización (Sesión 1 — DECIDIDO por el agente con la matriz A-F de 02C)
 - Modelo: híbrido Productividad (E) + Finanzas (F) — el gatillo emocional es de confianza/control del dinero (F), pero el mecanismo diario es organizar ingredientes/recetas (E). Onboarding-first anónimo: landing → onboarding corto → primer resultado real (costo + precio) → paywall → login
@@ -41,9 +43,10 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Países de venta: Colombia, México y Perú (Colombia por pedido del usuario; México y Perú por señales reales de demanda — ver FICHA-MERCADO)
 
 ## Secuencia maestra de construcción
-- Estado de la secuencia: ninguna etapa construida aún — estamos en Sesión 1 (validación + fichas)
+- Estado de la secuencia: Landing construida (pendiente aprobación del usuario) — Onboarding/Paywall/Login/App interna pendientes
 - Ruta aprobada: `/` → `/onboarding` → `/paywall` → `/login` → `/app`
-- Landing / Onboarding / Paywall / Login / App interna: todos pendientes
+- Landing: CONSTRUIDA (dev/landing/index.html) — pendiente de aprobación del usuario y de pasar el revisor-visual (es de las 4 pantallas del dinero, obligatorio) antes de darla por cerrada
+- Onboarding / Paywall / Login / App interna: pendientes (Sesión 4-5)
 - Servicios externos: bloqueados hasta aprobar las etapas anteriores
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)

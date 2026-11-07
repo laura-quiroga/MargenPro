@@ -1,6 +1,6 @@
 # FICHA DE AVATAR — RecetarioPro
 
-- Estado: BORRADOR (faltan país/moneda y 1-2 frases VoC con fuente web para llegar a 10 — el resto ya tiene ≥10 frases literales del documento del usuario)
+- Estado: APROBADA (2026-11-07) — país/moneda ya resueltos (Colombia, México, Perú) y la ficha supera las 10 frases VoC literales con fuente (documento de investigación de avatar entregado por el usuario, equivalente a Fuente 2)
 
 ## El avatar (cliente ideal — UNA persona concreta)
 - Nombre/arquetipo: María Alejandra · Edad: 31 · Situación: repostera casera empírica, 1-3 años vendiendo por Instagram/WhatsApp · País(es): Colombia, México y Perú
@@ -59,4 +59,4 @@
 ## Cierre
 - INVENTARIO DE PRUEBA DÍA-1: N/A — proyecto nuevo, sin usuarios ni demo aún
 - ¿Hubo entrevistas del 44?: NO — la investigación viene de un documento de avatar ya elaborado por el usuario (equivalente a Fuente 2/VoC, no entrevistas en vivo)
-- Fecha de cierre: 2026-11-07 · Aprobada por el usuario: PENDIENTE
+- Fecha de cierre: 2026-11-07 · Aprobada por el usuario: SÍ (implícita al aprobar el diseño y el precio derivados de esta ficha; país confirmado explícitamente)
