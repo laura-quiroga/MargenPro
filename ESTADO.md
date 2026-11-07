@@ -59,7 +59,12 @@ Calculadora de costeo para negocios de comida independientes (repostería, comid
   1. Base de insumos personalizada (nombre, unidad de compra, precio de compra)
   2. Constructor de recetas (seleccionar ingredientes, cantidades, costo total)
   3. Calculadora de margen de ganancia (% deseado → precio de venta sugerido)
-  4. Conversor de unidades (kilos → gramos, etc.)
+  4. Conversor de unidades (kilos → gramos, etc.) — ESPECIFICACIÓN CERRADA (implementada en el prototipo de onboarding, dev/onboarding-paywall-login.html, la app real de Sesión 5 debe seguir la misma lógica, no rediseñarla):
+     - Unidades de compra soportadas: Kilo (kg) · Gramo (g) · Litro (L) · Mililitro (ml) · Unidad/pieza · Docena · Libra · Paquete/caja
+     - Docena y Paquete/caja piden un campo adicional "¿cuántas unidades trae?" (docena precarga 12, editable; paquete lo escribe la usuaria) — necesario para el precio por pieza individual
+     - La pregunta "¿cuánto usas?" se ADAPTA a la unidad de compra: kg/g → pregunta en gramos · L/ml → pregunta en mililitros · libra → pregunta en libras (sin forzar conversión métrica) · unidad/docena/paquete → pregunta en piezas
+     - Fórmula: costoPorUnidadBase = kg→precio/1000 (costo por gramo) · g→precio tal cual · L→precio/1000 (costo por ml) · ml→precio tal cual · libra→precio tal cual · unidad→precio/1 · docena→precio/12 (o lo que haya puesto) · paquete→precio/unidadesQueTrae. costoInsumo = costoPorUnidadBase × cantidadUsada
+     - Nunca asumir gramos por defecto sin importar la unidad real comprada — ese fue el bug que el usuario detectó y se corrigió
   5. Escaneo de factura/recibo de compra (IA): foto del recibo del super → extrae ingredientes y precios → la usuaria confirma antes de guardar → actualiza el costo de las recetas que usan ese insumo. Procesamiento asíncrono (subir foto → procesar en segundo plano → avisar cuando esté listo), con tope de 30 escaneos/mes para controlar el costo variable de la IA (circuit-breaker de costo, 48)
   6. Cotización profesional por WhatsApp: genera una imagen/PDF de la cotización con el logo del negocio y el precio ya calculado; la usuaria la revisa antes de enviar y la comparte por WhatsApp (sin integración con WhatsApp Business API — es un botón de compartir, no envío automático)
   7. Historial de cotizaciones con estado (vendida / pendiente / rechazada) — lista filtrable (regla UX de filtros en listas largas), editable en cualquier momento

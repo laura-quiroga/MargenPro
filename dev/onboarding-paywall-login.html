@@ -263,7 +263,24 @@
       <p class="sub" style="color:var(--text-2);font-size:14px;margin-bottom:22px;">Un insumo real tuyo — harina, carne, empaques, lo que sea. Lo puedes editar después.</p>
       <div class="campo">
         <label for="insumoNombre">Nombre del insumo</label>
-        <input id="insumoNombre" type="text" placeholder="Ej: Harina de trigo (kilo)" value="Harina de trigo (kilo)">
+        <input id="insumoNombre" type="text" placeholder="Ej: Harina de trigo" value="Harina de trigo">
+      </div>
+      <div class="campo">
+        <label for="insumoUnidad">¿Cómo lo compraste?</label>
+        <select id="insumoUnidad" onchange="cambiarUnidadInsumo()">
+          <option value="kg">Kilo (kg)</option>
+          <option value="g">Gramo (g)</option>
+          <option value="L">Litro (L)</option>
+          <option value="ml">Mililitro (ml)</option>
+          <option value="unidad">Unidad / pieza</option>
+          <option value="docena">Docena</option>
+          <option value="libra">Libra</option>
+          <option value="paquete">Paquete / caja</option>
+        </select>
+      </div>
+      <div class="campo" id="campoUnidadesTrae" style="display:none;">
+        <label for="insumoUnidadesTrae">¿Cuántas unidades trae?</label>
+        <input id="insumoUnidadesTrae" type="number" inputmode="numeric" placeholder="Ej: 12" value="12">
       </div>
       <label for="insumoPrecio" style="display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:7px;">Precio de compra</label>
       <div class="campo-con-moneda">
@@ -295,7 +312,7 @@
         <input id="recetaNombre" type="text" placeholder="Ej: Torta de chocolate x 12 porciones" value="Torta de chocolate x 12 porciones">
       </div>
       <div class="campo">
-        <label for="cantidadUsada">¿Cuánto usas de tu insumo? (gramos)</label>
+        <label for="cantidadUsada" id="labelCantidadUsada">¿Cuántos gramos usas?</label>
         <input id="cantidadUsada" type="number" inputmode="decimal" placeholder="600" value="600">
       </div>
       <div class="campo campo-prefijo">
@@ -434,11 +451,13 @@
   var SIMBOLOS_MONEDA = { COP:'$', MXN:'$', PEN:'S/', USD:'US$' };
 
   // Textos de ejemplo por tipo de negocio (personalización — mejora aprobada tras comparar con la propuesta de Gemini)
+  // Todos compran su insumo principal por kilo en este ejemplo; el selector de unidad igual queda
+  // disponible para cualquier insumo real que la usuaria registre (líquidos, piezas, docenas, paquetes).
   var EJEMPLOS_NEGOCIO = {
-    'reposteria':    { insumoNombre:'Harina de trigo (kilo)', insumoPrecio:12000, productoNombre:'Torta de chocolate x 12 porciones', cantidad:600, precioActual:18000, palabra:'torta' },
-    'comida-rapida': { insumoNombre:'Carne molida (kilo)', insumoPrecio:22000, productoNombre:'Hamburguesa clásica x 1', cantidad:150, precioActual:9000, palabra:'hamburguesa' },
-    'panaderia':     { insumoNombre:'Harina panadera (kilo)', insumoPrecio:9000, productoNombre:'Pan artesanal x unidad', cantidad:300, precioActual:3500, palabra:'pan' },
-    'otro':          { insumoNombre:'Insumo principal (kilo)', insumoPrecio:15000, productoNombre:'Tu producto estrella', cantidad:400, precioActual:12000, palabra:'producto' }
+    'reposteria':    { insumoNombre:'Harina de trigo', insumoPrecio:12000, insumoUnidad:'kg', productoNombre:'Torta de chocolate x 12 porciones', cantidad:600, precioActual:18000, palabra:'torta' },
+    'comida-rapida': { insumoNombre:'Carne molida', insumoPrecio:22000, insumoUnidad:'kg', productoNombre:'Hamburguesa clásica x 1', cantidad:150, precioActual:9000, palabra:'hamburguesa' },
+    'panaderia':     { insumoNombre:'Harina panadera', insumoPrecio:9000, insumoUnidad:'kg', productoNombre:'Pan artesanal x unidad', cantidad:300, precioActual:3500, palabra:'pan' },
+    'otro':          { insumoNombre:'Insumo principal', insumoPrecio:15000, insumoUnidad:'kg', productoNombre:'Tu producto estrella', cantidad:400, precioActual:12000, palabra:'producto' }
   };
 
   function elegirTipoNegocio(tipo){
@@ -448,12 +467,54 @@
     var ej = EJEMPLOS_NEGOCIO[tipo] || EJEMPLOS_NEGOCIO['otro'];
     document.getElementById('insumoNombre').value = ej.insumoNombre;
     document.getElementById('insumoNombre').placeholder = 'Ej: ' + ej.insumoNombre;
+    document.getElementById('insumoUnidad').value = ej.insumoUnidad;
+    cambiarUnidadInsumo();
     document.getElementById('insumoPrecio').value = ej.insumoPrecio;
     document.getElementById('recetaNombre').value = ej.productoNombre;
     document.getElementById('recetaNombre').placeholder = 'Ej: ' + ej.productoNombre;
     document.getElementById('cantidadUsada').value = ej.cantidad;
     document.getElementById('precioActual').value = ej.precioActual;
     setTimeout(function(){ irA(3); }, 300);
+  }
+
+  // Unidad de compra del insumo: muestra/oculta "¿cuántas unidades trae?" para docena/paquete
+  // y precarga 12 para docena (una docena siempre son 12, pero se deja editable por si acaso).
+  function cambiarUnidadInsumo(){
+    var unidad = document.getElementById('insumoUnidad').value;
+    var campo = document.getElementById('campoUnidadesTrae');
+    if (unidad === 'docena' || unidad === 'paquete') {
+      campo.style.display = 'block';
+      if (unidad === 'docena') document.getElementById('insumoUnidadesTrae').value = 12;
+    } else {
+      campo.style.display = 'none';
+    }
+  }
+
+  // La pregunta "¿cuánto usas?" se adapta a cómo se compró el insumo — nunca asume gramos.
+  function actualizarEtiquetaCantidad(unidad){
+    var label = document.getElementById('labelCantidadUsada');
+    var input = document.getElementById('cantidadUsada');
+    if (unidad === 'kg' || unidad === 'g') { label.textContent = '¿Cuántos gramos usas?'; input.placeholder = '600'; }
+    else if (unidad === 'L' || unidad === 'ml') { label.textContent = '¿Cuántos mililitros usas?'; input.placeholder = '250'; }
+    else if (unidad === 'libra') { label.textContent = '¿Cuántas libras usas?'; input.placeholder = '1'; }
+    else { label.textContent = '¿Cuántas piezas usas?'; input.placeholder = '2'; }
+  }
+
+  // Costo de 1 unidad BASE (1 gramo, 1 ml, 1 pieza o 1 libra) según cómo se compró el insumo —
+  // esta es la función "conversor de unidades" del MVP original; la app real (Sesión 5) debe
+  // reutilizar la misma lógica, documentada también en ESTADO.md.
+  function costoPorUnidadBase(precioCompra, unidad, unidadesQueTrae){
+    switch (unidad) {
+      case 'kg': return precioCompra / 1000;              // costo por gramo
+      case 'g': return precioCompra;                       // ya es por gramo
+      case 'L': return precioCompra / 1000;                // costo por mililitro
+      case 'ml': return precioCompra;                      // ya es por mililitro
+      case 'libra': return precioCompra;                   // costo por libra, sin conversión métrica
+      case 'unidad': return precioCompra / (unidadesQueTrae || 1);
+      case 'docena': return precioCompra / (unidadesQueTrae || 12);
+      case 'paquete': return precioCompra / (unidadesQueTrae || 1);
+      default: return precioCompra / 1000;
+    }
   }
 
   function elegirDolor(opcion, respuesta){
@@ -493,20 +554,25 @@
   function agregarInsumo(){
     var nombre = document.getElementById('insumoNombre').value || 'Insumo';
     var precio = parseFloat(document.getElementById('insumoPrecio').value) || 0;
-    insumos = [{nombre: nombre, precio: precio, moneda: monedaActual}];
+    var unidad = document.getElementById('insumoUnidad').value;
+    var unidadesQueTrae = parseFloat(document.getElementById('insumoUnidadesTrae').value) || (unidad === 'docena' ? 12 : 1);
+    insumos = [{nombre: nombre, precio: precio, moneda: monedaActual, unidad: unidad, unidadesQueTrae: unidadesQueTrae}];
+    actualizarEtiquetaCantidad(unidad);
     irA(5);
   }
 
   function calcularYMostrar(){
-    var insumo = insumos[0] || {nombre:'Harina de trigo (kilo)', precio:12000, moneda:'COP'};
-    var cantidadG = parseFloat(document.getElementById('cantidadUsada').value) || 600;
+    var insumo = insumos[0] || {nombre:'Harina de trigo', precio:12000, moneda:'COP', unidad:'kg', unidadesQueTrae:1};
+    var cantidadUsada = parseFloat(document.getElementById('cantidadUsada').value) || 0;
     var margen = parseInt(document.getElementById('margenSlider').value, 10) || 40;
     var nombreReceta = document.getElementById('recetaNombre').value || 'Tu producto';
     var precioActual = parseFloat(document.getElementById('precioActual').value) || 0;
     var simbolo = SIMBOLOS_MONEDA[monedaActual] || '$';
-    // costo simplificado: precio del insumo (por kilo) * (gramos usados/1000) + costo operativo base ilustrativo
-    var costoInsumo = (insumo.precio / 1000) * cantidadG;
-    var costoBase = Math.round(costoInsumo + costoInsumo * 0.35); // + empaques/operativo ilustrativo
+    // costo real: costo de 1 unidad base (gramo/ml/pieza/libra, según cómo se compró) × cuánto se usó
+    // + costo operativo base ilustrativo (empaques, etc. — placeholder hasta la app real)
+    var costoPorBase = costoPorUnidadBase(insumo.precio, insumo.unidad, insumo.unidadesQueTrae);
+    var costoInsumo = costoPorBase * cantidadUsada;
+    var costoBase = Math.round(costoInsumo + costoInsumo * 0.35);
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
 
     document.getElementById('resultadoNombre').textContent = nombreReceta;
