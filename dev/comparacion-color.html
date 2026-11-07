@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparación de color — MargenPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F2F1EC; font-family:'Manrope', sans-serif; padding:32px 16px; }
+  h1 { font-family:'Fraunces', serif; font-size:22px; text-align:center; margin-bottom:6px; color:#2B2A26; }
+  p.sub { text-align:center; color:#716C5F; font-size:13.5px; margin-bottom:28px; }
+  .fila { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; }
+  .columna { width:260px; }
+  .etiqueta { text-align:center; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px; color:#716C5F; }
+  .telefono { width:240px; margin:0 auto; aspect-ratio:9/16; border:9px solid #141612; border-radius:34px; overflow:hidden; background:#FAFAF6; box-shadow:0 16px 40px -16px rgb(43 42 38/.3); padding:14px 14px 0; }
+  .heroe-tarjeta { border-radius:14px; padding:1.5px; margin-top:10px; }
+  .heroe-tarjeta > div { background:#FFFFFF; border-radius:12.5px; padding:16px; }
+  .paso { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+  .nombre { font-size:12.5px; font-weight:700; color:#2B2A26; margin-top:4px; }
+  .precio { font-family:'Fraunces', serif; font-size:28px; font-weight:700; margin-top:8px; }
+  .precio .sm { display:block; font-family:'Manrope',sans-serif; font-size:10px; font-weight:600; color:#716C5F; margin-top:2px; }
+  .dato { display:flex; justify-content:space-between; font-size:11.5px; margin-top:8px; color:#716C5F; }
+  .dato b { font-weight:800; }
+  .chip { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin:14px auto 0; }
+  .btn { display:block; text-align:center; border-radius:11px; padding:10px; font-size:12px; font-weight:800; color:#fff; margin-top:12px; }
+  .hex { text-align:center; font-size:11px; color:#716C5F; margin-top:12px; font-family:monospace; }
+
+  .actual .paso, .actual .precio, .actual .dato b { color:#3F7D6B; }
+  .actual .heroe-tarjeta { background:linear-gradient(135deg, rgb(63 125 107/.55), transparent 65%); }
+  .actual .chip { background:linear-gradient(160deg, rgb(63 125 107/.22), rgb(63 125 107/.09)); color:#3F7D6B; }
+  .actual .btn { background:#3F7D6B; }
+
+  .nueva .paso, .nueva .precio, .nueva .dato b { color:#185062; }
+  .nueva .heroe-tarjeta { background:linear-gradient(135deg, rgb(24 80 98/.55), transparent 65%); }
+  .nueva .chip { background:linear-gradient(160deg, rgb(24 80 98/.22), rgb(24 80 98/.09)); color:#185062; }
+  .nueva .btn { background:#185062; }
+</style>
+</head>
+<body>
+  <h1>¿Cuál prefieres?</h1>
+  <p class="sub">Mismo diseño, dos tonos de acento — compáralos con calma</p>
+  <div class="fila">
+    <div class="columna">
+      <div class="etiqueta">Actual — verde salvia</div>
+      <div class="telefono actual">
+        <div class="heroe-tarjeta"><div>
+          <div class="paso">Paso 3 de 3</div>
+          <div class="nombre">Torta de chocolate · 12 porciones</div>
+          <div class="precio">$84.000<span class="sm">precio sugerido por unidad</span></div>
+          <div class="dato"><span>Costo real</span><b>$48.000</b></div>
+          <div class="dato"><span>Tu ganancia</span><b>43%</b></div>
+        </div></div>
+        <div class="chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="btn">Calcular mi primer precio</div>
+      </div>
+      <div class="hex">#3F7D6B</div>
+    </div>
+    <div class="columna">
+      <div class="etiqueta">Propuesta — verde azulado oscuro</div>
+      <div class="telefono nueva">
+        <div class="heroe-tarjeta"><div>
+          <div class="paso">Paso 3 de 3</div>
+          <div class="nombre">Torta de chocolate · 12 porciones</div>
+          <div class="precio">$84.000<span class="sm">precio sugerido por unidad</span></div>
+          <div class="dato"><span>Costo real</span><b>$48.000</b></div>
+          <div class="dato"><span>Tu ganancia</span><b>43%</b></div>
+        </div></div>
+        <div class="chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="btn">Calcular mi primer precio</div>
+      </div>
+      <div class="hex">#185062</div>
+    </div>
+  </div>
+</body>
+</html>
