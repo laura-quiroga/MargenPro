@@ -45,7 +45,7 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 ## Secuencia maestra de construcción
 - Estado de la secuencia: Landing construida (pendiente aprobación del usuario) — Onboarding/Paywall/Login/App interna pendientes
 - Ruta aprobada: `/` → `/onboarding` → `/paywall` → `/login` → `/app`
-- Landing: CONSTRUIDA (dev/landing/index.html) — pendiente de aprobación del usuario y de pasar el revisor-visual (es de las 4 pantallas del dinero, obligatorio) antes de darla por cerrada
+- Landing: CONSTRUIDA y ELEVADA (dev/landing/index.html) — se aplicaron las reglas de escaneabilidad mobile (bloques ≤4 líneas, íconos en Problema/Agitación/Solución, FAQ en acordeón, oferta/garantía en cajas, ritmo visual alternado, CTA repetido en hero/mecanismo/carrusel/garantía/final + sticky) y se corrigió el headline a 9 palabras. Verificado sin desborde horizontal a 375px y ~600px (pane). ⚠️ PENDIENTE: pase formal del subagente `revisor-visual` (gate ≥36/40 · ≥16/20 craft · ≥16/20 copy) — un fork no puede invocar subagentes, lo hace el agente coordinador antes de dar la landing por cerrada
 - Onboarding / Paywall / Login / App interna: pendientes (Sesión 4-5)
 - Servicios externos: bloqueados hasta aprobar las etapas anteriores
 
