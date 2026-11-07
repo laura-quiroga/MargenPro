@@ -37,7 +37,7 @@
   .acento { color:var(--accent); }
   h1,h2,h3 { font-family:var(--font-display); font-weight:700; letter-spacing:-0.01em; }
 
-  .app-frame { max-width:420px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; background:var(--bg); position:relative; padding-bottom:78px; }
+  .app-frame { max-width:420px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; background:var(--bg); position:relative; padding-bottom:96px; }
   .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
   .logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700; font-size:16px; }
   .logo .mark { width:26px; height:26px; border-radius:8px; background:var(--accent); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; }
@@ -45,9 +45,12 @@
   .tema-toggle svg { stroke:var(--text-2); width:17px; height:17px; }
 
   .seccion { display:none; flex:1; flex-direction:column; padding:4px 20px 20px; }
-  .seccion.activa { display:flex; }
+  .seccion.activa { display:flex; animation:entradaSeccion .32s cubic-bezier(.22,1,.36,1); }
+  @keyframes entradaSeccion { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .seccion.activa { animation:none; } }
 
-  .chip-icono { width:44px; height:44px; border-radius:12px; background:rgb(var(--accent-tint)/.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .chip-icono { width:44px; height:44px; border-radius:12px; background:linear-gradient(160deg, rgb(var(--accent-tint)/.18), rgb(var(--accent-tint)/.08)); box-shadow:inset 0 1px 0 rgb(255 255 255/.5), inset 0 -1.5px 2px rgb(var(--accent-tint)/.15), 0 2px 5px -2px rgb(var(--accent-tint)/.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .chip-icono svg { filter:drop-shadow(0 1px 1px rgb(var(--accent-tint)/.25)); }
   .chip-icono svg { stroke:var(--accent); width:20px; height:20px; }
   .chip-icono.aviso { background:rgb(var(--aviso-tint)/.14); }
   .chip-icono.aviso svg { stroke:var(--aviso); }
@@ -148,14 +151,14 @@
   .toast svg { stroke:var(--bg); width:18px; height:18px; flex-shrink:0; }
   .toast p { font-size:13px; font-weight:600; }
 
-  /* TAB BAR */
-  .tabbar { position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--sunken); display:flex; z-index:40; }
-  .tabbar-inner { max-width:420px; margin:0 auto; display:flex; width:100%; padding:8px 6px calc(8px + env(safe-area-inset-bottom)); }
-  .tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; }
-  .tab-btn svg { width:21px; height:21px; stroke:var(--text-2); }
-  .tab-btn span { font-size:10px; font-weight:700; color:var(--text-2); }
-  .tab-btn.activo svg { stroke:var(--accent); }
-  .tab-btn.activo span { color:var(--accent); }
+  /* TAB BAR — pastilla oscura flotante */
+  .tabbar { position:fixed; left:0; right:0; bottom:calc(14px + env(safe-area-inset-bottom)); display:flex; justify-content:center; z-index:40; pointer-events:none; }
+  .tabbar-inner { pointer-events:auto; display:flex; gap:4px; background:#20231F; border-radius:999px; padding:7px; box-shadow:0 14px 30px -10px rgb(43 42 38/.35), inset 0 1px 0 rgb(255 255 255/.04); }
+  .tab-btn { display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:999px; transition:background .25s cubic-bezier(.22,1,.36,1); }
+  .tab-btn svg { width:21px; height:21px; stroke:#9A9D96; filter:drop-shadow(0 1px 1px rgb(0 0 0/.3)); transition:stroke .2s; }
+  .tab-btn span { display:none; }
+  .tab-btn.activo { background:var(--accent); box-shadow:0 4px 10px -2px rgb(var(--accent-tint)/.6), inset 0 1px 0 rgb(255 255 255/.25), inset 0 -2px 3px rgb(0 0 0/.15); }
+  .tab-btn.activo svg { stroke:#fff; filter:drop-shadow(0 1px 1px rgb(0 0 0/.15)); }
 
   .seccion-sub { display:none; flex-direction:column; }
   .seccion-sub.activa { display:flex; }
