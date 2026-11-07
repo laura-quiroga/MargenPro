@@ -67,9 +67,12 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Segunda victoria (loop de retención): generar y enviar su primera cotización profesional por WhatsApp — refuerza el deseo de identidad ("esto es un negocio de verdad")
 - Loop mensual de retención (gatillo→acción→recompensa): fin de mes (gatillo) → abre el resumen mensual (acción) → ve en números si ganó o perdió, y cuánto (recompensa) → eso decide sus precios del mes siguiente (inversión) — es el mecanismo que responde directo a su ansiedad nocturna
 
+## Problemas conocidos ⚠️
+- [veredicto:landing] La landing (`dev/landing/index.html`) está construida y auditada contra las reglas de escaneabilidad mobile, pero el **veredicto del subagente revisor-visual** (docs/revisiones/landing-veredicto.md + docs/revisiones/landing-375.png) está EN CURSO — se está generando ahora en una sesión aparte. No declarar la landing "lista para vender" hasta que ese archivo exista con Veredicto: LISTA, Usabilidad ≥36/40 y Craft ≥16/20.
+
 ## Pendientes del usuario (acciones que el usuario debe hacer)
-- [ ] Responder la pregunta de referencia visual cuando se la haga
+- Ninguno pendiente de su parte por ahora — esperando la revisión final de la landing
 
 ## Notas para la próxima sesión
 - FICHA-MODELO y FICHA-MERCADO quedaron en BORRADOR por falta de herramientas de esta sesión (Sensor Tower, Ads Library, datos de pago verificados) — no bloquea avanzar, pero revisar si se consigue más evidencia antes de fijar precio final
-- Falta hacer la PREGUNTA DE REFERENCIA visual (54, PASO 0) antes de proponer cualquier diseño
+- Confirmar plazo real de garantía con Hotmart al configurar la pasarela (se usó 7 días como supuesto razonable)
