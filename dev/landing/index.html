@@ -471,6 +471,30 @@
     var idx = Math.round(carrusel.scrollLeft / 198);
     dots.forEach(function(d,i){ d.classList.toggle('activo', i===idx); });
   });
+  // Deslizamiento automático del carrusel (pausa con hover/touch, respeta reduced-motion)
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var pausado = false;
+    var totalFrames = carrusel.querySelectorAll('.frame').length;
+    var anchoFrame = 198;
+    var timer = setInterval(function(){
+      if (pausado) return;
+      var maxScroll = carrusel.scrollWidth - carrusel.clientWidth;
+      var siguiente = carrusel.scrollLeft + anchoFrame;
+      if (siguiente > maxScroll + 10) {
+        carrusel.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        carrusel.scrollTo({ left: siguiente, behavior: 'smooth' });
+      }
+    }, 2800);
+    ['mouseenter','touchstart','pointerdown'].forEach(function(ev){
+      carrusel.addEventListener(ev, function(){ pausado = true; });
+    });
+    ['mouseleave'].forEach(function(ev){
+      carrusel.addEventListener(ev, function(){ pausado = false; });
+    });
+    carrusel.addEventListener('touchend', function(){ setTimeout(function(){ pausado = false; }, 4000); });
+  })();
   // Sticky CTA mobile: visible tras salir del hero, oculto frente a oferta/cta-final
   var sticky = document.getElementById('sticky');
   var hero = document.getElementById('hero');
