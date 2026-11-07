@@ -12,12 +12,21 @@
   html { scroll-behavior:smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
 
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  .entrada { opacity:0; animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards; }
+  .hero-grid > div:first-child > *.entrada:nth-child(1) { animation-delay:0ms; }
+  .hero-grid > div:first-child > *.entrada:nth-child(2) { animation-delay:70ms; }
+  .hero-grid > div:first-child > *.entrada:nth-child(3) { animation-delay:140ms; }
+  .hero-grid > div:first-child > *.entrada:nth-child(4) { animation-delay:210ms; }
+  .hero-visual.entrada { animation-delay:120ms; }
+  @media (prefers-reduced-motion: reduce) { .entrada { animation:none; opacity:1; } }
+
   :root {
     --bg:#FAFAF6; --surface:#FFFFFF; --sunken:#F0EFE9;
     --text-1:#2B2A26; --text-2:#716C5F;
     --accent:#3F7D6B; --accent-tint:63 125 107;
     --error:#B3453A; --aviso:#C98A2C;
-    --radius-card:16px; --radius-btn:12px;
+    --radius-card:14px; --radius-btn:12px;
     --font-display:'Fraunces', Georgia, serif; --font-body:'Manrope', 'Segoe UI', sans-serif;
     --shadow-1: 0 1px 2px rgb(43 42 38 / .06);
     --shadow-2: 0 16px 40px -16px rgb(43 42 38 / .18);
@@ -105,8 +114,8 @@
   .carrusel-wrap { margin-top:32px; position:relative; }
   .carrusel { display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px; scrollbar-width:none; }
   .carrusel::-webkit-scrollbar { display:none; }
-  .frame { flex:0 0 220px; scroll-snap-align:start; }
-  .frame .placeholder { aspect-ratio:9/18; border-radius:18px; background:var(--sunken); border:1.5px dashed rgb(var(--accent-tint)/.4); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:16px; text-align:center; }
+  .frame { flex:0 0 180px; scroll-snap-align:start; }
+  .frame .placeholder { aspect-ratio:9/12; border-radius:18px; background:var(--sunken); border:1.5px dashed rgb(var(--accent-tint)/.4); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:16px; text-align:center; }
   .frame .placeholder svg { stroke:var(--text-2); opacity:.6; }
   .frame .placeholder span.nombre { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
   .frame p.label { margin-top:10px; font-size:13.5px; font-weight:700; text-align:center; }
@@ -184,15 +193,15 @@
 <section class="hero" id="hero">
   <div class="wrap hero-grid">
     <div>
-      <h1>El precio justo por tus postres, con <span class="acento">ganancia real</span></h1>
-      <p class="sub">El <strong>Radar de Ganancia</strong> calcula tu costo real y te dice cuánto cobrar — sin Excel, sin miedo.</p>
-      <a class="btn-cta" href="/onboarding">Calcular mi primer precio gratis →</a>
-      <div class="social-proof">
+      <h1 class="entrada">El precio justo por tus postres, con <span class="acento">ganancia real</span></h1>
+      <p class="sub entrada">El <strong>Radar de Ganancia</strong> calcula tu costo real y te dice cuánto cobrar — sin Excel, sin miedo.</p>
+      <a class="btn-cta entrada" href="/onboarding">Calcular mi primer precio gratis →</a>
+      <div class="social-proof entrada">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
         Pruébalo gratis con tu primera receta — sin tarjeta, sin compromiso
       </div>
     </div>
-    <div class="hero-visual">
+    <div class="hero-visual entrada">
       <div class="telefono-frame">
         <div class="status"><span>9:41</span><span>●●●●</span></div>
         <div class="pantalla">
@@ -200,7 +209,7 @@
             <div>
               <div class="paso-indicador">Paso 3 de 3</div>
               <div class="receta-nombre">Torta de chocolate · 12 porciones</div>
-              <div class="precio-heroe">$84.000<span class="sm">precio sugerido por unidad</span></div>
+              <div class="precio-heroe"><span id="precioHeroe" data-valor="84000">$0</span><span class="sm">precio sugerido por unidad</span></div>
               <div class="fila-dato"><span>Costo real</span><span>$48.000</span></div>
               <div class="fila-dato"><span>Tu ganancia</span><span style="color:var(--accent);font-weight:700">43%</span></div>
             </div>
@@ -400,7 +409,7 @@
     <p class="pacing">Terminas de hornear, armas tu receta en la app, y en segundos ya sabes cuánto cobrar — sin dudas, sin culpa, sin regalar tu trabajo.</p>
     <a class="btn-cta" href="/onboarding">Calcular mi primer precio gratis →</a>
     <div class="recap">Garantía del Primer Precio Real · 7 días de prueba antes de pagar</div>
-    <p class="ps">PS: RecetarioPro convierte tus recetas en precios con ganancia real gracias al Radar de Ganancia. Hoy entras con 7 días de prueba, sin tarjeta hasta que decidas seguir, y la Garantía del Primer Precio Real.</p>
+    <p class="ps">PS: RecetarioPro convierte tus recetas en precios con ganancia real gracias al Radar de Ganancia. Hoy entras con 7 días de prueba — no te cobramos nada hasta el día 7, y te avisamos antes con la fecha y el monto exactos — más la Garantía del Primer Precio Real.</p>
   </div>
 </section>
 
@@ -413,13 +422,29 @@
       <a href="/reembolsos">Reembolsos</a>
       <a href="/aviso-ia">Aviso de uso de IA</a>
     </div>
-    <div class="footer-meta">RecetarioPro · soporte pendiente de dominio propio</div>
+    <div class="footer-meta">RecetarioPro · soporte@recetariopro.app</div>
   </div>
 </footer>
 
 <div class="sticky-cta" id="sticky"><a class="btn-cta" href="/onboarding">Calcular mi primer precio gratis</a></div>
 
 <script>
+  // Conteo animado del precio héroe (motion baseline #2 — nunca un número estático)
+  (function(){
+    var el = document.getElementById('precioHeroe');
+    if (!el) return;
+    var fin = parseInt(el.dataset.valor, 10);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = '$' + fin.toLocaleString('es-CO'); return; }
+    var inicio = null, duracion = 900;
+    function paso(ts){
+      if (!inicio) inicio = ts;
+      var prog = Math.min((ts - inicio) / duracion, 1);
+      var curr = Math.round(fin * (1 - Math.pow(1 - prog, 3)));
+      el.textContent = '$' + curr.toLocaleString('es-CO');
+      if (prog < 1) requestAnimationFrame(paso);
+    }
+    setTimeout(function(){ requestAnimationFrame(paso); }, 250);
+  })();
   // FAQ accordion
   document.querySelectorAll('.faq-q').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -430,7 +455,7 @@
   var carrusel = document.getElementById('carrusel');
   var dots = document.querySelectorAll('.dots span');
   carrusel.addEventListener('scroll', function(){
-    var idx = Math.round(carrusel.scrollLeft / 238);
+    var idx = Math.round(carrusel.scrollLeft / 198);
     dots.forEach(function(d,i){ d.classList.toggle('activo', i===idx); });
   });
   // Sticky CTA mobile: visible tras salir del hero, oculto frente a oferta/cta-final

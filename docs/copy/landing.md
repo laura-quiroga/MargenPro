@@ -9,8 +9,8 @@
 **El Radar de Ganancia** — aparece en Hero (subtítulo), Solución (protagonista) y Oferta (lo que se desbloquea).
 
 ## 1. HERO
-- h1Marked: "Cobra el precio justo por tus postres, con [acento]ganancia real[/acento] — no a ojo" (fuente: Deseo #1 + Dolor #1)
-- subtitleMarked: "El Radar de Ganancia calcula el costo exacto de tu receta y te dice cuánto cobrar — [b]sin Excel, sin fórmulas, sin miedo[/b]" (fuente: Ya intentó / Objeción #2)
+- h1Marked: "El precio justo por tus postres, con [acento]ganancia real[/acento]" (fuente: Deseo #1 + Dolor #1 — acortado a 9 palabras en la auditoría de escaneabilidad, antes eran 13)
+- subtitleMarked: "El [b]Radar de Ganancia[/b] calcula tu costo real y te dice cuánto cobrar — sin Excel, sin miedo" (fuente: Ya intentó / Objeción #2 — acortado a ≤2 líneas mobile)
 - ctaLabel: "Calcular mi primer precio gratis" → /onboarding
 - socialProof (jerarquía día-1): "Pruébalo gratis con tu primera receta — sin tarjeta, sin compromiso"
 - visualPlaceholderSugerencia: "captura de la pantalla de resultado: costo + precio sugerido de una receta real"

@@ -1,7 +1,7 @@
 # ESTADO — RecetarioPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: usuario aprobó el tour y dio luz verde a seguir ("Sí, sigamos") → landing construida (Sesión 3, dev/landing/index.html) con las 10 secciones canónicas, copy trazado en docs/copy/landing.md, verificada a 375px y 1440px sin desbordes / Siguiente acción exacta: presentarle la landing al usuario para su aprobación; si aprueba, pasar a Sesión 4 (onboarding, paywall y login)
+⏸️ CHECKPOINT — Última acción completada: revisor-visual auditó la landing (veredicto NO LISTA: 29/40 usabilidad, 11/20 craft, 16/20 copy — docs/revisiones/landing-veredicto.md) y se corrigieron 4 de los 5 hallazgos (footer con nota de desarrollo expuesta, espacio vacío en el carrusel, contradicción sobre la tarjeta del trial, faltaban animaciones baseline); el 5º hallazgo (similitud con un ejemplo "Capítulo" del banco de direcciones) se descartó por ser inexistente en los archivos del sistema (verificado con grep) / Siguiente acción exacta: re-tomar un screenshot fresco de la landing (el navegador de esta sesión tuvo fallas intermitentes de scroll/captura) y volver a pasar el revisor-visual para confirmar el puntaje ≥36/40 y ≥16/20 antes de declarar la landing 100% lista; mientras tanto, presentársela al usuario para su aprobación de contenido
 
 ## Qué es esta app (3 líneas máximo)
 Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
@@ -68,7 +68,7 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Loop mensual de retención (gatillo→acción→recompensa): fin de mes (gatillo) → abre el resumen mensual (acción) → ve en números si ganó o perdió, y cuánto (recompensa) → eso decide sus precios del mes siguiente (inversión) — es el mecanismo que responde directo a su ansiedad nocturna
 
 ## Problemas conocidos ⚠️
-- [veredicto:landing] La landing (`dev/landing/index.html`) está construida y auditada contra las reglas de escaneabilidad mobile, pero el **veredicto del subagente revisor-visual** (docs/revisiones/landing-veredicto.md + docs/revisiones/landing-375.png) está EN CURSO — se está generando ahora en una sesión aparte. No declarar la landing "lista para vender" hasta que ese archivo exista con Veredicto: LISTA, Usabilidad ≥36/40 y Craft ≥16/20.
+- [veredicto:landing] El revisor-visual puntuó la landing NO LISTA (29/40 · 11/20 · 16/20 — docs/revisiones/landing-veredicto.md). Se corrigieron 4 de 5 defectos reales directamente en el código; falta re-tomar un screenshot fresco (el navegador de esta sesión falló al hacer scroll/capturar de forma consistente) y correr una segunda pasada del revisor-visual para confirmar ≥36/40 y ≥16/20 antes de declarar la landing lista para vender.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
 - Ninguno pendiente de su parte por ahora — esperando la revisión final de la landing
