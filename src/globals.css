@@ -1,0 +1,45 @@
+/* Tokens de marca MargenPro — fuente única de verdad: FICHA-ARTE.md. NO alterar sin pasar por esa ficha. */
+
+:root {
+  --bg: #FAFAF6;
+  --surface: #FFFFFF;
+  --sunken: #F0EFE9;
+  --text-1: #2B2A26;
+  --text-2: #716C5F;
+  --accent: #185062;
+  --accent-tint: 24 80 98;
+  --success: #185062;
+  --error: #B3453A;
+  --aviso: #C98A2C;
+
+  --radius-card: 14px;
+  --radius-btn: 12px;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', 'Segoe UI', sans-serif;
+
+  --shadow-1: 0 1px 2px rgb(43 42 38 / .06);
+  --shadow-2: 0 16px 40px -16px rgb(43 42 38 / .18);
+  --on-accent: #FFFFFF;
+  --phone-bezel: #141612;
+}
+
+.dark {
+  --bg: #1A1D1B;
+  --surface: #232923;
+  --sunken: #151715;
+  --text-1: #F3F1EA;
+  --text-2: #A8A79C;
+  --accent: #59A6C0;
+  --accent-tint: 89 166 192;
+  --success: #59A6C0;
+  --error: #E0837A;
+  --aviso: #E0B15C;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}

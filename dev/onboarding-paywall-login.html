@@ -18,7 +18,7 @@
   :root {
     --bg:#FAFAF6; --surface:#FFFFFF; --sunken:#F0EFE9;
     --text-1:#2B2A26; --text-2:#716C5F;
-    --accent:#3F7D6B; --accent-tint:63 125 107;
+    --accent:#185062; --accent-tint:24 80 98;
     --error:#B3453A; --aviso:#C98A2C;
     --radius-card:14px; --radius-btn:12px;
     --font-display:'Fraunces', Georgia, serif; --font-body:'Manrope', 'Segoe UI', sans-serif;
@@ -28,7 +28,7 @@
   [data-tema="oscuro"] {
     --bg:#1A1D1B; --surface:#232923; --sunken:#151715;
     --text-1:#F3F1EA; --text-2:#A8A79C;
-    --accent:#6FB89E; --accent-tint:111 184 158;
+    --accent:#59A6C0; --accent-tint:89 166 192;
     --error:#E0837A; --aviso:#E0B15C;
   }
   body { background:var(--bg); color:var(--text-1); font-family:var(--font-body); line-height:1.5; min-height:100dvh; transition:background .2s, color .2s; }
@@ -779,7 +779,7 @@
   function lanzarConfeti(contId, n){
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var cont = document.getElementById(contId);
-    var colores = ['#3F7D6B','#C98A2C','#B3453A','#716C5F'];
+    var colores = ['#185062','#C98A2C','#B3453A','#716C5F'];
     for (var i=0;i<n;i++){
       var pieza = document.createElement('div');
       pieza.className = 'confetti-pieza';
