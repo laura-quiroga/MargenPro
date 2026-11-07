@@ -1,7 +1,7 @@
 # ESTADO — RecetarioPro
 Última actualización: 2026-11-07 | Sesión actual: 1
 
-⏸️ CHECKPOINT — Última acción completada: Reporte de validación + fichas de avatar/mercado/modelo creadas / Siguiente acción exacta: preguntar al usuario su país de venta (define moneda y precio), luego hacer la PREGUNTA DE REFERENCIA visual (B4) y presentar el Plan Maestro (B5)
+⏸️ CHECKPOINT — Última acción completada: países de venta decididos (Colombia, México, Perú) y precio propuesto / Siguiente acción exacta: hacer la PREGUNTA DE REFERENCIA visual (B4) y presentar el Plan Maestro (B5)
 
 ## Qué es esta app (3 líneas máximo)
 Calculadora de costeo de recetas para reposteras/gastronomía casera: registra ingredientes con su precio, arma recetas, y calcula el costo real + el precio de venta sugerido con el margen de ganancia que la usuaria defina. Vendida por suscripción mensual vía Hotmart.
@@ -25,8 +25,9 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Modelo: híbrido Productividad (E) + Finanzas (F) — el gatillo emocional es de confianza/control del dinero (F), pero el mecanismo diario es organizar ingredientes/recetas (E). Onboarding-first anónimo: landing → onboarding corto → primer resultado real (costo + precio) → paywall → login
 - Justificación: la avatar teme la tecnología y abandona herramientas rápido (objeción #3) — dejarla sentir el cálculo real ANTES de pedirle pago/cuenta baja la barrera de entrada y resuelve su objeción #2 ("no quiero pagar sin estar segura")
 - Diseño del paywall: aparece justo después de que ve su primera receta costeada con precio sugerido — "Tu primer costeo está listo. Desbloquea recetas ilimitadas y actualización automática de precios cuando suben tus insumos."
-- Trial: 7 días (el aha es inmediato — en minutos ya ve el precio calculado) — a confirmar con FICHA-MERCADO una vez haya país
-- Pricing: PENDIENTE — se fija cuando el usuario confirme el país (ver FICHA-MERCADO §1 y gate de costo del 40)
+- Trial: 7 días (el aha es inmediato — en minutos ya ve el precio calculado)
+- Pricing: $5.99/mes USD · $3.99/mes facturado anual ($47.88/año, "2 meses gratis") — ver FICHA-MERCADO §1
+- Países de venta: Colombia, México y Perú (Colombia por pedido del usuario; México y Perú por señales reales de demanda — ver FICHA-MERCADO)
 
 ## Secuencia maestra de construcción
 - Estado de la secuencia: ninguna etapa construida aún — estamos en Sesión 1 (validación + fichas)
@@ -46,7 +47,6 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
 - Primera victoria (derivada del propio deseo del avatar): registrar su primer ingrediente y su primera receta, y ver aparecer al instante "esto te cuesta $X, cóbralo a $Y para ganar el [margen]% que elegiste"
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
-- [ ] Decirme en qué país(es) va a vender la app (define moneda y precio)
 - [ ] Responder la pregunta de referencia visual cuando se la haga
 
 ## Notas para la próxima sesión

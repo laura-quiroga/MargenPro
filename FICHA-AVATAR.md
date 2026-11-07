@@ -3,8 +3,8 @@
 - Estado: BORRADOR (faltan país/moneda y 1-2 frases VoC con fuente web para llegar a 10 — el resto ya tiene ≥10 frases literales del documento del usuario)
 
 ## El avatar (cliente ideal — UNA persona concreta)
-- Nombre/arquetipo: María Alejandra · Edad: 31 · Situación: repostera casera empírica, 1-3 años vendiendo por Instagram/WhatsApp · País(es): PENDIENTE (preguntar al usuario)
-- Poder adquisitivo: emprendedora informal de bajos-medios ingresos — una suscripción le tiene que doler poco (¿$3-7/mes le duele? por confirmar con FICHA-MERCADO) · Dispositivo: Android gama media
+- Nombre/arquetipo: María Alejandra · Edad: 31 · Situación: repostera casera empírica, 1-3 años vendiendo por Instagram/WhatsApp · País(es): Colombia, México y Perú
+- Poder adquisitivo: emprendedora informal de bajos-medios ingresos — una suscripción le tiene que doler poco ($5.99/mes USD o $3.99/mes anual propuesto en FICHA-MERCADO) · Dispositivo: Android gama media
 - IDENTIDAD (cómo se describe a sí mismo, literal): "siento que trabajo como una esclava en la cocina"
 - MOMENTO DEL DÍA en que el problema duele: 10:00 PM, limpiando la mesa llena de harina, sacando una libreta manchada de aceite para sumar gastos vs. lo que le pagaron
 - MOMENTO DEL AÑO: pedidos grandes de temporada (fiestas, día de la madre, cumpleaños) donde debe cotizar un pedido grande y se paraliza
