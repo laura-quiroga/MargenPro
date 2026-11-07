@@ -151,13 +151,15 @@
   .toast svg { stroke:var(--bg); width:18px; height:18px; flex-shrink:0; }
   .toast p { font-size:13px; font-weight:600; }
 
-  /* TAB BAR — pastilla oscura flotante */
-  .tabbar { position:fixed; left:0; right:0; bottom:calc(14px + env(safe-area-inset-bottom)); display:flex; justify-content:center; z-index:40; pointer-events:none; }
-  .tabbar-inner { pointer-events:auto; display:flex; gap:4px; background:#20231F; border-radius:999px; padding:7px; box-shadow:0 14px 30px -10px rgb(43 42 38/.35), inset 0 1px 0 rgb(255 255 255/.04); }
-  .tab-btn { display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:999px; transition:background .25s cubic-bezier(.22,1,.36,1); }
+  /* TAB BAR — fija oscura, con nombre debajo de cada ícono */
+  .tabbar { position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; z-index:40; background:#20231F; box-shadow:0 -8px 24px -12px rgb(43 42 38/.3), inset 0 1px 0 rgb(255 255 255/.04); }
+  .tabbar-inner { display:flex; width:100%; max-width:420px; margin:0 auto; padding:9px 6px calc(9px + env(safe-area-inset-bottom)); }
+  .tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:5px 2px; border-radius:14px; transition:background .25s cubic-bezier(.22,1,.36,1); }
   .tab-btn svg { width:21px; height:21px; stroke:#9A9D96; filter:drop-shadow(0 1px 1px rgb(0 0 0/.3)); transition:stroke .2s; }
-  .tab-btn span { display:none; }
-  .tab-btn.activo { background:var(--accent); box-shadow:0 4px 10px -2px rgb(var(--accent-tint)/.6), inset 0 1px 0 rgb(255 255 255/.25), inset 0 -2px 3px rgb(0 0 0/.15); }
+  .tab-btn span { font-size:10px; font-weight:700; color:#9A9D96; transition:color .2s; }
+  .tab-btn.activo { background:rgb(var(--accent-tint)/.22); }
+  .tab-btn.activo svg { stroke:var(--accent); filter:drop-shadow(0 1px 1px rgb(0 0 0/.15)); }
+  .tab-btn.activo span { color:var(--accent); }
   .tab-btn.activo svg { stroke:#fff; filter:drop-shadow(0 1px 1px rgb(0 0 0/.15)); }
 
   .seccion-sub { display:none; flex-direction:column; }
