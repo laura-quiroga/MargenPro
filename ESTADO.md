@@ -46,9 +46,13 @@ Calculadora de costeo de recetas para reposteras/gastronomía casera: registra i
   4. Conversor de unidades (kilos → gramos, etc.)
   5. Escaneo de factura/recibo de compra (IA): foto del recibo del super → extrae ingredientes y precios → la usuaria confirma antes de guardar → actualiza el costo de las recetas que usan ese insumo. Procesamiento asíncrono (subir foto → procesar en segundo plano → avisar cuando esté listo), con tope de 30 escaneos/mes para controlar el costo variable de la IA (circuit-breaker de costo, 48)
   6. Cotización profesional por WhatsApp: genera una imagen/PDF de la cotización con el logo del negocio y el precio ya calculado; la usuaria la revisa antes de enviar y la comparte por WhatsApp (sin integración con WhatsApp Business API — es un botón de compartir, no envío automático)
+  7. Historial de cotizaciones con estado (vendida / pendiente / rechazada) — lista filtrable (regla UX de filtros en listas largas), editable en cualquier momento
+  8. Resumen mensual: gasto total en insumos (de facturas escaneadas + registros manuales) + ganancia real de los pedidos marcados "vendida" menos su costo — con navegación entre meses por fecha real (no solo "este mes"), esta es LA pantalla que resuelve el dolor #1 del avatar ("no sé si hoy gané o perdí")
+  9. (idea adicional del agente, aprobada) Aviso cuando un insumo escaneado o editado sube de precio frente al que tenía guardado, con acceso directo a actualizar el precio de venta de las recetas que lo usan — cierra el loop entre escanear, costear y cobrar
 - Fuera de la v1 (ya definido por el usuario): inventario en tiempo real con descuento de stock · facturación electrónica/contabilidad fiscal · punto de venta (POS) o pasarelas de cobro a clientes finales · envío automático de cotizaciones sin revisión de la usuaria
 - Primera victoria (derivada del propio deseo del avatar): registrar su primer ingrediente y su primera receta, y ver aparecer al instante "esto te cuesta $X, cóbralo a $Y para ganar el [margen]% que elegiste"
 - Segunda victoria (loop de retención): generar y enviar su primera cotización profesional por WhatsApp — refuerza el deseo de identidad ("esto es un negocio de verdad")
+- Loop mensual de retención (gatillo→acción→recompensa): fin de mes (gatillo) → abre el resumen mensual (acción) → ve en números si ganó o perdió, y cuánto (recompensa) → eso decide sus precios del mes siguiente (inversión) — es el mecanismo que responde directo a su ansiedad nocturna
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
 - [ ] Responder la pregunta de referencia visual cuando se la haga
