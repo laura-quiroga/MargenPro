@@ -47,12 +47,14 @@ Calculadora de costeo para negocios de comida independientes (repostería, comid
 - Estado de la secuencia: página de ventas con revisión pendiente de cerrar (detalle en Problemas conocidos) — Onboarding/Paywall/Login/App interna pendientes
 - Ruta aprobada: `/` → `/onboarding` → `/paywall` → `/login` → `/app`
 - Página de ventas: el agente ajustó el código tras el veredicto del subagente revisor — ese gate sigue abierto, el detalle de puntajes y pendientes vive en Problemas conocidos y en docs/revisiones/landing-veredicto.md. Archivo fuente: dev/landing/index.html
-- Onboarding / Paywall / Login / App interna: pendientes (Sesión 4-5)
+- Sesión 4: el flujo de bienvenida → registrar insumo → armar receta → resultado → tour → planes → acceso tiene su código ya escrito esta sesión en dev/onboarding-paywall-login.html (7 pasos + pantalla de demo de los 3 momentos emocionales del historial). Sigue pendiente la revisión del subagente revisor — ver Problemas conocidos.
+- App interna: pendiente (Sesión 5)
 - Servicios externos: bloqueados hasta aprobar las etapas anteriores
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Vite (la app en sí es una herramienta tras login, sin necesidad de SEO) — la landing se construye con el kit de `plantillas-codigo/landing`
 - Idioma de UI: español LATAM, mono-idioma
+- Método de auth (26-AUTH-MODERNO, decisión técnica interna): passwordless por enlace mágico al correo como opción principal + Google OAuth como alterna — sin contraseñas, coherente con el avatar que le teme a la tecnología y abandona herramientas con fricción. Implementación real (Supabase Auth u equivalente) se conecta en la Sesión 6 (servicios externos); por ahora el flujo está maquetado en dev/onboarding-paywall-login.html
 - Features del MVP (en orden de prioridad; 1-4 del documento del usuario, 5-6 aprobadas en Sesión 1 tras pasar el filtro de feature de 01-IDEACION):
   1. Base de insumos personalizada (nombre, unidad de compra, precio de compra)
   2. Constructor de recetas (seleccionar ingredientes, cantidades, costo total)
@@ -71,6 +73,7 @@ Calculadora de costeo para negocios de comida independientes (repostería, comid
 
 ## Problemas conocidos ⚠️
 - [veredicto:landing] El revisor-visual puntuó la landing NO LISTA (29/40 · 11/20 · 16/20 — docs/revisiones/landing-veredicto.md) antes del pivote a MargenPro. Se corrigieron 4 de 5 defectos del veredicto, y además se ejecutó el pivote completo (2026-11-07): renombre a MargenPro, nicho ampliado con copy multi-rubro, lenguaje inclusivo (sub-avatar Andrés), y rediseño visual con mesh gradients sutiles (blobs 7-16% opacidad en hero/solución/app-por-dentro/oferta) + nueva sección "hundido" (agitación) para un 3er nivel de profundidad. Verificado sin desborde horizontal ni errores de consola a 375px tras el pivote. Sigue pendiente: re-tomar screenshot fresco y correr una pasada del revisor-visual sobre la versión MargenPro para confirmar ≥36/40 y ≥16/20 antes de declarar la landing lista para vender — el navegador de esta sesión tuvo fallas intermitentes de scroll en rondas anteriores, revisar si persisten.
+- [veredicto:onboarding][veredicto:paywall] Sesión 4: el flujo de onboarding/paywall/login (dev/onboarding-paywall-login.html) tiene su código recién escrito, probado a mano con JavaScript (cálculo de precio correcto, navegación entre las 7 pantallas, modo oscuro, sin desborde a 375px) pero SIN pasar por el subagente revisor-visual todavía — eso queda para antes de dar por cerrada la Sesión 4.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
 - Ninguno pendiente de su parte por ahora — esperando la revisión final de la landing
