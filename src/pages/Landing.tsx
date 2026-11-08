@@ -163,7 +163,7 @@ export default function Landing() {
     <div className="landing">
       <header className="top">
         <div className="wrap topbar">
-          <div className="logo"><span className="mark">M</span> MargenPro</div>
+          <div className="logo"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> MargenPro</div>
           <Link className="entrar" to="/login">Entrar</Link>
         </div>
       </header>

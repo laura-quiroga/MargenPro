@@ -35,6 +35,7 @@
 - Radio: 14px tarjetas / 12px botones · Profundidad: sombras sutiles con tinte del acento (3 niveles: fondo/superficie/hundido) · Espaciado base: escala 4·8·12·16·24·32·48·64
 - Dispositivo ownable: tarjeta-héroe con hairline degradé del acento envolviendo el precio sugerido, + indicador "Paso X de 3" siempre visible en las pantallas de construcción de receta
 - Motion signature: easing suave tipo ease-out · stagger 60ms en la entrada de cada pantalla · firma: el precio aparece con un conteo animado de 0 al valor final (nunca estático)
+- Logo (definido y aprobado 2026-11-07, tras varias rondas con el usuario): ícono simple — M de trazo blanco con flecha remarcada en el acento claro (#59A6C0), fondo sólido #185062, sin sombra ni borde extra. Archivos: `dev/assets/isotipo.svg` (ícono solo, usado como favicon/ícono de app) y `dev/assets/logo-completo.svg` (ícono + "MargenPro" en Fraunces + tagline "COSTEA · COTIZA · VENDE" en Manrope, para la página de ventas). Es cosa juzgada como el resto de esta ficha.
 
 ## Trazabilidad y vetos
 - Ruta de diseño (PREGUNTA DE REFERENCIA del 54): propuesta propia (el usuario no tenía referencia visual)
