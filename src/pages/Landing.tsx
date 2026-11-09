@@ -47,7 +47,7 @@ const PASOS_SOLUCION = [
 
 const CARRUSEL_APP = [
   { icono: <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="M21 15l-5-5L5 21" /></>, nombre: 'Costeo', label: 'Tu primer precio calculado' },
-  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', label: 'Factura escaneada en segundos' },
+  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día' },
   { icono: <path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 11a8.5 8.5 0 0117-.5z" />, nombre: 'Cotización', label: 'Tu cotización lista para enviar' },
   { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', label: 'Tu mes, en números claros' },
 ]

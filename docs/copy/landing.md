@@ -37,7 +37,7 @@
 
 ## 5. LA APP POR DENTRO (placeholders — app aún no construida, ver ESTADO.md)
 - "Tu primer precio calculado" (pantalla: Costeo)
-- "Factura escaneada en segundos" (pantalla: Escaneo de insumos)
+- "Ingredientes y precios siempre al día" (pantalla: Escaneo de insumos — corregido 2026-11-09, era redundante con el nombre "Escaneo")
 - "Tu cotización lista para enviar" (pantalla: Cotización por WhatsApp)
 - "Tu mes, en números claros" (pantalla: Resumen mensual)
 
