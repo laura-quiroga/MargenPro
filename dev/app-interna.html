@@ -78,6 +78,7 @@
   .heroe-mes .ganancia-estado.es-perdida { color:var(--error); }
   .heroe-mes .ganancia-estado svg { width:14px; height:14px; }
   .heroe-mes .detalle { display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--sunken); font-size:13px; }
+  .formula-ganancia { font-size:11px; color:var(--text-2); margin-top:10px; line-height:1.4; }
   .heroe-mes .detalle .num { font-weight:800; display:block; font-size:15px; margin-top:2px; }
   .accesos-rapidos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
   .acceso-rapido { background:var(--surface); border-radius:var(--radius-card); padding:16px 14px; box-shadow:var(--shadow-1); text-align:left; }
@@ -213,9 +214,13 @@
           <span class="label" style="display:block;margin-top:14px;">Ganancia real este mes</span>
           <div class="ganancia" id="gananciaMesValor">$0</div>
           <div class="ganancia-estado" id="gananciaMesEstado"></div>
+          <p class="formula-ganancia">Ingresos por ventas − lo que gastaste en insumos = tu ganancia real</p>
           <div class="detalle">
-            <div><span>Gastaste en insumos</span><span class="num" id="gastoMesValor">$0</span></div>
-            <div style="text-align:right;"><span>Cotizaciones vendidas</span><span class="num" id="vendidasMesValor">0</span></div>
+            <div><span>Ingresos por ventas</span><span class="num" id="ingresoMesValor">$0</span></div>
+            <div style="text-align:right;"><span>Gastaste en insumos</span><span class="num" id="gastoMesValor">$0</span></div>
+          </div>
+          <div class="detalle">
+            <div><span>Cotizaciones vendidas</span><span class="num" id="vendidasMesValor">0</span></div>
           </div>
         </div>
       </div>
@@ -515,10 +520,13 @@
   ];
   var siguienteRecetaId = 3;
 
-  // Meses de ejemplo — uno con ganancia y uno con pérdida, para mostrar los dos estados del panorama.
+  // Meses de ejemplo. El mes actual (idx 0) calcula ingreso/ganancia EN VIVO desde las
+  // cotizaciones reales (array de abajo) — nunca un número suelto sin relación. Los meses
+  // anteriores son historial cerrado, con sus propios datos fijos (no hay nada que recalcular
+  // de un mes que ya pasó).
   var mesesMock = [
-    { label:'Noviembre 2026', ganancia:142700, gasto:186400, vendidas:7 },
-    { label:'Octubre 2026', ganancia:-32500, gasto:210000, vendidas:4 }
+    { label:'Noviembre 2026', gasto:120000, esMesActual:true },
+    { label:'Octubre 2026', ingreso:177500, gasto:210000, vendidas:4 }
   ];
   var mesActualIdx = 0;
 
@@ -531,12 +539,20 @@
 
   function renderGananciaMes(){
     var m = mesesMock[mesActualIdx];
-    var esPerdida = m.ganancia < 0;
+    var ingreso = m.esMesActual
+      ? cotizaciones.filter(function(c){ return c.estado === 'vendida'; }).reduce(function(s,c){ return s + c.monto; }, 0)
+      : m.ingreso;
+    var vendidas = m.esMesActual
+      ? cotizaciones.filter(function(c){ return c.estado === 'vendida'; }).length
+      : m.vendidas;
+    var ganancia = ingreso - m.gasto;
+    var esPerdida = ganancia < 0;
     document.getElementById('mesLabel').textContent = m.label;
+    document.getElementById('ingresoMesValor').textContent = money(ingreso);
     document.getElementById('gastoMesValor').textContent = money(m.gasto);
-    document.getElementById('vendidasMesValor').textContent = m.vendidas;
+    document.getElementById('vendidasMesValor').textContent = vendidas;
     var val = document.getElementById('gananciaMesValor');
-    val.textContent = (esPerdida ? '-' : '') + money(Math.abs(m.ganancia));
+    val.textContent = (esPerdida ? '-' : '') + money(Math.abs(ganancia));
     val.classList.toggle('es-perdida', esPerdida);
     var estado = document.getElementById('gananciaMesEstado');
     estado.classList.toggle('es-perdida', esPerdida);
@@ -551,6 +567,12 @@
     { cliente:'Ana Martínez', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'vendida', fecha:'hace 2 días' },
     { cliente:'Carlos Pérez', producto:'Brownies x 20', monto:30375, estado:'pendiente', fecha:'hace 1 día' },
     { cliente:'Lucía Gómez', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'rechazada', fecha:'hace 4 días' },
+    { cliente:'Pedro Ramírez', producto:'Brownies x 20', monto:30375, estado:'vendida', fecha:'hace 5 días' },
+    { cliente:'Marta Silva', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'vendida', fecha:'hace 6 días' },
+    { cliente:'Diana Ríos', producto:'Brownies x 20', monto:30375, estado:'vendida', fecha:'hace 9 días' },
+    { cliente:'Camilo Ortiz', producto:'Pan de queso x 24', monto:19980, estado:'vendida', fecha:'hace 12 días' },
+    { cliente:'Sofía Castro', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'vendida', fecha:'hace 15 días' },
+    { cliente:'Esteban Rojas', producto:'Brownies x 20', monto:30375, estado:'vendida', fecha:'hace 18 días' },
     { cliente:'Pedro Ruiz', producto:'Pan de queso x 24', monto:30740, estado:'pendiente', fecha:'hoy' }
   ];
 
@@ -637,6 +659,7 @@
     cotizaciones[idx].estado = nuevoEstado;
     renderCotizaciones();
     renderPanoramaCotizaciones();
+    if (mesesMock[mesActualIdx].esMesActual) renderGananciaMes();
     if (nuevoEstado === 'vendida') {
       lanzarConfeti();
       mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', '¡Vendida! Esta es tu ganancia real de hoy.');
