@@ -122,6 +122,7 @@
   .insumo-chip .nombre { flex:1; }
   .insumo-chip .precio { color:var(--text-2); font-weight:700; }
   .insumo-chip .quitar-insumo { width:24px; height:24px; border-radius:50%; background:var(--sunken); display:flex; align-items:center; justify-content:center; color:var(--text-2); flex-shrink:0; }
+  .insumo-chip .editar-insumo { width:24px; height:24px; border-radius:50%; background:rgb(var(--accent-tint)/.14); display:flex; align-items:center; justify-content:center; color:var(--accent); flex-shrink:0; }
   .btn-agregar-insumo { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; color:var(--accent); padding:10px; border:1.5px dashed rgb(var(--accent-tint)/.4); border-radius:var(--radius-btn); margin-bottom:10px; }
 
   /* 4. RESULTADO */
@@ -545,6 +546,8 @@
       div.className = 'insumo-chip';
       div.innerHTML = '<span class="nombre">' + ins.nombre + '</span>' +
         '<span class="precio">' + simbolo + Math.round(ins.precio).toLocaleString('es-CO') + '</span>' +
+        '<button type="button" class="editar-insumo" onclick="editarInsumo(' + idx + ')" aria-label="Editar insumo">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>' +
         '<button type="button" class="quitar-insumo" onclick="quitarInsumo(' + idx + ')" aria-label="Quitar insumo">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>';
       cont.appendChild(div);
@@ -556,6 +559,25 @@
   function quitarInsumo(idx){
     insumos.splice(idx, 1);
     renderInsumoChips();
+  }
+
+  // Edita un insumo ya confirmado: lo saca de la lista y lo vuelve a poner en el
+  // formulario para que la usuaria lo corrija con su nombre/precio/medida reales.
+  function editarInsumo(idx){
+    var ins = insumos[idx];
+    insumos.splice(idx, 1);
+    renderInsumoChips();
+    document.getElementById('insumoNombre').value = ins.nombre;
+    document.getElementById('insumoUnidad').value = ins.unidad;
+    cambiarUnidadInsumo();
+    if (ins.unidadesQueTrae) document.getElementById('insumoUnidadesTrae').value = ins.unidadesQueTrae;
+    document.getElementById('insumoPrecio').value = ins.precio;
+    if (ins.moneda) {
+      monedaActual = ins.moneda;
+      document.getElementById('selectorMoneda').value = ins.moneda;
+      document.getElementById('simboloMoneda').textContent = SIMBOLOS_MONEDA[ins.moneda] || '$';
+    }
+    document.getElementById('insumoNombre').focus();
   }
 
   function leerFormularioInsumoActual(){
