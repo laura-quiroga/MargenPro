@@ -134,6 +134,8 @@
   .desglose-costo .fila.total { font-weight:800; color:var(--text-1); padding-top:7px; margin-top:5px; border-top:1px dashed var(--sunken); }
   .por-unidad { margin-top:10px; padding:10px 12px; background:rgb(var(--accent-tint)/.14); border-radius:10px; font-size:12.5px; font-weight:700; color:var(--text-1); }
   .por-unidad span { color:var(--accent); font-family:var(--font-display); font-size:15px; }
+  .punto-equilibrio { margin-top:10px; padding:12px; background:var(--sunken); border-radius:10px; font-size:12.5px; color:var(--text-2); line-height:1.45; text-align:left; }
+  .punto-equilibrio strong { color:var(--text-1); }
 
   .slider-wrap { background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); margin-bottom:14px; }
   .slider-valor { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:10px; }
@@ -331,6 +333,7 @@
         <div class="sub">precio sugerido · costo real <span id="crCostoFinal">$0</span></div>
         <div class="por-unidad" id="crPorUnidad" style="display:none;"></div>
         <div class="desglose-costo" id="crDesglose" style="display:none;"></div>
+        <div class="punto-equilibrio" id="crEquilibrio" style="display:none;"></div>
       </div>
       <button class="btn-secundario" id="crGuardarBtn" style="display:none;border-style:solid;" onclick="guardarReceta()">Guardar receta</button>
     </div>
@@ -518,6 +521,22 @@
     }
     costoBase = Math.round(costoBase);
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
+    var precioPorUnidad = Math.round(precioSugerido / unidades);
+
+    // Punto de equilibrio de ESTE producto: si solo vendieras este producto, ¿cuántas
+    // unidades al mes necesitas para cubrir tus gastos fijos? Se calcula aparte del costo
+    // real de arriba (que ya trae el gasto fijo incluido) para no dividir una cosa entre
+    // sí misma — se compara el precio contra el costo que SÍ cambia según cuánto produzcas
+    // (insumos + mano de obra), nunca contra el costo fijo ya asignado.
+    var puntoEquilibrioUnidades = null;
+    if (modoCalculo === 'real') {
+      var costoVariablePorUnidad = (costoInsumos + costoManoDeObra) / unidades;
+      var margenContribucionUnitario = precioPorUnidad - costoVariablePorUnidad;
+      if (margenContribucionUnitario > 0) {
+        puntoEquilibrioUnidades = Math.ceil((cfg.fijo + cfg.variable) / margenContribucionUnitario);
+      }
+    }
+
     return {
       unidades: unidades,
       costoInsumos: Math.round(costoInsumos),
@@ -526,7 +545,8 @@
       costoBase: costoBase,
       precioSugerido: precioSugerido,
       costoPorUnidad: Math.round(costoBase / unidades),
-      precioPorUnidad: Math.round(precioSugerido / unidades)
+      precioPorUnidad: precioPorUnidad,
+      puntoEquilibrioUnidades: puntoEquilibrioUnidades
     };
   }
 
@@ -791,9 +811,13 @@
     }).join('');
   }
   function calcularReceta(){
+    if (!crInsumosFila.length) {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>', 'Agrega al menos un insumo antes de calcular.');
+      return;
+    }
     var margen = parseInt(document.getElementById('crMargenSlider').value, 10);
-    var horas = parseFloat(document.getElementById('crHoras').value) || 0;
-    var unidades = parseFloat(document.getElementById('crUnidades').value) || 1;
+    var horas = Math.max(0, parseFloat(document.getElementById('crHoras').value) || 0);
+    var unidades = Math.max(1, parseFloat(document.getElementById('crUnidades').value) || 1);
     var insumosUsados = crInsumosFila.map(function(f){
       var ins = insumos.find(function(i){ return i.id === f.insumoId; });
       var cantidadBase = (ins.unidad === 'kg' || ins.unidad === 'g') ? convertirAGramos(f.cantidad, f.medida, ins.nombre) : f.cantidad;
@@ -824,6 +848,22 @@
     } else {
       desglose.innerHTML = '';
       desglose.style.display = 'none';
+    }
+    var equilibrio = document.getElementById('crEquilibrio');
+    if (modoCalculo === 'real') {
+      if (c.puntoEquilibrioUnidades) {
+        equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" style="width:15px;height:15px;stroke:var(--accent);flex-shrink:0;margin-top:1px;"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
+          '<span><strong>Punto de equilibrio:</strong> si solo vendieras este producto, necesitas vender al menos <strong>' + c.puntoEquilibrioUnidades + ' unidades al mes</strong> para cubrir tus gastos fijos. Tu meta actual en Ajustes es ' + (cfg.tandas || 0) + ' productos al mes en todo tu negocio.</span></div>';
+      } else {
+        equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>' +
+          '<span>Con este precio y margen, no alcanzas a cubrir ni tus gastos fijos aunque vendas mucho — prueba subir el margen de ganancia o revisar tu precio.</span></div>';
+      }
+      equilibrio.style.display = 'block';
+    } else {
+      equilibrio.innerHTML = '';
+      equilibrio.style.display = 'none';
     }
     document.getElementById('crResultado').style.display = 'block';
     document.getElementById('crGuardarBtn').style.display = 'flex';
