@@ -391,7 +391,7 @@
       <div id="camposGastosReales" style="display:none;padding-top:14px;">
         <div class="campo"><label>Arriendo + lo que te pagas a ti misma (al mes)</label><input id="cfgFijo" type="number" value="800000"></div>
         <div class="campo"><label>Luz, gas, domicilios, publicidad (al mes)</label><input id="cfgVariable" type="number" value="250000"></div>
-        <div class="campo"><label>¿Cuántos productos vendes en un mes normal, aprox?</label><p class="ayuda-campo">Cuenta todo lo que vendes — tortas, hamburguesas, lo que sea, sumado. Usa un mes normal para ti, no uno muy flojo ni tu meta soñada: entre más bajo pongas este número, más sube el precio de cada producto, porque tus gastos fijos se reparten entre menos ventas. Ej: si vendes unos 4 productos al día, son unos 120 al mes.</p><input id="cfgTandas" type="number" value="120"></div>
+        <div class="campo"><label>¿Cuántas porciones o piezas individuales vendes en un mes normal, aprox?</label><p class="ayuda-campo">Cuenta unidades individuales, no tandas ni tortas completas — si vendes una torta de 12 porciones, cuenta las 12, no la torta como 1. Suma todo lo que vendes (porciones de torta, hamburguesas, cupcakes, lo que sea). Usa un mes normal para ti, no uno muy flojo ni tu meta soñada: entre más bajo pongas este número, más sube el precio de cada producto, porque tus gastos fijos se reparten entre menos unidades. Ej: si vendes 10 tortas de 12 porciones al mes, son 120 porciones.</p><input id="cfgTandas" type="number" value="120"></div>
         <div class="campo"><label>¿Cuánto vale tu hora de trabajo?</label><input id="cfgValorHora" type="number" value="8000"></div>
       </div>
 
@@ -509,7 +509,8 @@
     });
     var costoBase, costoFijoAsignado = 0, costoManoDeObra = 0;
     if (modoCalculo === 'real') {
-      // cfg.tandas = unidades vendidas al mes en TODO el negocio (ver ayuda del campo en Configuración).
+      // cfg.tandas = porciones/piezas INDIVIDUALES vendidas al mes en TODO el negocio (nunca
+      // tandas ni tortas completas — ver ayuda del campo en Configuración).
       // El gasto fijo mensual se reparte por unidad y luego se asigna según cuántas unidades
       // saca ESTA receta — no un monto fijo plano por tanda, sin importar su tamaño.
       var costoFijoPorUnidadMes = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
@@ -842,7 +843,7 @@
         filas += '<div class="fila"><span>Tu hora de trabajo</span><span>' + money(c.costoManoDeObra) + '</span></div>';
       }
       filas += '<div class="fila total"><span>Costo real de esta receta (' + unidades + (unidades > 1 ? ' unidades)' : ' unidad)') + '</span><span>' + money(c.costoBase) + '</span></div>';
-      filas += '<p class="formula-ganancia">Tu parte de gastos fijos sale de dividir tu arriendo y gastos entre cuántos productos vendes en un mes normal (lo configuras en Ajustes) — entre más vendas, menos le toca a cada producto.</p>';
+      filas += '<p class="formula-ganancia">Tu parte de gastos fijos sale de dividir tu arriendo y gastos entre cuántas porciones o piezas vendes en un mes normal (lo configuras en Ajustes) — entre más vendas, menos le toca a cada una.</p>';
       desglose.innerHTML = filas;
       desglose.style.display = 'block';
     } else {
@@ -854,7 +855,7 @@
       if (c.puntoEquilibrioUnidades) {
         equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" style="width:15px;height:15px;stroke:var(--accent);flex-shrink:0;margin-top:1px;"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
-          '<span><strong>Punto de equilibrio:</strong> si solo vendieras este producto, necesitas vender al menos <strong>' + c.puntoEquilibrioUnidades + ' unidades al mes</strong> para cubrir tus gastos fijos. Tu meta actual en Ajustes es ' + (cfg.tandas || 0) + ' productos al mes en todo tu negocio.</span></div>';
+          '<span><strong>Punto de equilibrio:</strong> si solo vendieras este producto, necesitas vender al menos <strong>' + c.puntoEquilibrioUnidades + ' unidades al mes</strong> para cubrir tus gastos fijos. Tu meta actual en Ajustes es ' + (cfg.tandas || 0) + ' porciones o piezas al mes en todo tu negocio.</span></div>';
       } else {
         equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>' +
