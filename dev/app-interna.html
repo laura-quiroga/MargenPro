@@ -250,14 +250,22 @@
 
   <!-- 2. INSUMOS -->
   <section class="seccion" id="s-insumos">
-    <div class="entrada">
+    <div class="entrada" id="insumosListaWrap">
       <h2 class="titulo-seccion">Tus insumos</h2>
       <p class="sub-seccion">Lo que compras para producir — con su precio real.</p>
 
+      <button class="btn-cta" style="margin-bottom:10px;" onclick="mostrarNuevoInsumo()">+ Agregar insumo</button>
       <button class="btn-secundario" onclick="abrirEscaneo()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="16" height="16"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Escanear factura — te quedan <span id="escaneosRestantes">27</span> de 30 este mes
       </button>
+
+      <div class="fila-filtros" id="filtrosInsumo" style="margin-top:16px;">
+        <button class="filtro-chip activo" data-f="todos" onclick="filtrarInsumos('todos')">Todos</button>
+        <button class="filtro-chip" data-f="ingrediente" onclick="filtrarInsumos('ingrediente')">Ingredientes</button>
+        <button class="filtro-chip" data-f="empaque" onclick="filtrarInsumos('empaque')">Empaques</button>
+        <button class="filtro-chip" data-f="adicional" onclick="filtrarInsumos('adicional')">Adicionales</button>
+      </div>
 
       <div id="listaInsumos"></div>
     </div>
@@ -287,6 +295,56 @@
         </div>
         <button class="btn-cta" onclick="confirmarEscaneo()">Confirmar y guardar →</button>
       </div>
+    </div>
+
+    <!-- Sub-pantalla: agregar insumo a mano -->
+    <div class="seccion-sub" id="sub-nuevo-insumo">
+      <button class="btn-atras-sub" onclick="cerrarNuevoInsumo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Insumos</button>
+      <h2 class="titulo-seccion" style="font-size:19px;">Agregar insumo</h2>
+      <div class="campo"><label>Nombre</label><input id="insNombre" placeholder="Ej: Harina de trigo"></div>
+      <div class="campo"><label>Tipo</label>
+        <select id="insCategoria">
+          <option value="ingrediente">Ingrediente</option>
+          <option value="empaque">Empaque</option>
+          <option value="adicional">Adicional (salsas, toppings, decoración)</option>
+        </select>
+      </div>
+      <div class="campo-2">
+        <div class="campo"><label>Unidad de compra</label>
+          <select id="insUnidad" onchange="actualizarCampoUnidadesInsumo()">
+            <option value="kg">Kilo</option>
+            <option value="g">Gramo</option>
+            <option value="L">Litro</option>
+            <option value="ml">Mililitro</option>
+            <option value="libra">Libra</option>
+            <option value="unidad">Unidad / pieza</option>
+            <option value="docena">Docena</option>
+            <option value="paquete">Paquete</option>
+          </select>
+        </div>
+        <div class="campo"><label>Precio que pagaste</label><input id="insPrecio" type="number" placeholder="Ej: 12000"></div>
+      </div>
+      <div class="campo" id="campoInsUnidadesQueTrae" style="display:none;"><label>¿Cuántas piezas trae esa compra?</label><input id="insUnidadesQueTrae" type="number" value="1"></div>
+      <div class="campo"><label id="insStockInicialLabel">¿Cuántos kilos tienes ahora?</label><p class="ayuda-campo">Así la app te avisa cuando se te esté acabando. Si no lo sabes, puedes dejarlo en 0 y lo registras después.</p><input id="insStockInicial" type="number" placeholder="Ej: 5" value="0"></div>
+      <button class="btn-cta" onclick="guardarInsumoManual()">Guardar insumo →</button>
+    </div>
+
+    <!-- Sub-pantalla: detalle de insumo + registrar nueva compra (suma al stock, no lo reemplaza) -->
+    <div class="seccion-sub" id="sub-detalle-insumo">
+      <button class="btn-atras-sub" onclick="cerrarDetalleInsumo()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Insumos</button>
+      <h2 class="titulo-seccion" style="font-size:19px;" id="detInsNombre">Insumo</h2>
+      <div class="tarjeta" style="margin-bottom:16px;">
+        <div class="campo-2">
+          <div><p style="font-size:12px;color:var(--text-2);">Precio actual</p><p style="font-weight:800;font-size:17px;" id="detInsPrecio">$0</p></div>
+          <div><p style="font-size:12px;color:var(--text-2);">Tienes ahora</p><p style="font-weight:800;font-size:17px;" id="detInsStock">—</p></div>
+        </div>
+        <p class="formula-ganancia" id="detInsAvisoBajo" style="display:none;color:var(--aviso);font-weight:700;"></p>
+      </div>
+      <h3 style="font-size:14px;margin-bottom:10px;">Registrar una nueva compra</h3>
+      <p class="sub-seccion" style="margin-top:-6px;">Esto SUMA a lo que ya tienes — no lo reemplaza.</p>
+      <div class="campo"><label id="detInsCantidadLabel">¿Cuántos kilos compraste esta vez?</label><input id="detInsCantidad" type="number" placeholder="Ej: 5"></div>
+      <div class="campo"><label>¿Cuánto pagaste por esto?</label><input id="detInsPrecioNuevo" type="number" placeholder="Déjalo igual si el precio no cambió"></div>
+      <button class="btn-cta" onclick="guardarCompraInsumo()">Sumar a mi stock →</button>
     </div>
   </section>
 
@@ -490,14 +548,20 @@
   // ───────────────────────────────────────────────────────────────────────
   // DATOS DE EJEMPLO (la app nunca se enseña vacía — 32-DEL-MVP-AL-PRODUCTO)
   // ───────────────────────────────────────────────────────────────────────
+  // stockDisponible se guarda SIEMPRE en la misma unidad en que las recetas consumen ese
+  // insumo (gramos/mililitros para kg/g/L/ml, piezas individuales para unidad/docena/paquete/
+  // libra) — así se puede restar directo con lo que ya calcula calcularCostoReceta, sin
+  // conversiones extra.
   var insumos = [
-    { id:0, nombre:'Harina de trigo', unidad:'kg', precio:12000, unidadesQueTrae:1 },
-    { id:1, nombre:'Azúcar blanca', unidad:'kg', precio:6000, unidadesQueTrae:1 },
-    { id:2, nombre:'Mantequilla', unidad:'kg', precio:18000, unidadesQueTrae:1 },
-    { id:3, nombre:'Chocolate en polvo', unidad:'kg', precio:24000, unidadesQueTrae:1 },
-    { id:4, nombre:'Huevos', unidad:'docena', precio:14000, unidadesQueTrae:12 }
+    { id:0, nombre:'Harina de trigo', unidad:'kg', precio:12000, unidadesQueTrae:1, categoria:'ingrediente', stockDisponible:2500 },
+    { id:1, nombre:'Azúcar blanca', unidad:'kg', precio:6000, unidadesQueTrae:1, categoria:'ingrediente', stockDisponible:900 },
+    { id:2, nombre:'Mantequilla', unidad:'kg', precio:18000, unidadesQueTrae:1, categoria:'ingrediente', stockDisponible:700 },
+    { id:3, nombre:'Chocolate en polvo', unidad:'kg', precio:24000, unidadesQueTrae:1, categoria:'ingrediente', stockDisponible:500 },
+    { id:4, nombre:'Huevos', unidad:'docena', precio:14000, unidadesQueTrae:12, categoria:'ingrediente', stockDisponible:18 },
+    { id:5, nombre:'Cajas para torta', unidad:'unidad', precio:2800, unidadesQueTrae:1, categoria:'empaque', stockDisponible:20 },
+    { id:6, nombre:'Chispas de chocolate (topping)', unidad:'kg', precio:16000, unidadesQueTrae:1, categoria:'adicional', stockDisponible:400 }
   ];
-  var siguienteInsumoId = 5;
+  var siguienteInsumoId = 7;
 
   function calcularCostoReceta(insumosUsados, margen, horas, unidades){
     unidades = unidades || 1;
@@ -632,14 +696,153 @@
     return { kg:'kg', g:'g', L:'L', ml:'ml', libra:'lb', unidad:'c/u', docena:'docena', paquete:'paquete' }[u] || u;
   }
 
+  // Convierte "cuánto compraste/tienes" (en la unidad que el usuario eligió) a la unidad
+  // BASE de stock que ya usan las recetas: gramos para kg, mililitros para L, piezas
+  // individuales para todo lo demás (unidad/docena/paquete/libra/g/ml ya son piezas o su
+  // propia unidad base).
+  function stockBaseDesdeCantidad(unidad, cantidad){
+    return (unidad === 'kg' || unidad === 'L') ? cantidad * 1000 : cantidad;
+  }
+  function nombreCantidadUnidad(unidad){
+    switch (unidad) {
+      case 'kg': return 'kilos';
+      case 'g': return 'gramos';
+      case 'L': return 'litros';
+      case 'ml': return 'mililitros';
+      case 'libra': return 'libras';
+      default: return 'piezas individuales';
+    }
+  }
+  function formatearStock(ins){
+    if (typeof ins.stockDisponible !== 'number') return null;
+    if (ins.unidad === 'kg' || ins.unidad === 'L') {
+      return (ins.stockDisponible / 1000).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad);
+    }
+    if (ins.unidad === 'g' || ins.unidad === 'ml') {
+      return Math.round(ins.stockDisponible) + ' ' + etiquetaUnidad(ins.unidad);
+    }
+    return Math.round(ins.stockDisponible) + ' piezas';
+  }
+  // El aviso de "se está acabando" se compara contra lo que usa normalmente UNA tanda de
+  // cualquier receta que use este insumo — así el usuario no tiene que configurar un umbral
+  // a mano, la app lo deduce solo de sus propias recetas.
+  function umbralStockBajo(ins){
+    var usoTipico = 0;
+    recetas.forEach(function(r){
+      r.insumosUsados.forEach(function(u){
+        if (u.insumoId === ins.id) usoTipico = Math.max(usoTipico, u.cantidadGramosOPiezas);
+      });
+    });
+    if (usoTipico > 0) return usoTipico;
+    return (ins.unidad === 'kg' || ins.unidad === 'g' || ins.unidad === 'L' || ins.unidad === 'ml') ? 200 : 2;
+  }
+  function stockEsBajo(ins){
+    return typeof ins.stockDisponible === 'number' && ins.stockDisponible <= umbralStockBajo(ins);
+  }
+
+  var filtroInsumoActual = 'todos';
+  function filtrarInsumos(f){
+    filtroInsumoActual = f;
+    document.querySelectorAll('#filtrosInsumo .filtro-chip').forEach(function(b){ b.classList.toggle('activo', b.dataset.f === f); });
+    renderInsumos();
+  }
+
   function renderInsumos(){
     var cont = document.getElementById('listaInsumos');
-    if (!insumos.length) { cont.innerHTML = '<div class="vacio"><p>Todavía no registras insumos.</p></div>'; return; }
-    cont.innerHTML = insumos.map(function(i){
-      return '<div class="item-lista"><div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>' +
-        '<div class="info"><div class="nombre">' + i.nombre + '</div><div class="meta">por ' + etiquetaUnidad(i.unidad) + (i.unidadesQueTrae > 1 ? ' (' + i.unidadesQueTrae + ' und.)' : '') + '</div></div>' +
+    var lista = filtroInsumoActual === 'todos' ? insumos : insumos.filter(function(i){ return (i.categoria || 'ingrediente') === filtroInsumoActual; });
+    if (!lista.length) { cont.innerHTML = '<div class="vacio"><p>Todavía no registras insumos en esta categoría.</p></div>'; return; }
+    cont.innerHTML = lista.map(function(i){
+      var stockTxt = formatearStock(i);
+      var bajo = stockTxt && stockEsBajo(i);
+      var metaStock = stockTxt ? (' · <span' + (bajo ? ' style="color:var(--aviso);font-weight:700;"' : '') + '>quedan ' + stockTxt + (bajo ? ' — se está acabando' : '') + '</span>') : '';
+      return '<div class="item-lista" onclick="abrirDetalleInsumo(' + i.id + ')" style="cursor:pointer;"><div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg></div>' +
+        '<div class="info"><div class="nombre">' + i.nombre + '</div><div class="meta">por ' + etiquetaUnidad(i.unidad) + (i.unidadesQueTrae > 1 ? ' (' + i.unidadesQueTrae + ' und.)' : '') + metaStock + '</div></div>' +
         '<div class="cifra">' + money(i.precio) + '</div></div>';
     }).join('');
+  }
+
+  function actualizarCampoUnidadesInsumo(){
+    var unidad = document.getElementById('insUnidad').value;
+    var esPieza = unidad === 'unidad' || unidad === 'docena' || unidad === 'paquete';
+    document.getElementById('campoInsUnidadesQueTrae').style.display = esPieza ? 'block' : 'none';
+    document.getElementById('insStockInicialLabel').textContent = '¿Cuántos ' + nombreCantidadUnidad(unidad) + ' tienes ahora?';
+  }
+
+  function mostrarNuevoInsumo(){
+    document.getElementById('insumosListaWrap').style.display = 'none';
+    document.getElementById('sub-nuevo-insumo').classList.add('activa');
+    document.getElementById('insNombre').value = '';
+    document.getElementById('insPrecio').value = '';
+    document.getElementById('insStockInicial').value = '0';
+    document.getElementById('insUnidad').value = 'kg';
+    document.getElementById('insCategoria').value = 'ingrediente';
+    actualizarCampoUnidadesInsumo();
+  }
+  function cerrarNuevoInsumo(){
+    document.getElementById('insumosListaWrap').style.display = '';
+    document.getElementById('sub-nuevo-insumo').classList.remove('activa');
+  }
+  function guardarInsumoManual(){
+    var nombre = document.getElementById('insNombre').value.trim();
+    if (!nombre) {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>', 'Ponle un nombre al insumo antes de guardar.');
+      return;
+    }
+    var precio = parseFloat(document.getElementById('insPrecio').value);
+    if (!precio || precio <= 0) {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>', 'Escribe cuánto pagaste por este insumo.');
+      return;
+    }
+    var unidad = document.getElementById('insUnidad').value;
+    var categoria = document.getElementById('insCategoria').value;
+    var unidadesQueTrae = Math.max(1, parseFloat(document.getElementById('insUnidadesQueTrae').value) || 1);
+    var stockDisponible = stockBaseDesdeCantidad(unidad, Math.max(0, parseFloat(document.getElementById('insStockInicial').value) || 0));
+    insumos.push({ id: siguienteInsumoId++, nombre: nombre, unidad: unidad, precio: precio, unidadesQueTrae: unidadesQueTrae, categoria: categoria, stockDisponible: stockDisponible });
+    renderInsumos();
+    cerrarNuevoInsumo();
+    mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', 'Insumo guardado — ya puedes usarlo en tus recetas.');
+  }
+
+  function abrirDetalleInsumo(id){
+    var ins = insumos.find(function(i){ return i.id === id; });
+    if (!ins) return;
+    window._detalleInsumoId = id;
+    document.getElementById('insumosListaWrap').style.display = 'none';
+    document.getElementById('sub-detalle-insumo').classList.add('activa');
+    document.getElementById('detInsNombre').textContent = ins.nombre;
+    document.getElementById('detInsPrecio').textContent = money(ins.precio) + ' / ' + etiquetaUnidad(ins.unidad);
+    var stockTxt = formatearStock(ins);
+    document.getElementById('detInsStock').textContent = stockTxt || 'sin registrar';
+    var aviso = document.getElementById('detInsAvisoBajo');
+    if (stockTxt && stockEsBajo(ins)) {
+      aviso.textContent = 'Se te está acabando — considera comprar más pronto.';
+      aviso.style.display = 'block';
+    } else {
+      aviso.style.display = 'none';
+    }
+    document.getElementById('detInsCantidadLabel').textContent = '¿Cuántos ' + nombreCantidadUnidad(ins.unidad) + ' compraste esta vez?';
+    document.getElementById('detInsCantidad').value = '';
+    document.getElementById('detInsPrecioNuevo').value = '';
+  }
+  function cerrarDetalleInsumo(){
+    document.getElementById('insumosListaWrap').style.display = '';
+    document.getElementById('sub-detalle-insumo').classList.remove('activa');
+  }
+  function guardarCompraInsumo(){
+    var ins = insumos.find(function(i){ return i.id === window._detalleInsumoId; });
+    if (!ins) return;
+    var cantidad = parseFloat(document.getElementById('detInsCantidad').value);
+    if (!cantidad || cantidad <= 0) {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>', 'Escribe cuánto compraste esta vez.');
+      return;
+    }
+    var precioNuevo = parseFloat(document.getElementById('detInsPrecioNuevo').value);
+    ins.stockDisponible = (typeof ins.stockDisponible === 'number' ? ins.stockDisponible : 0) + stockBaseDesdeCantidad(ins.unidad, cantidad);
+    if (precioNuevo > 0) ins.precio = precioNuevo;
+    renderInsumos();
+    renderRecetas();
+    cerrarDetalleInsumo();
+    mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', 'Listo — tu stock quedó actualizado.');
   }
 
   function renderRecetas(){
@@ -699,14 +902,46 @@
   }
 
   // Los 3 momentos emocionales — ya no son demo aislada, funcionan sobre datos reales.
+  // Descuenta (signo -1) o devuelve (signo +1) del inventario los insumos que usa la receta
+  // de esta cotización. Se activa SOLO al entrar o salir del estado "vendida" — nunca entre
+  // pendiente/rechazada, porque ahí nunca se tocó el inventario. Devuelve los insumos que
+  // quedaron bajos (para avisar), o null si no aplica.
+  function ajustarInventarioPorVenta(nombreProducto, signo){
+    var receta = recetas.find(function(r){ return r.nombre === nombreProducto; });
+    if (!receta) return null;
+    var insumosBajos = [];
+    receta.insumosUsados.forEach(function(u){
+      var ins = insumos.find(function(i){ return i.id === u.insumoId; });
+      if (!ins || typeof ins.stockDisponible !== 'number') return;
+      ins.stockDisponible += signo * u.cantidadGramosOPiezas;
+      if (signo < 0 && stockEsBajo(ins)) insumosBajos.push(ins.nombre);
+    });
+    return insumosBajos;
+  }
+
   function cambiarEstadoCotizacion(idx, nuevoEstado){
+    var estadoAnterior = cotizaciones[idx].estado;
     cotizaciones[idx].estado = nuevoEstado;
+    var insumosBajos = null;
+    if (estadoAnterior !== nuevoEstado) {
+      if (nuevoEstado === 'vendida') {
+        insumosBajos = ajustarInventarioPorVenta(cotizaciones[idx].producto, -1);
+      } else if (estadoAnterior === 'vendida') {
+        ajustarInventarioPorVenta(cotizaciones[idx].producto, 1);
+      }
+    }
     renderCotizaciones();
     renderPanoramaCotizaciones();
+    renderInsumos();
     if (mesesMock[mesActualIdx].esMesActual) renderGananciaMes();
     if (nuevoEstado === 'vendida') {
       lanzarConfeti();
       mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', '¡Vendida! Esta es tu ganancia real de hoy.');
+      if (insumosBajos && insumosBajos.length) {
+        setTimeout(function(){
+          mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>', 'Se te está acabando: ' + insumosBajos.join(', ') + '.');
+        }, 4000);
+      }
     } else if (nuevoEstado === 'rechazada') {
       mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8" transform="rotate(45 12 12)"/></svg>', 'Este cliente dijo que no — pero tu precio sigue siendo justo. Sigue cotizando.');
     }
