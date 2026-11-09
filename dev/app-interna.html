@@ -129,6 +129,9 @@
   .resultado-mini { background:rgb(var(--accent-tint)/.08); border:1.5px solid rgb(var(--accent-tint)/.25); border-radius:var(--radius-card); padding:16px; text-align:center; margin:14px 0; }
   .resultado-mini .precio { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); }
   .resultado-mini .sub { font-size:12px; color:var(--text-2); margin-top:4px; }
+  .desglose-costo { margin-top:12px; padding-top:12px; border-top:1px solid var(--sunken); text-align:left; }
+  .desglose-costo .fila { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--text-2); padding:3px 0; }
+  .desglose-costo .fila.total { font-weight:800; color:var(--text-1); padding-top:7px; margin-top:5px; border-top:1px dashed var(--sunken); }
 
   .slider-wrap { background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); margin-bottom:14px; }
   .slider-valor { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:10px; }
@@ -323,6 +326,7 @@
       <div class="resultado-mini" id="crResultado" style="display:none;">
         <div class="precio" id="crPrecioFinal">$0</div>
         <div class="sub">precio sugerido · costo real <span id="crCostoFinal">$0</span></div>
+        <div class="desglose-costo" id="crDesglose" style="display:none;"></div>
       </div>
       <button class="btn-secundario" id="crGuardarBtn" style="display:none;border-style:solid;" onclick="guardarReceta()">Guardar receta</button>
     </div>
@@ -495,17 +499,23 @@
       if (!ins) return;
       costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas;
     });
-    var costoBase;
+    var costoBase, costoFijoPorTanda = 0, costoManoDeObra = 0;
     if (modoCalculo === 'real') {
-      var costoFijoPorTanda = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
-      var costoManoDeObra = (horas || 0) * cfg.valorHora;
+      costoFijoPorTanda = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
+      costoManoDeObra = (horas || 0) * cfg.valorHora;
       costoBase = costoInsumos + costoFijoPorTanda + costoManoDeObra;
     } else {
       costoBase = costoInsumos * 1.35; // markup plano (modo simple)
     }
     costoBase = Math.round(costoBase);
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
-    return { costoInsumos: Math.round(costoInsumos), costoBase: costoBase, precioSugerido: precioSugerido };
+    return {
+      costoInsumos: Math.round(costoInsumos),
+      costoFijoPorTanda: Math.round(costoFijoPorTanda),
+      costoManoDeObra: Math.round(costoManoDeObra),
+      costoBase: costoBase,
+      precioSugerido: precioSugerido
+    };
   }
 
   // Recetas de ejemplo — construidas con la MISMA fórmula (no números inventados sueltos),
@@ -777,6 +787,20 @@
     var c = calcularCostoReceta(insumosUsados, margen, horas);
     document.getElementById('crPrecioFinal').textContent = money(c.precioSugerido);
     document.getElementById('crCostoFinal').textContent = money(c.costoBase);
+    var desglose = document.getElementById('crDesglose');
+    if (modoCalculo === 'real') {
+      var filas = '<div class="fila"><span>Insumos</span><span>' + money(c.costoInsumos) + '</span></div>' +
+        '<div class="fila"><span>Tu parte de arriendo y gastos fijos</span><span>' + money(c.costoFijoPorTanda) + '</span></div>';
+      if (c.costoManoDeObra > 0) {
+        filas += '<div class="fila"><span>Tu hora de trabajo</span><span>' + money(c.costoManoDeObra) + '</span></div>';
+      }
+      filas += '<div class="fila total"><span>Costo real de esta receta</span><span>' + money(c.costoBase) + '</span></div>';
+      desglose.innerHTML = filas;
+      desglose.style.display = 'block';
+    } else {
+      desglose.innerHTML = '';
+      desglose.style.display = 'none';
+    }
     document.getElementById('crResultado').style.display = 'block';
     document.getElementById('crGuardarBtn').style.display = 'flex';
     window._crUltimoCalculo = { insumosUsados: insumosUsados, margen: margen, horas: horas };
