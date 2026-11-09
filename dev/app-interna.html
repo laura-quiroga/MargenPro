@@ -402,6 +402,7 @@
     <div class="entrada" id="cotizacionesListaWrap">
       <h2 class="titulo-seccion">Cotizaciones</h2>
       <p class="sub-seccion">Lo que le has cotizado a tus clientes.</p>
+      <button class="btn-cta" style="margin-bottom:14px;" onclick="mostrarNuevaCotizacion()">+ Nueva cotización</button>
       <div class="fila-filtros" id="filtrosCotizacion">
         <button class="filtro-chip activo" data-f="todas" onclick="filtrarCotizaciones('todas')">Todas</button>
         <button class="filtro-chip" data-f="vendida" onclick="filtrarCotizaciones('vendida')">Vendidas</button>
@@ -409,7 +410,6 @@
         <button class="filtro-chip" data-f="rechazada" onclick="filtrarCotizaciones('rechazada')">Rechazadas</button>
       </div>
       <div id="listaCotizaciones"></div>
-      <button class="btn-cta" style="margin-top:4px;" onclick="mostrarNuevaCotizacion()">+ Nueva cotización</button>
     </div>
 
     <div class="seccion-sub" id="sub-nueva-cotizacion">
