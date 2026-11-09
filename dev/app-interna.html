@@ -362,7 +362,8 @@
       <button class="btn-atras-sub" onclick="cerrarConstructor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Recetas</button>
       <h2 class="titulo-seccion" style="font-size:19px;">Costea tu producto</h2>
       <div class="campo"><label>Nombre del producto</label><input id="crNombre" placeholder="Ej: Torta de vainilla x 10"></div>
-      <div class="campo"><label>¿Cuántas unidades saca esta receta?</label><p class="ayuda-campo">Ej: 12 si son 12 porciones de torta, 10 si son 10 hamburguesas. Así sabemos cuánto cobrar por cada una, no solo por la tanda completa.</p><input id="crUnidades" type="number" placeholder="Ej: 12" value="1"></div>
+      <div class="campo"><label>¿Cuántas porciones o piezas salen de UNA tanda de esta receta?</label><p class="ayuda-campo">Ej: 12 si una torta de esta receta siempre sale en 12 porciones, 10 si cada tanda rinde 10 hamburguesas. <strong>Esto NO es cuánto vendes al mes</strong> — es el tamaño de UNA sola preparación, la hagas una vez o veinte veces al mes. Cuánto vendes al mes se configura aparte, en Ajustes.</p><input id="crUnidades" type="number" placeholder="Ej: 12" value="1"></div>
+      <div class="formula-ganancia" id="crAvisoConfusionMes" style="display:none;color:var(--aviso);font-weight:700;"></div>
 
       <label style="display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;">Insumos que usas</label>
       <div id="crInsumosUsados"></div>
@@ -1054,6 +1055,14 @@
     var margen = parseInt(document.getElementById('crMargenSlider').value, 10);
     var horas = Math.max(0, parseFloat(document.getElementById('crHoras').value) || 0);
     var unidades = Math.max(1, parseFloat(document.getElementById('crUnidades').value) || 1);
+    var avisoMes = document.getElementById('crAvisoConfusionMes');
+    if (modoCalculo === 'real' && cfg.tandas > 0 && unidades >= cfg.tandas * 0.5) {
+      avisoMes.innerHTML = 'Pusiste ' + unidades + ' — eso es ' + Math.round(unidades / cfg.tandas * 100) + '% de tu meta mensual completa (' + cfg.tandas + ' en Ajustes). Si eso es cuánto VENDES AL MES de este producto (no cuánto saca una sola tanda), corrígelo aquí: este campo es solo el tamaño de UNA preparación.';
+      avisoMes.style.display = 'block';
+    } else {
+      avisoMes.innerHTML = '';
+      avisoMes.style.display = 'none';
+    }
     var insumosUsados = crInsumosFila.map(function(f){
       var ins = insumos.find(function(i){ return i.id === f.insumoId; });
       var cantidadBase = (ins.unidad === 'kg' || ins.unidad === 'g') ? convertirAGramos(f.cantidad, f.medida, ins.nombre) : f.cantidad;
