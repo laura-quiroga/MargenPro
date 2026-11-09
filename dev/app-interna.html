@@ -71,7 +71,12 @@
   .heroe-mes .nav-mes { display:flex; align-items:center; gap:10px; }
   .heroe-mes .nav-mes button { width:28px; height:28px; border-radius:8px; background:var(--sunken); display:flex; align-items:center; justify-content:center; }
   .heroe-mes .nav-mes button svg { width:14px; height:14px; stroke:var(--text-2); }
-  .heroe-mes .ganancia { font-family:var(--font-display); font-size:38px; font-weight:700; color:var(--accent); margin-top:8px; }
+  .heroe-mes .ganancia { font-family:var(--font-display); font-size:38px; font-weight:700; color:var(--accent); margin-top:8px; transition:color .2s; }
+  .heroe-mes .ganancia.es-perdida { color:var(--error); }
+  .heroe-mes .ganancia-estado { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:700; margin-top:4px; }
+  .heroe-mes .ganancia-estado.es-ganancia { color:var(--accent); }
+  .heroe-mes .ganancia-estado.es-perdida { color:var(--error); }
+  .heroe-mes .ganancia-estado svg { width:14px; height:14px; }
   .heroe-mes .detalle { display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--sunken); font-size:13px; }
   .heroe-mes .detalle .num { font-weight:800; display:block; font-size:15px; margin-top:2px; }
   .accesos-rapidos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
@@ -199,17 +204,18 @@
       <div class="heroe-mes">
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="label">Noviembre 2026</span>
+            <span class="label" id="mesLabel">Noviembre 2026</span>
             <div class="nav-mes">
-              <button aria-label="Mes anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button aria-label="Mes siguiente" style="opacity:.35;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+              <button aria-label="Mes anterior" onclick="cambiarMes(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <button aria-label="Mes siguiente" id="btnMesSiguiente" style="opacity:.35;" onclick="cambiarMes(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
             </div>
           </div>
           <span class="label" style="display:block;margin-top:14px;">Ganancia real este mes</span>
-          <div class="ganancia">$142.700</div>
+          <div class="ganancia" id="gananciaMesValor">$0</div>
+          <div class="ganancia-estado" id="gananciaMesEstado"></div>
           <div class="detalle">
-            <div><span>Gastaste en insumos</span><span class="num">$186.400</span></div>
-            <div style="text-align:right;"><span>Cotizaciones vendidas</span><span class="num">7</span></div>
+            <div><span>Gastaste en insumos</span><span class="num" id="gastoMesValor">$0</span></div>
+            <div style="text-align:right;"><span>Cotizaciones vendidas</span><span class="num" id="vendidasMesValor">0</span></div>
           </div>
         </div>
       </div>
@@ -509,6 +515,38 @@
   ];
   var siguienteRecetaId = 3;
 
+  // Meses de ejemplo — uno con ganancia y uno con pérdida, para mostrar los dos estados del panorama.
+  var mesesMock = [
+    { label:'Noviembre 2026', ganancia:142700, gasto:186400, vendidas:7 },
+    { label:'Octubre 2026', ganancia:-32500, gasto:210000, vendidas:4 }
+  ];
+  var mesActualIdx = 0;
+
+  function cambiarMes(delta){
+    var nuevoIdx = mesActualIdx + delta;
+    if (nuevoIdx < 0 || nuevoIdx >= mesesMock.length) return;
+    mesActualIdx = nuevoIdx;
+    renderGananciaMes();
+  }
+
+  function renderGananciaMes(){
+    var m = mesesMock[mesActualIdx];
+    var esPerdida = m.ganancia < 0;
+    document.getElementById('mesLabel').textContent = m.label;
+    document.getElementById('gastoMesValor').textContent = money(m.gasto);
+    document.getElementById('vendidasMesValor').textContent = m.vendidas;
+    var val = document.getElementById('gananciaMesValor');
+    val.textContent = (esPerdida ? '-' : '') + money(Math.abs(m.ganancia));
+    val.classList.toggle('es-perdida', esPerdida);
+    var estado = document.getElementById('gananciaMesEstado');
+    estado.classList.toggle('es-perdida', esPerdida);
+    estado.classList.toggle('es-ganancia', !esPerdida);
+    estado.innerHTML = esPerdida
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg> Este mes gastaste más de lo que vendiste'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg> Vas ganando este mes';
+    document.getElementById('btnMesSiguiente').style.opacity = mesActualIdx === 0 ? '.35' : '1';
+  }
+
   var cotizaciones = [
     { cliente:'Ana Martínez', producto:'Torta de chocolate x 12 porciones', monto:28350, estado:'vendida', fecha:'hace 2 días' },
     { cliente:'Carlos Pérez', producto:'Brownies x 20', monto:30375, estado:'pendiente', fecha:'hace 1 día' },
@@ -576,11 +614,13 @@
           '<div class="cifra">' + money(c.monto) + '</div>' +
         '</div>' +
         '<span class="estado-pill ' + c.estado + '">' + c.estado + '</span>' +
-        (c.estado === 'pendiente' ?
-          '<div style="display:flex;gap:8px;margin-top:12px;">' +
-          '<button class="btn-secundario" style="margin:0;" onclick="cambiarEstadoCotizacion(' + idx + ',\'vendida\')">Marcar vendida</button>' +
-          '<button class="btn-secundario" style="margin:0;border-color:rgb(var(--error-tint)/.4);color:var(--error);" onclick="cambiarEstadoCotizacion(' + idx + ',\'rechazada\')">Rechazada</button>' +
-          '</div>' : '') +
+        '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
+          ['vendida','pendiente','rechazada'].filter(function(e){ return e !== c.estado; }).map(function(e){
+            var etiqueta = e === 'vendida' ? 'Marcar vendida' : e === 'pendiente' ? 'Marcar pendiente' : 'Marcar rechazada';
+            var estiloError = e === 'rechazada' ? 'border-color:rgb(var(--error-tint)/.4);color:var(--error);' : '';
+            return '<button class="btn-secundario" style="margin:0;' + estiloError + '" onclick="cambiarEstadoCotizacion(' + idx + ',\'' + e + '\')">' + etiqueta + '</button>';
+          }).join('') +
+        '</div>' +
       '</div>';
     }).join('');
   }
@@ -811,6 +851,7 @@
   actualizarIconoTema();
 
   // Estado inicial
+  renderGananciaMes();
   renderInsumos();
   renderRecetas();
   renderCotizaciones();
