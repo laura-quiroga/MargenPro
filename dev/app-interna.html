@@ -132,6 +132,8 @@
   .desglose-costo { margin-top:12px; padding-top:12px; border-top:1px solid var(--sunken); text-align:left; }
   .desglose-costo .fila { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--text-2); padding:3px 0; }
   .desglose-costo .fila.total { font-weight:800; color:var(--text-1); padding-top:7px; margin-top:5px; border-top:1px dashed var(--sunken); }
+  .por-unidad { margin-top:10px; padding:10px 12px; background:rgb(var(--accent-tint)/.14); border-radius:10px; font-size:12.5px; font-weight:700; color:var(--text-1); }
+  .por-unidad span { color:var(--accent); font-family:var(--font-display); font-size:15px; }
 
   .slider-wrap { background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); margin-bottom:14px; }
   .slider-valor { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:10px; }
@@ -300,6 +302,7 @@
       <button class="btn-atras-sub" onclick="cerrarConstructor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Recetas</button>
       <h2 class="titulo-seccion" style="font-size:19px;">Costea tu producto</h2>
       <div class="campo"><label>Nombre del producto</label><input id="crNombre" placeholder="Ej: Torta de vainilla x 10"></div>
+      <div class="campo"><label>¿Cuántas unidades saca esta receta?</label><p class="ayuda-campo">Ej: 12 si son 12 porciones de torta, 10 si son 10 hamburguesas. Así sabemos cuánto cobrar por cada una, no solo por la tanda completa.</p><input id="crUnidades" type="number" placeholder="Ej: 12" value="1"></div>
 
       <label style="display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;">Insumos que usas</label>
       <div id="crInsumosUsados"></div>
@@ -326,6 +329,7 @@
       <div class="resultado-mini" id="crResultado" style="display:none;">
         <div class="precio" id="crPrecioFinal">$0</div>
         <div class="sub">precio sugerido · costo real <span id="crCostoFinal">$0</span></div>
+        <div class="por-unidad" id="crPorUnidad" style="display:none;"></div>
         <div class="desglose-costo" id="crDesglose" style="display:none;"></div>
       </div>
       <button class="btn-secundario" id="crGuardarBtn" style="display:none;border-style:solid;" onclick="guardarReceta()">Guardar receta</button>
@@ -492,40 +496,48 @@
   ];
   var siguienteInsumoId = 5;
 
-  function calcularCostoReceta(insumosUsados, margen, horas){
+  function calcularCostoReceta(insumosUsados, margen, horas, unidades){
+    unidades = unidades || 1;
     var costoInsumos = 0;
     insumosUsados.forEach(function(u){
       var ins = insumos.find(function(i){ return i.id === u.insumoId; });
       if (!ins) return;
       costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas;
     });
-    var costoBase, costoFijoPorTanda = 0, costoManoDeObra = 0;
+    var costoBase, costoFijoAsignado = 0, costoManoDeObra = 0;
     if (modoCalculo === 'real') {
-      costoFijoPorTanda = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
+      // cfg.tandas = unidades vendidas al mes en TODO el negocio (ver ayuda del campo en Configuración).
+      // El gasto fijo mensual se reparte por unidad y luego se asigna según cuántas unidades
+      // saca ESTA receta — no un monto fijo plano por tanda, sin importar su tamaño.
+      var costoFijoPorUnidadMes = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
+      costoFijoAsignado = costoFijoPorUnidadMes * unidades;
       costoManoDeObra = (horas || 0) * cfg.valorHora;
-      costoBase = costoInsumos + costoFijoPorTanda + costoManoDeObra;
+      costoBase = costoInsumos + costoFijoAsignado + costoManoDeObra;
     } else {
       costoBase = costoInsumos * 1.35; // markup plano (modo simple)
     }
     costoBase = Math.round(costoBase);
     var precioSugerido = Math.round(costoBase / (1 - margen/100));
     return {
+      unidades: unidades,
       costoInsumos: Math.round(costoInsumos),
-      costoFijoPorTanda: Math.round(costoFijoPorTanda),
+      costoFijoAsignado: Math.round(costoFijoAsignado),
       costoManoDeObra: Math.round(costoManoDeObra),
       costoBase: costoBase,
-      precioSugerido: precioSugerido
+      precioSugerido: precioSugerido,
+      costoPorUnidad: Math.round(costoBase / unidades),
+      precioPorUnidad: Math.round(precioSugerido / unidades)
     };
   }
 
   // Recetas de ejemplo — construidas con la MISMA fórmula (no números inventados sueltos),
   // así sirven de caso de verificación real.
   var recetas = [
-    { id:0, nombre:'Torta de chocolate x 12 porciones', margen:40,
+    { id:0, nombre:'Torta de chocolate x 12 porciones', margen:40, unidades:12,
       insumosUsados:[ {insumoId:0, cantidadGramosOPiezas:600}, {insumoId:1, cantidadGramosOPiezas:300}, {insumoId:2, cantidadGramosOPiezas:200} ] },
-    { id:1, nombre:'Brownies x 20', margen:40,
+    { id:1, nombre:'Brownies x 20', margen:40, unidades:20,
       insumosUsados:[ {insumoId:3, cantidadGramosOPiezas:400}, {insumoId:2, cantidadGramosOPiezas:150}, {insumoId:1, cantidadGramosOPiezas:200} ] },
-    { id:2, nombre:'Pan de queso x 24', margen:35,
+    { id:2, nombre:'Pan de queso x 24', margen:35, unidades:24,
       insumosUsados:[ {insumoId:0, cantidadGramosOPiezas:500}, {insumoId:4, cantidadGramosOPiezas:6}, {insumoId:2, cantidadGramosOPiezas:100} ] }
   ];
   var siguienteRecetaId = 3;
@@ -613,9 +625,10 @@
     var cont = document.getElementById('listaRecetas');
     if (!recetas.length) { cont.innerHTML = '<div class="vacio"><p>Todavía no costeas ninguna receta.</p></div>'; return; }
     cont.innerHTML = recetas.map(function(r){
-      var c = calcularCostoReceta(r.insumosUsados, r.margen, r.horas);
+      var c = calcularCostoReceta(r.insumosUsados, r.margen, r.horas, r.unidades);
+      var metaUnidad = (r.unidades > 1) ? (' · ' + money(c.precioPorUnidad) + ' c/u') : '';
       return '<div class="item-lista"><div class="chip-icono"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>' +
-        '<div class="info"><div class="nombre">' + r.nombre + '</div><div class="meta">costo real ' + money(c.costoBase) + '</div></div>' +
+        '<div class="info"><div class="nombre">' + r.nombre + '</div><div class="meta">costo real ' + money(c.costoBase) + metaUnidad + '</div></div>' +
         '<div class="cifra">' + money(c.precioSugerido) + '<span class="sub">' + r.margen + '% ganancia</span></div></div>';
     }).join('');
   }
@@ -741,6 +754,7 @@
     document.getElementById('crResultado').style.display = 'none';
     document.getElementById('crGuardarBtn').style.display = 'none';
     document.getElementById('crNombre').value = '';
+    document.getElementById('crUnidades').value = '1';
     crInsumosFila = [];
     document.getElementById('crInsumosUsados').innerHTML = '';
     agregarFilaInsumoReceta();
@@ -779,22 +793,31 @@
   function calcularReceta(){
     var margen = parseInt(document.getElementById('crMargenSlider').value, 10);
     var horas = parseFloat(document.getElementById('crHoras').value) || 0;
+    var unidades = parseFloat(document.getElementById('crUnidades').value) || 1;
     var insumosUsados = crInsumosFila.map(function(f){
       var ins = insumos.find(function(i){ return i.id === f.insumoId; });
       var cantidadBase = (ins.unidad === 'kg' || ins.unidad === 'g') ? convertirAGramos(f.cantidad, f.medida, ins.nombre) : f.cantidad;
       return { insumoId: f.insumoId, cantidadGramosOPiezas: cantidadBase };
     });
-    var c = calcularCostoReceta(insumosUsados, margen, horas);
+    var c = calcularCostoReceta(insumosUsados, margen, horas, unidades);
     document.getElementById('crPrecioFinal').textContent = money(c.precioSugerido);
     document.getElementById('crCostoFinal').textContent = money(c.costoBase);
+    var porUnidad = document.getElementById('crPorUnidad');
+    if (unidades > 1) {
+      porUnidad.innerHTML = 'Por unidad: cuesta ' + money(c.costoPorUnidad) + ' · cóbrala en <span>' + money(c.precioPorUnidad) + '</span>';
+      porUnidad.style.display = 'block';
+    } else {
+      porUnidad.innerHTML = '';
+      porUnidad.style.display = 'none';
+    }
     var desglose = document.getElementById('crDesglose');
     if (modoCalculo === 'real') {
       var filas = '<div class="fila"><span>Insumos</span><span>' + money(c.costoInsumos) + '</span></div>' +
-        '<div class="fila"><span>Tu parte de arriendo y gastos fijos</span><span>' + money(c.costoFijoPorTanda) + '</span></div>';
+        '<div class="fila"><span>Tu parte de arriendo y gastos fijos</span><span>' + money(c.costoFijoAsignado) + '</span></div>';
       if (c.costoManoDeObra > 0) {
         filas += '<div class="fila"><span>Tu hora de trabajo</span><span>' + money(c.costoManoDeObra) + '</span></div>';
       }
-      filas += '<div class="fila total"><span>Costo real de esta receta</span><span>' + money(c.costoBase) + '</span></div>';
+      filas += '<div class="fila total"><span>Costo real de esta receta (' + unidades + (unidades > 1 ? ' unidades)' : ' unidad)') + '</span><span>' + money(c.costoBase) + '</span></div>';
       desglose.innerHTML = filas;
       desglose.style.display = 'block';
     } else {
@@ -803,12 +826,12 @@
     }
     document.getElementById('crResultado').style.display = 'block';
     document.getElementById('crGuardarBtn').style.display = 'flex';
-    window._crUltimoCalculo = { insumosUsados: insumosUsados, margen: margen, horas: horas };
+    window._crUltimoCalculo = { insumosUsados: insumosUsados, margen: margen, horas: horas, unidades: unidades };
   }
   function guardarReceta(){
     var nombre = document.getElementById('crNombre').value || 'Mi producto';
     var calc = window._crUltimoCalculo;
-    recetas.push({ id: siguienteRecetaId++, nombre: nombre, margen: calc.margen, horas: calc.horas, insumosUsados: calc.insumosUsados });
+    recetas.push({ id: siguienteRecetaId++, nombre: nombre, margen: calc.margen, horas: calc.horas, unidades: calc.unidades, insumosUsados: calc.insumosUsados });
     renderRecetas();
     cerrarConstructor();
     mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>', 'Receta guardada — ya puedes cotizarla.');
@@ -827,7 +850,7 @@
     var cliente = document.getElementById('cotCliente').value || 'Tu cliente';
     var producto = document.getElementById('cotProducto').value;
     var receta = recetas.find(function(r){ return r.nombre === producto; });
-    var monto = receta ? calcularCostoReceta(receta.insumosUsados, receta.margen, receta.horas).precioSugerido : 20000;
+    var monto = receta ? calcularCostoReceta(receta.insumosUsados, receta.margen, receta.horas, receta.unidades).precioSugerido : 20000;
     cotizaciones.unshift({ cliente:cliente, producto:producto, monto:monto, estado:'pendiente', fecha:'hoy' });
     renderCotizaciones();
     renderPanoramaCotizaciones();
