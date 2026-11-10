@@ -362,8 +362,7 @@
       <button class="btn-atras-sub" onclick="cerrarConstructor()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Recetas</button>
       <h2 class="titulo-seccion" style="font-size:19px;">Costea tu producto</h2>
       <div class="campo"><label>Nombre del producto</label><input id="crNombre" placeholder="Ej: Torta de vainilla x 10"></div>
-      <div class="campo"><label>¿Cuántas porciones o piezas salen de UNA tanda de esta receta?</label><p class="ayuda-campo">Ej: 12 si una torta de esta receta siempre sale en 12 porciones, 10 si cada tanda rinde 10 hamburguesas. <strong>Esto NO es cuánto vendes al mes</strong> — es el tamaño de UNA sola preparación, la hagas una vez o veinte veces al mes. Cuánto vendes al mes se configura aparte, en Ajustes.</p><input id="crUnidades" type="number" placeholder="Ej: 12" value="1"></div>
-      <div class="formula-ganancia" id="crAvisoConfusionMes" style="display:none;color:var(--aviso);font-weight:700;"></div>
+      <div class="campo"><label>¿Cuántas porciones o piezas salen de UNA tanda de esta receta?</label><p class="ayuda-campo">Ej: 12 si una torta de esta receta siempre sale en 12 porciones, 10 si cada tanda rinde 10 hamburguesas.</p><input id="crUnidades" type="number" placeholder="Ej: 12" value="1"></div>
 
       <label style="display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;">Insumos que usas</label>
       <div id="crInsumosUsados"></div>
@@ -376,8 +375,8 @@
 
       <div class="slider-wrap">
         <label style="font-size:12px;font-weight:700;color:var(--text-2);">Margen de ganancia que quieres</label>
-        <div class="slider-valor" id="crMargenValor">40%</div>
-        <input type="range" min="10" max="70" value="40" id="crMargenSlider" oninput="document.getElementById('crMargenValor').textContent=this.value+'%'">
+        <div class="slider-valor" id="crMargenValor">50%</div>
+        <input type="range" min="10" max="70" value="50" id="crMargenSlider" oninput="document.getElementById('crMargenValor').textContent=this.value+'%'">
       </div>
 
       <div class="fila-config" style="border:none;padding:0 0 14px;">
@@ -392,7 +391,6 @@
         <div class="sub">precio sugerido · costo real <span id="crCostoFinal">$0</span></div>
         <div class="por-unidad" id="crPorUnidad" style="display:none;"></div>
         <div class="desglose-costo" id="crDesglose" style="display:none;"></div>
-        <div class="punto-equilibrio" id="crEquilibrio" style="display:none;"></div>
       </div>
       <button class="btn-secundario" id="crGuardarBtn" style="display:none;border-style:solid;" onclick="guardarReceta()">Guardar receta</button>
     </div>
@@ -448,9 +446,24 @@
       </div>
 
       <div id="camposGastosReales" style="display:none;padding-top:14px;">
-        <div class="campo"><label>Arriendo + lo que te pagas a ti misma (al mes)</label><input id="cfgFijo" type="number" value="800000"></div>
-        <div class="campo"><label>Luz, gas, domicilios, publicidad (al mes)</label><input id="cfgVariable" type="number" value="250000"></div>
-        <div class="campo"><label>¿Cuántas porciones o piezas individuales vendes en un mes normal, aprox?</label><p class="ayuda-campo">Cuenta unidades individuales, no tandas ni tortas completas — si vendes una torta de 12 porciones, cuenta las 12, no la torta como 1. Suma todo lo que vendes (porciones de torta, hamburguesas, cupcakes, lo que sea). Usa un mes normal para ti, no uno muy flojo ni tu meta soñada: entre más bajo pongas este número, más sube el precio de cada producto, porque tus gastos fijos se reparten entre menos unidades. Ej: si vendes 10 tortas de 12 porciones al mes, son 120 porciones.</p><input id="cfgTandas" type="number" value="120"></div>
+        <div class="tarjeta" style="margin-bottom:18px;">
+          <p style="font-size:12.5px;font-weight:700;margin-bottom:8px;">¿No sabes qué porcentaje poner? Sácalo de un mes real tuyo:</p>
+          <p style="font-size:12px;color:var(--text-2);line-height:1.5;">Si en un mes vendiste en total <strong>$5.000.000</strong>, pagaste <strong>$1.000.000</strong> de arriendo y sueldo, y <strong>$2.000.000</strong> en todo lo demás (ingredientes, empaques, envíos, comisiones): tu % de arriendo y gastos fijos es 1.000.000 ÷ 5.000.000 = <strong>20%</strong>.</p>
+          <p style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:8px;">Ojo con no contar dos veces: en "otros gastos" de abajo NO vuelvas a meter tus ingredientes y empaques — esos ya los cobra la app exactos, insumo por insumo. Aquí solo van cosas que no registraste como insumo, como comisiones de pago o envíos.</p>
+        </div>
+
+        <div class="slider-wrap">
+          <label style="font-size:12px;font-weight:700;color:var(--text-2);">% de tus ventas que se va en arriendo, sueldo y servicios</label>
+          <div class="slider-valor" id="cfgFijoPctValor">20%</div>
+          <input type="range" min="0" max="60" value="20" id="cfgFijoPctSlider" oninput="document.getElementById('cfgFijoPctValor').textContent=this.value+'%'">
+        </div>
+
+        <div class="slider-wrap">
+          <label style="font-size:12px;font-weight:700;color:var(--text-2);">% de tus ventas en otros gastos (no insumos)</label>
+          <div class="slider-valor" id="cfgVariablePctValor">0%</div>
+          <input type="range" min="0" max="40" value="0" id="cfgVariablePctSlider" oninput="document.getElementById('cfgVariablePctValor').textContent=this.value+'%'">
+        </div>
+
         <div class="campo"><label>¿Cuánto vale tu hora de trabajo?</label><input id="cfgValorHora" type="number" value="8000"></div>
       </div>
 
@@ -572,47 +585,42 @@
       if (!ins) return;
       costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas;
     });
-    var costoBase, costoFijoAsignado = 0, costoManoDeObra = 0;
-    if (modoCalculo === 'real') {
-      // cfg.tandas = porciones/piezas INDIVIDUALES vendidas al mes en TODO el negocio (nunca
-      // tandas ni tortas completas — ver ayuda del campo en Configuración).
-      // El gasto fijo mensual se reparte por unidad y luego se asigna según cuántas unidades
-      // saca ESTA receta — no un monto fijo plano por tanda, sin importar su tamaño.
-      var costoFijoPorUnidadMes = (cfg.fijo + cfg.variable) / (cfg.tandas || 1);
-      costoFijoAsignado = costoFijoPorUnidadMes * unidades;
-      costoManoDeObra = (horas || 0) * cfg.valorHora;
-      costoBase = costoInsumos + costoFijoAsignado + costoManoDeObra;
-    } else {
-      costoBase = costoInsumos * 1.35; // markup plano (modo simple)
-    }
-    costoBase = Math.round(costoBase);
-    var precioSugerido = Math.round(costoBase / (1 - margen/100));
-    var precioPorUnidad = Math.round(precioSugerido / unidades);
+    var costoManoDeObra = (horas || 0) * cfg.valorHora;
+    var costoDirecto = costoInsumos + costoManoDeObra; // lo único que SIEMPRE es un peso real, sin importar cuánto vendas al mes
 
-    // Punto de equilibrio de ESTE producto: si solo vendieras este producto, ¿cuántas
-    // unidades al mes necesitas para cubrir tus gastos fijos? Se calcula aparte del costo
-    // real de arriba (que ya trae el gasto fijo incluido) para no dividir una cosa entre
-    // sí misma — se compara el precio contra el costo que SÍ cambia según cuánto produzcas
-    // (insumos + mano de obra), nunca contra el costo fijo ya asignado.
-    var puntoEquilibrioUnidades = null;
+    var precioSugerido, costoFijoAsignado = 0, costoVariableAsignado = 0, costoBase, pctImposible = false;
     if (modoCalculo === 'real') {
-      var costoVariablePorUnidad = (costoInsumos + costoManoDeObra) / unidades;
-      var margenContribucionUnitario = precioPorUnidad - costoVariablePorUnidad;
-      if (margenContribucionUnitario > 0) {
-        puntoEquilibrioUnidades = Math.ceil((cfg.fijo + cfg.variable) / margenContribucionUnitario);
+      // Los costos fijos y variables ya NO se reparten por "cuánto vendes al mes" (eso
+      // confundía el tamaño de una tanda con las ventas mensuales) — ahora son un % de lo
+      // que vas a COBRAR, sacado de tus propios números reales (ver letrero en Configuración).
+      // precio = costoDirecto + fijo%·precio + variable%·precio + margen%·precio
+      // → precio·(1 − fijo% − variable% − margen%) = costoDirecto
+      var pctOcupado = (cfg.fijoPct + cfg.variablePct + margen) / 100;
+      if (pctOcupado >= 0.97) {
+        pctImposible = true;
+        pctOcupado = 0.97; // evita dividir por 0 o un número negativo
       }
+      precioSugerido = Math.round(costoDirecto / (1 - pctOcupado));
+      costoFijoAsignado = Math.round(precioSugerido * cfg.fijoPct / 100);
+      costoVariableAsignado = Math.round(precioSugerido * cfg.variablePct / 100);
+      costoBase = costoDirecto + costoFijoAsignado + costoVariableAsignado;
+    } else {
+      costoBase = Math.round(costoInsumos * 1.35); // markup plano (modo simple)
+      precioSugerido = Math.round(costoBase / (1 - margen/100));
     }
+    var precioPorUnidad = Math.round(precioSugerido / unidades);
 
     return {
       unidades: unidades,
       costoInsumos: Math.round(costoInsumos),
-      costoFijoAsignado: Math.round(costoFijoAsignado),
       costoManoDeObra: Math.round(costoManoDeObra),
-      costoBase: costoBase,
+      costoFijoAsignado: costoFijoAsignado,
+      costoVariableAsignado: costoVariableAsignado,
+      costoBase: Math.round(costoBase),
       precioSugerido: precioSugerido,
       costoPorUnidad: Math.round(costoBase / unidades),
       precioPorUnidad: precioPorUnidad,
-      puntoEquilibrioUnidades: puntoEquilibrioUnidades
+      pctImposible: pctImposible
     };
   }
 
@@ -685,7 +693,7 @@
   ];
 
   var modoCalculo = 'simple';
-  var cfg = { fijo:800000, variable:250000, tandas:120, valorHora:8000 };
+  var cfg = { fijoPct:20, variablePct:0, valorHora:8000 };
 
   // ───────────────────────────────────────────────────────────────────────
   // RENDER
@@ -1055,13 +1063,8 @@
     var margen = parseInt(document.getElementById('crMargenSlider').value, 10);
     var horas = Math.max(0, parseFloat(document.getElementById('crHoras').value) || 0);
     var unidades = Math.max(1, parseFloat(document.getElementById('crUnidades').value) || 1);
-    var avisoMes = document.getElementById('crAvisoConfusionMes');
-    if (modoCalculo === 'real' && cfg.tandas > 0 && unidades >= cfg.tandas * 0.5) {
-      avisoMes.innerHTML = 'Pusiste ' + unidades + ' — eso es ' + Math.round(unidades / cfg.tandas * 100) + '% de tu meta mensual completa (' + cfg.tandas + ' en Ajustes). Si eso es cuánto VENDES AL MES de este producto (no cuánto saca una sola tanda), corrígelo aquí: este campo es solo el tamaño de UNA preparación.';
-      avisoMes.style.display = 'block';
-    } else {
-      avisoMes.innerHTML = '';
-      avisoMes.style.display = 'none';
+    if (modoCalculo === 'real' && (cfg.fijoPct + cfg.variablePct + margen) >= 95) {
+      mostrarToast('<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>', 'Entre tu arriendo/gastos fijos, tus otros gastos y tu margen suman ' + (cfg.fijoPct + cfg.variablePct + margen) + '% — eso ya casi no deja espacio para un precio real. Baja alguno en Ajustes o en el margen de esta receta.');
     }
     var insumosUsados = crInsumosFila.map(function(f){
       var ins = insumos.find(function(i){ return i.id === f.insumoId; });
@@ -1081,34 +1084,24 @@
     }
     var desglose = document.getElementById('crDesglose');
     if (modoCalculo === 'real') {
-      var filas = '<div class="fila"><span>Insumos</span><span>' + money(c.costoInsumos) + '</span></div>' +
-        '<div class="fila"><span>Tu parte de arriendo y gastos fijos</span><span>' + money(c.costoFijoAsignado) + '</span></div>';
+      var filas = '<div class="fila"><span>Insumos</span><span>' + money(c.costoInsumos) + '</span></div>';
       if (c.costoManoDeObra > 0) {
         filas += '<div class="fila"><span>Tu hora de trabajo</span><span>' + money(c.costoManoDeObra) + '</span></div>';
       }
+      filas += '<div class="fila"><span>Tu parte de arriendo y gastos fijos (' + cfg.fijoPct + '%)</span><span>' + money(c.costoFijoAsignado) + '</span></div>';
+      if (cfg.variablePct > 0) {
+        filas += '<div class="fila"><span>Otros gastos (' + cfg.variablePct + '%)</span><span>' + money(c.costoVariableAsignado) + '</span></div>';
+      }
       filas += '<div class="fila total"><span>Costo real de esta receta (' + unidades + (unidades > 1 ? ' unidades)' : ' unidad)') + '</span><span>' + money(c.costoBase) + '</span></div>';
-      filas += '<p class="formula-ganancia">Tu parte de gastos fijos sale de dividir tu arriendo y gastos entre cuántas porciones o piezas vendes en un mes normal (lo configuras en Ajustes) — entre más vendas, menos le toca a cada una.</p>';
+      filas += '<p class="formula-ganancia">Tu arriendo y tus otros gastos se cobran como % de tu precio (lo configuras en Ajustes) — no según cuánto vendas al mes, así el precio no cambia de una tanda a otra.</p>';
+      if (c.pctImposible) {
+        filas += '<p class="formula-ganancia" style="color:var(--error);font-weight:700;">Tus porcentajes configurados no caben en un precio real — este número está forzado para no romperse. Baja el % de gastos fijos, el de otros gastos, o el margen.</p>';
+      }
       desglose.innerHTML = filas;
       desglose.style.display = 'block';
     } else {
       desglose.innerHTML = '';
       desglose.style.display = 'none';
-    }
-    var equilibrio = document.getElementById('crEquilibrio');
-    if (modoCalculo === 'real') {
-      if (c.puntoEquilibrioUnidades) {
-        equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" style="width:15px;height:15px;stroke:var(--accent);flex-shrink:0;margin-top:1px;"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
-          '<span><strong>Punto de equilibrio:</strong> si solo vendieras este producto, necesitas vender al menos <strong>' + c.puntoEquilibrioUnidades + ' unidades al mes</strong> para cubrir tus gastos fijos. Tu meta actual en Ajustes es ' + (cfg.tandas || 0) + ' porciones o piezas al mes en todo tu negocio.</span></div>';
-      } else {
-        equilibrio.innerHTML = '<div style="display:flex;gap:8px;align-items:flex-start;">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>' +
-          '<span>Con este precio y margen, no alcanzas a cubrir ni tus gastos fijos aunque vendas mucho — prueba subir el margen de ganancia o revisar tu precio.</span></div>';
-      }
-      equilibrio.style.display = 'block';
-    } else {
-      equilibrio.innerHTML = '';
-      equilibrio.style.display = 'none';
     }
     document.getElementById('crResultado').style.display = 'block';
     document.getElementById('crGuardarBtn').style.display = 'flex';
@@ -1180,14 +1173,16 @@
     document.getElementById('camposGastosReales').style.display = on ? 'block' : 'none';
     renderRecetas();
   }
-  ['cfgFijo','cfgVariable','cfgTandas','cfgValorHora'].forEach(function(id){
-    document.getElementById(id).addEventListener('change', function(){
-      cfg.fijo = parseFloat(document.getElementById('cfgFijo').value) || 0;
-      cfg.variable = parseFloat(document.getElementById('cfgVariable').value) || 0;
-      cfg.tandas = parseFloat(document.getElementById('cfgTandas').value) || 1;
-      cfg.valorHora = parseFloat(document.getElementById('cfgValorHora').value) || 0;
+  ['cfgFijoPctSlider','cfgVariablePctSlider'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', function(){
+      cfg.fijoPct = parseFloat(document.getElementById('cfgFijoPctSlider').value) || 0;
+      cfg.variablePct = parseFloat(document.getElementById('cfgVariablePctSlider').value) || 0;
       renderRecetas();
     });
+  });
+  document.getElementById('cfgValorHora').addEventListener('change', function(){
+    cfg.valorHora = parseFloat(document.getElementById('cfgValorHora').value) || 0;
+    renderRecetas();
   });
   function cambiarMonedaGlobal(){
     monedaActual = document.getElementById('cfgMoneda').value;
