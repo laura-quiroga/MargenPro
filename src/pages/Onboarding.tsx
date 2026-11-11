@@ -298,7 +298,7 @@ export default function Onboarding() {
               {(form.unidad === 'docena' || form.unidad === 'paquete') && (
                 <div className="campo">
                   <label htmlFor="insumoUnidadesTrae">¿Cuántas unidades trae?</label>
-                  <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae} onChange={(e) => setForm((f) => ({ ...f, unidadesQueTrae: parseFloat(e.target.value) || 1 }))} />
+                  <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, unidadesQueTrae: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
                 </div>
               )}
               <label htmlFor="insumoPrecio" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>Precio de compra</label>
@@ -353,8 +353,9 @@ export default function Onboarding() {
               {insumos.map((ins, idx) => (
                 <div className="campo" key={idx}>
                   <label htmlFor={`usoInsumo${idx}`}>{etiquetaCantidadPara(ins.unidad)} de <strong>{ins.nombre}</strong>?</label>
-                  <input id={`usoInsumo${idx}`} type="number" value={usoInsumos[idx] ?? ''} onChange={(e) => {
-                    const v = parseFloat(e.target.value) || 0
+                  <input id={`usoInsumo${idx}`} type="number" value={usoInsumos[idx] || ''} onChange={(e) => {
+                    const raw = e.target.value
+                    const v = raw === '' ? 0 : parseFloat(raw) || 0
                     setUsoInsumos((prev) => { const copia = [...prev]; copia[idx] = v; return copia })
                   }} />
                 </div>
