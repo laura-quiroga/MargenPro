@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing'
 import Onboarding from './pages/Onboarding'
 import Paywall from './pages/Paywall'
+import Login from './pages/Login'
 
 function Proximamente({ titulo }: { titulo: string }) {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/paywall" element={<Paywall />} />
-        <Route path="/login" element={<Proximamente titulo="Entrar" />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/app" element={<Proximamente titulo="Tu negocio" />} />
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,9 @@
+/* Login MargenPro — conversión fiel de dev/onboarding-paywall-login.html (paso 9).
+   Shell/campos/botones compartidos en src/components/PhoneFrame.css. Tokens: src/globals.css */
+
+.login p.sub { color:var(--text-2); }
+
+.login-divider { display:flex; align-items:center; gap:10px; color:var(--text-2); font-size:12px; margin:16px 0; }
+.login-divider::before, .login-divider::after { content:""; flex:1; height:1px; background:var(--sunken); }
+.btn-google { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:var(--surface); border:1.5px solid var(--sunken); border-radius:var(--radius-btn); padding:14px; font-weight:700; font-size:14px; color:var(--text-1); cursor:pointer; }
+.login-nota { font-size:11.5px; color:var(--text-2); text-align:center; margin-top:14px; }

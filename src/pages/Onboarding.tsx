@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Cake, Hamburger, Bread, ForkKnife } from '@phosphor-icons/react'
 import PhoneFrame from '../components/PhoneFrame'
 import { Confetti, useConfeti } from '../components/Confetti'
+import { Toast, useToast } from '../components/Toast'
 import { costoPorUnidadBase } from '../lib/costeo'
 import type { Moneda, UnidadInsumo } from '../lib/types'
 import { SIMBOLOS_MONEDA } from '../lib/types'
@@ -106,6 +107,7 @@ export default function Onboarding() {
   const [usoInsumos, setUsoInsumos] = useState<number[]>([])
   const [resultado, setResultado] = useState<{ costoBase: number; precioSugerido: number } | null>(null)
   const { piezas, lanzar } = useConfeti()
+  const { toast, mostrarToast } = useToast()
   const simbolo = SIMBOLOS_MONEDA[moneda]
 
   const siguientePasoTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -139,10 +141,15 @@ export default function Onboarding() {
     setForm((f) => ({ ...f, unidad, unidadesQueTrae: unidad === 'docena' ? 12 : f.unidadesQueTrae }))
   }
 
-  function agregarOtroInsumo() {
-    if (insumos.length >= MAX_INSUMOS - 1 || !form.precio) return
+  function agregarInsumo() {
+    if (insumos.length >= MAX_INSUMOS) return
+    if (!form.precio) {
+      mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe el precio de compra antes de agregarlo.')
+      return
+    }
     setInsumos((prev) => [...prev, form])
     setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda })
+    mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>, 'Insumo agregado.')
   }
 
   function editarInsumo(idx: number) {
@@ -156,10 +163,12 @@ export default function Onboarding() {
     setInsumos((prev) => prev.filter((_, i) => i !== idx))
   }
 
-  function agregarInsumoYSeguir() {
-    const todos = [...insumos, form]
-    setInsumos(todos)
-    setUsoInsumos(todos.map((i) => i.cantidadUsada ?? (i.unidad === 'unidad' || i.unidad === 'docena' || i.unidad === 'paquete' ? 1 : 100)))
+  function seguirAReceta() {
+    if (!insumos.length) {
+      mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Agrega al menos un insumo antes de seguir.')
+      return
+    }
+    setUsoInsumos(insumos.map((i) => i.cantidadUsada ?? (i.unidad === 'unidad' || i.unidad === 'docena' || i.unidad === 'paquete' ? 1 : 100)))
     irA(5)
   }
 
@@ -278,42 +287,46 @@ export default function Onboarding() {
             <div className="pantalla-contenido entrada">
               <h2 style={{ fontSize: 22, marginBottom: 6 }}>¿Qué compraste para producir?</h2>
               <p className="sub" style={{ fontSize: 14, marginBottom: 22 }}>Un insumo real tuyo — harina, carne, empaques, lo que sea. Lo puedes editar después.</p>
-              <div className="campo">
-                <label htmlFor="insumoNombre">Nombre del insumo</label>
-                <input id="insumoNombre" value={form.nombre} placeholder="Ej: Harina de trigo" onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))} />
-              </div>
-              <div className="campo">
-                <label htmlFor="insumoUnidad">¿Cómo lo compraste?</label>
-                <select id="insumoUnidad" value={form.unidad} onChange={(e) => cambiarUnidad(e.target.value as UnidadInsumo)}>
-                  <option value="kg">Kilo (kg)</option>
-                  <option value="g">Gramo (g)</option>
-                  <option value="L">Litro (L)</option>
-                  <option value="ml">Mililitro (ml)</option>
-                  <option value="unidad">Unidad / pieza</option>
-                  <option value="docena">Docena</option>
-                  <option value="libra">Libra</option>
-                  <option value="paquete">Paquete / caja</option>
-                </select>
-              </div>
-              {(form.unidad === 'docena' || form.unidad === 'paquete') && (
-                <div className="campo">
-                  <label htmlFor="insumoUnidadesTrae">¿Cuántas unidades trae?</label>
-                  <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, unidadesQueTrae: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
-                </div>
+              {insumos.length < MAX_INSUMOS && (
+                <>
+                  <div className="campo">
+                    <label htmlFor="insumoNombre">Nombre del insumo</label>
+                    <input id="insumoNombre" value={form.nombre} placeholder="Ej: Harina de trigo" onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))} />
+                  </div>
+                  <div className="campo">
+                    <label htmlFor="insumoUnidad">¿Cómo lo compraste?</label>
+                    <select id="insumoUnidad" value={form.unidad} onChange={(e) => cambiarUnidad(e.target.value as UnidadInsumo)}>
+                      <option value="kg">Kilo (kg)</option>
+                      <option value="g">Gramo (g)</option>
+                      <option value="L">Litro (L)</option>
+                      <option value="ml">Mililitro (ml)</option>
+                      <option value="unidad">Unidad / pieza</option>
+                      <option value="docena">Docena</option>
+                      <option value="libra">Libra</option>
+                      <option value="paquete">Paquete / caja</option>
+                    </select>
+                  </div>
+                  {(form.unidad === 'docena' || form.unidad === 'paquete') && (
+                    <div className="campo">
+                      <label htmlFor="insumoUnidadesTrae">¿Cuántas unidades trae?</label>
+                      <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, unidadesQueTrae: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
+                    </div>
+                  )}
+                  <label htmlFor="insumoPrecio" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>Precio de compra</label>
+                  <div className="campo-con-moneda">
+                    <div className="campo-prefijo"><span>{simbolo}</span>
+                      <input id="insumoPrecio" type="number" placeholder="12000" value={form.precio || ''} onChange={(e) => setForm((f) => ({ ...f, precio: parseFloat(e.target.value) || 0 }))} />
+                    </div>
+                    <select className="selector-moneda" value={moneda} onChange={(e) => { setMoneda(e.target.value as Moneda); setForm((f) => ({ ...f, moneda: e.target.value as Moneda })) }}>
+                      <option value="COP">COP</option>
+                      <option value="MXN">MXN</option>
+                      <option value="PEN">PEN</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+                  <p className="nota-moneda">Detectamos tu moneda por tu país — puedes cambiarla. Esto es solo para TUS insumos; el precio de MargenPro siempre se cobra en USD.</p>
+                </>
               )}
-              <label htmlFor="insumoPrecio" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>Precio de compra</label>
-              <div className="campo-con-moneda">
-                <div className="campo-prefijo"><span>{simbolo}</span>
-                  <input id="insumoPrecio" type="number" placeholder="12000" value={form.precio || ''} onChange={(e) => setForm((f) => ({ ...f, precio: parseFloat(e.target.value) || 0 }))} />
-                </div>
-                <select className="selector-moneda" value={moneda} onChange={(e) => { setMoneda(e.target.value as Moneda); setForm((f) => ({ ...f, moneda: e.target.value as Moneda })) }}>
-                  <option value="COP">COP</option>
-                  <option value="MXN">MXN</option>
-                  <option value="PEN">PEN</option>
-                  <option value="USD">USD</option>
-                </select>
-              </div>
-              <p className="nota-moneda">Detectamos tu moneda por tu país — puedes cambiarla. Esto es solo para TUS insumos; el precio de MargenPro siempre se cobra en USD.</p>
               <div>
                 {insumos.map((ins, idx) => (
                   <div className="insumo-chip" key={idx}>
@@ -328,15 +341,15 @@ export default function Onboarding() {
                   </div>
                 ))}
               </div>
-              {insumos.length < MAX_INSUMOS - 1 && (
-                <button type="button" className="btn-agregar-insumo" onClick={agregarOtroInsumo}>
+              {insumos.length < MAX_INSUMOS && (
+                <button type="button" className="btn-agregar-insumo" onClick={agregarInsumo}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                  Agregar otro insumo (hasta 3)
+                  Agregar insumo {insumos.length > 0 ? `(${insumos.length}/${MAX_INSUMOS})` : ''}
                 </button>
               )}
             </div>
             <div className="pantalla-footer">
-              <button className="btn-cta" onClick={agregarInsumoYSeguir}>Agregar y seguir →</button>
+              <button className="btn-cta" onClick={seguirAReceta}>Seguir →</button>
             </div>
           </>
         )}
@@ -422,6 +435,7 @@ export default function Onboarding() {
           </>
         )}
       </div>
+      <Toast toast={toast} />
     </PhoneFrame>
   )
 }
