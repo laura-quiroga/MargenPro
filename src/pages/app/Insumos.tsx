@@ -183,12 +183,27 @@ export default function Insumos() {
     )
   }
 
-  const lista = filtro === 'todos' ? insumos : insumos.filter((i) => i.categoria === filtro)
+  const lista = (filtro === 'todos' ? insumos : insumos.filter((i) => i.categoria === filtro))
+    .slice()
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+
+  const insumosBajos = insumos.filter((i) => !!formatearStock(i) && stockEsBajo(i, recetas))
 
   return (
     <>
       <h2 className="titulo-seccion">Tus insumos</h2>
       <p className="sub-seccion">Lo que compras para producir — con su precio real.</p>
+      {insumosBajos.length > 0 && (
+        <div className="aviso-precio">
+          <div className="chip-icono aviso" style={{ width: 36, height: 36 }}><IconoAviso /></div>
+          <div>
+            <p>
+              <strong>Se te {insumosBajos.length === 1 ? 'está acabando' : 'están acabando'}:</strong>{' '}
+              {insumosBajos.map((i) => i.nombre).join(', ')}.
+            </p>
+          </div>
+        </div>
+      )}
       <button className="btn-cta" style={{ marginBottom: 10 }} onClick={abrirNuevo}>+ Agregar insumo</button>
       <div className="fila-filtros" style={{ marginTop: 16 }}>
         {CATEGORIAS.map((c) => (
