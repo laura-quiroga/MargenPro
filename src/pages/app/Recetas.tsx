@@ -34,6 +34,7 @@ export default function Recetas() {
   const location = useLocation()
   const [vista, setVista] = useState<'lista' | 'constructor'>('lista')
 
+  const [editId, setEditId] = useState<number | null>(null)
   const [nombre, setNombre] = useState('')
   const [unidades, setUnidades] = useState('1')
   const [filas, setFilas] = useState<FilaInsumo[]>([])
@@ -42,12 +43,30 @@ export default function Recetas() {
   const [resultado, setResultado] = useState<{ calc: ReturnType<typeof costear>; insumosUsados: InsumoUsado[]; margen: number; horas: number; unidades: number } | null>(null)
 
   function abrirConstructor() {
+    setEditId(null)
     setNombre('')
     setUnidades('1')
     setFilas(insumos.length ? [{ insumoId: insumos[0].id, cantidad: '100', medida: 'g' }] : [])
     setMargen(50)
     setHoras('')
     setResultado(null)
+    setVista('constructor')
+  }
+
+  function abrirEditar(id: number) {
+    const r = recetas.find((x) => x.id === id)
+    if (!r) return
+    setEditId(id)
+    setNombre(r.nombre)
+    setUnidades(String(r.unidades))
+    setFilas(r.insumosUsados.map((u) => {
+      const ins = insumos.find((i) => i.id === u.insumoId)
+      const esPeso = !!ins && (ins.unidad === 'kg' || ins.unidad === 'g')
+      return { insumoId: u.insumoId, cantidad: String(u.cantidadGramosOPiezas), medida: esPeso ? 'g' : 'pz' }
+    }))
+    setMargen(r.margen)
+    setHoras(r.horas ? String(r.horas) : '')
+    setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades), insumosUsados: r.insumosUsados, margen: r.margen, horas: r.horas, unidades: r.unidades })
     setVista('constructor')
   }
 
@@ -89,6 +108,14 @@ export default function Recetas() {
   function guardarReceta() {
     if (!resultado) return
     const nombreFinal = nombre.trim() || 'Mi producto'
+    if (editId !== null) {
+      setRecetas((prev) => prev.map((r) => (r.id === editId
+        ? { ...r, nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }
+        : r)))
+      setVista('lista')
+      mostrarToast(<IconoOk />, 'Receta actualizada.')
+      return
+    }
     const siguienteId = recetas.length ? Math.max(...recetas.map((r) => r.id)) + 1 : 0
     setRecetas((prev) => [...prev, { id: siguienteId, nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }])
     setVista('lista')
@@ -99,7 +126,7 @@ export default function Recetas() {
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('lista')}><IconoVolver />Recetas</button>
-        <h2 className="titulo-seccion" style={{ fontSize: 19 }}>Costea tu producto</h2>
+        <h2 className="titulo-seccion" style={{ fontSize: 19 }}>{editId !== null ? 'Editar receta' : 'Costea tu producto'}</h2>
         <div className="campo">
           <label>Nombre del producto</label>
           <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Torta de vainilla x 10" />
@@ -189,7 +216,7 @@ export default function Recetas() {
           </div>
         )}
         {resultado && (
-          <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarReceta}>Guardar receta</button>
+          <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarReceta}>{editId !== null ? 'Guardar cambios' : 'Guardar receta'}</button>
         )}
         <Toast toast={toast} />
       </>
@@ -208,7 +235,7 @@ export default function Recetas() {
           {recetas.map((r) => {
             const c = costear(r.insumosUsados, r.margen, r.horas, r.unidades)
             return (
-              <div className="item-lista" key={r.id}>
+              <div className="item-lista" key={r.id} onClick={() => abrirEditar(r.id)} style={{ cursor: 'pointer' }}>
                 <div className="chip-icono"><IconoReceta /></div>
                 <div className="info">
                   <div className="nombre">{r.nombre}</div>
