@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import AppLayout from './components/AppLayout'
 import { AppStoreProvider } from './lib/appStore'
 import Panorama from './pages/app/Panorama'
+import Insumos from './pages/app/Insumos'
 
 function Proximamente({ titulo }: { titulo: string }) {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/app" element={<AppStoreProvider><AppLayout /></AppStoreProvider>}>
           <Route index element={<Panorama />} />
-          <Route path="insumos" element={<Proximamente titulo="Insumos" />} />
+          <Route path="insumos" element={<Insumos />} />
           <Route path="recetas" element={<Proximamente titulo="Recetas" />} />
           <Route path="cotiza" element={<Proximamente titulo="Cotizaciones" />} />
           <Route path="ajustes" element={<Proximamente titulo="Ajustes" />} />

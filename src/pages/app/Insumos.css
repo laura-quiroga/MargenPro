@@ -1,0 +1,4 @@
+/* Insumos — conversión fiel de dev/app-interna.html (sección 2). Toda la
+   base visual (tarjeta, campo, campo-2, filtros, item-lista, vacío,
+   btn-atras-sub) vive en las primitivas compartidas src/components/AppLayout.css.
+   Tokens: src/globals.css */

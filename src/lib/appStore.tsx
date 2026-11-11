@@ -1,7 +1,39 @@
 import { createContext, useContext, useMemo, useState } from 'react'
-import type { ConfigNegocio, Cotizacion, Insumo, Moneda, Receta } from './types'
+import type { ConfigNegocio, Cotizacion, Insumo, Moneda, Receta, UnidadInsumo } from './types'
 import { SIMBOLOS_MONEDA } from './types'
 import { calcularCostoReceta } from './costeo'
+
+export function etiquetaUnidad(u: UnidadInsumo): string {
+  return { kg: 'kg', g: 'g', L: 'L', ml: 'ml', libra: 'lb', unidad: 'c/u', docena: 'docena', paquete: 'paquete' }[u] || u
+}
+
+/** "Cuánto compraste/tienes" (en la unidad que el usuario eligió) a la unidad BASE de stock
+ * que ya usan las recetas: gramos para kg, mililitros para L, piezas para todo lo demás. */
+export function stockBaseDesdeCantidad(unidad: UnidadInsumo, cantidad: number): number {
+  return unidad === 'kg' || unidad === 'L' ? cantidad * 1000 : cantidad
+}
+
+export function nombreCantidadUnidad(unidad: UnidadInsumo): string {
+  switch (unidad) {
+    case 'kg': return 'kilos'
+    case 'g': return 'gramos'
+    case 'L': return 'litros'
+    case 'ml': return 'mililitros'
+    case 'libra': return 'libras'
+    default: return 'piezas individuales'
+  }
+}
+
+export function formatearStock(ins: Insumo): string | null {
+  if (typeof ins.stockDisponible !== 'number') return null
+  if (ins.unidad === 'kg' || ins.unidad === 'L') {
+    return (ins.stockDisponible / 1000).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
+  }
+  if (ins.unidad === 'g' || ins.unidad === 'ml') {
+    return Math.round(ins.stockDisponible) + ' ' + etiquetaUnidad(ins.unidad)
+  }
+  return Math.round(ins.stockDisponible) + ' piezas'
+}
 
 export interface MesMock {
   label: string
