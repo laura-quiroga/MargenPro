@@ -54,12 +54,14 @@
 .app-interna .filtro-chip { flex-shrink:0; padding:8px 14px; border-radius:999px; background:var(--sunken); font-size:12.5px; font-weight:700; color:var(--text-2); border:none; cursor:pointer; }
 .app-interna .filtro-chip.activo { background:var(--accent); color:var(--on-accent); }
 
+.app-interna .tarjeta-fila { display:flex; align-items:center; gap:12px; }
+
 .app-interna .item-lista { display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:var(--radius-card); padding:14px; box-shadow:var(--shadow-1); margin-bottom:10px; }
-.app-interna .item-lista .info { flex:1; min-width:0; }
-.app-interna .item-lista .nombre { font-size:14px; font-weight:700; }
-.app-interna .item-lista .meta { font-size:12px; color:var(--text-2); margin-top:2px; }
-.app-interna .item-lista .cifra { text-align:right; font-weight:800; font-size:14px; flex-shrink:0; }
-.app-interna .item-lista .cifra .sub { display:block; font-size:11px; font-weight:600; color:var(--text-2); }
+.app-interna .item-lista .info, .app-interna .tarjeta-fila .info { flex:1; min-width:0; }
+.app-interna .item-lista .nombre, .app-interna .tarjeta-fila .nombre { font-size:14px; font-weight:700; }
+.app-interna .item-lista .meta, .app-interna .tarjeta-fila .meta { font-size:12px; color:var(--text-2); margin-top:2px; }
+.app-interna .item-lista .cifra, .app-interna .tarjeta-fila .cifra { text-align:right; font-weight:800; font-size:14px; flex-shrink:0; }
+.app-interna .item-lista .cifra .sub, .app-interna .tarjeta-fila .cifra .sub { display:block; font-size:11px; font-weight:600; color:var(--text-2); }
 
 .app-interna .estado-pill { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
 .app-interna .estado-pill.vendida { background:rgb(var(--accent-tint)/.15); color:var(--accent); }

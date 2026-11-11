@@ -8,6 +8,7 @@ import { AppStoreProvider } from './lib/appStore'
 import Panorama from './pages/app/Panorama'
 import Insumos from './pages/app/Insumos'
 import Recetas from './pages/app/Recetas'
+import Cotizaciones from './pages/app/Cotizaciones'
 
 function Proximamente({ titulo }: { titulo: string }) {
   return (
@@ -30,7 +31,7 @@ function App() {
           <Route index element={<Panorama />} />
           <Route path="insumos" element={<Insumos />} />
           <Route path="recetas" element={<Recetas />} />
-          <Route path="cotiza" element={<Proximamente titulo="Cotizaciones" />} />
+          <Route path="cotiza" element={<Cotizaciones />} />
           <Route path="ajustes" element={<Proximamente titulo="Ajustes" />} />
         </Route>
       </Routes>
