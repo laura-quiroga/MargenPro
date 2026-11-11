@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Cake, Hamburger, Bread, ForkKnife } from '@phosphor-icons/react'
 import PhoneFrame from '../components/PhoneFrame'
 import { Confetti, useConfeti } from '../components/Confetti'
 import { costoPorUnidadBase } from '../lib/costeo'
@@ -59,10 +60,10 @@ const EJEMPLOS_NEGOCIO: Record<string, EjemploNegocio> = {
 }
 
 const TIPOS_NEGOCIO = [
-  { id: 'reposteria', texto: 'Repostería y pastelería', icono: <><path d="M6 19L10 7h4l4 12z" /><path d="M8.5 13h7" /><circle cx="12" cy="4.5" r="1" /></> },
-  { id: 'comida-rapida', texto: 'Comida rápida y street food', icono: <><path d="M4 10a8 8 0 0116 0z" /><path d="M3 10h18" /><path d="M3 14h18" /><path d="M2.5 14c0 3.5 2.5 6 9.5 6s9.5-2.5 9.5-6" /></> },
-  { id: 'panaderia', texto: 'Panadería artesanal', icono: <><path d="M12 4.5c-4.5 0-7.5 2.8-7.5 6.5v6a2 2 0 002 2h11a2 2 0 002-2v-6c0-3.7-3-6.5-7.5-6.5z" /><path d="M9 9.5l1.8 2.3M13.5 9.5l1.8 2.3" /></> },
-  { id: 'otro', texto: 'Menús, catering u otro', icono: <><path d="M7 2v7M4 2v7M4 9h3M5.5 9v13" /><path d="M18.5 2c-2 1-3 3-3 6s1 4 3 4v10" /></> },
+  { id: 'reposteria', texto: 'Repostería y pastelería', Icono: Cake },
+  { id: 'comida-rapida', texto: 'Comida rápida y street food', Icono: Hamburger },
+  { id: 'panaderia', texto: 'Panadería artesanal', Icono: Bread },
+  { id: 'otro', texto: 'Menús, catering u otro', Icono: ForkKnife },
 ]
 
 const OPCIONES_DOLOR = [
@@ -222,11 +223,11 @@ export default function Onboarding() {
               <div className="chip-icono grande" style={{ margin: '0 auto' }}>
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" /><circle cx="12" cy="12" r="4" /></svg>
               </div>
-              <h1>Vas a ver el precio <span className="acento">real</span> de tu primer producto</h1>
+              <h1>Conocerás el precio <span className="acento">real</span> de tu producto en menos de 2 minutos</h1>
               <p className="sub">Nada de fórmulas ni matemática: tú escribes, MargenPro calcula.</p>
               <div className="lista-promesa">
                 <div className="fila"><span className="check-custom">{iconoCheck()}</span> Sin tarjeta, sin crear cuenta todavía</div>
-                <div className="fila"><span className="check-custom">{iconoCheck()}</span> Menos de 2 minutos</div>
+                <div className="fila"><span className="check-custom">{iconoCheck()}</span> Con tu ganancia real, no a ojo</div>
                 <div className="fila"><span className="check-custom">{iconoCheck()}</span> Con un producto tuyo real</div>
               </div>
             </div>
@@ -241,7 +242,7 @@ export default function Onboarding() {
             <div className="opciones-lista">
               {TIPOS_NEGOCIO.map((t) => (
                 <button key={t.id} className={`opcion-grande${tipoNegocio === t.id ? ' elegida' : ''}`} onClick={() => elegirTipoNegocio(t.id)}>
-                  <div className="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg></div>
+                  <div className="chip-icono"><t.Icono size={24} weight="duotone" /></div>
                   <span className="texto">{t.texto}</span>
                 </button>
               ))}

@@ -25,7 +25,7 @@
 .btn-secundario { display:flex; align-items:center; justify-content:center; width:100%; font-weight:700; font-size:14px; padding:14px 22px; border-radius:var(--radius-btn); border:1.5px solid rgb(var(--accent-tint)/.35); color:var(--text-1); margin-top:10px; background:none; cursor:pointer; }
 .btn-texto { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; color:var(--text-2); padding:10px; background:none; border:none; cursor:pointer; }
 
-.chip-icono { width:48px; height:48px; border-radius:13px; background:rgb(var(--accent-tint)/.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.chip-icono { width:48px; height:48px; border-radius:13px; background:rgb(var(--accent-tint)/.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent); }
 .chip-icono svg { stroke:var(--accent); }
 .chip-icono.grande { width:64px; height:64px; border-radius:18px; }
 
