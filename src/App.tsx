@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing'
+import Onboarding from './pages/Onboarding'
 
 function Proximamente({ titulo }: { titulo: string }) {
   return (
@@ -15,7 +16,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/onboarding" element={<Proximamente titulo="Onboarding" />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/paywall" element={<Proximamente titulo="Planes" />} />
         <Route path="/login" element={<Proximamente titulo="Entrar" />} />
         <Route path="/app" element={<Proximamente titulo="Tu negocio" />} />

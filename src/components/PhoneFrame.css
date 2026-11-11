@@ -1,0 +1,52 @@
+/* Shell compartido por Onboarding, Paywall y Login — conversión fiel de
+   dev/onboarding-paywall-login.html. Tokens: src/globals.css */
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+.entrada { opacity:0; animation:fadeUp .45s cubic-bezier(.22,1,.36,1) forwards; }
+@media (prefers-reduced-motion: reduce) { .entrada { animation:none; opacity:1; } }
+
+.phone-frame { max-width:420px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; background:var(--bg); position:relative; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; }
+.logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700; font-size:16px; }
+.logo .mark { width:28px; height:28px; display:block; }
+.tema-toggle { width:36px; height:36px; border-radius:10px; background:var(--sunken); display:flex; align-items:center; justify-content:center; color:var(--text-2); flex-shrink:0; }
+
+.paso-indicador-wrap { padding:0 20px; margin-bottom:6px; }
+.paso-indicador { font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); margin-bottom:8px; }
+.progreso-barra { height:4px; border-radius:4px; background:var(--sunken); overflow:hidden; }
+.progreso-barra > div { height:100%; background:var(--accent); border-radius:4px; transition:width .35s cubic-bezier(.22,1,.36,1); }
+
+.pantalla-contenido { flex:1; display:flex; flex-direction:column; padding:20px; }
+.pantalla-footer { padding:0 20px 20px; }
+
+.btn-cta { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:15px; padding:16px 22px; border-radius:var(--radius-btn); box-shadow:0 10px 24px rgb(var(--accent-tint)/.32); transition:transform .15s ease-out; border:none; cursor:pointer; }
+.btn-cta:active { transform:scale(.97); }
+.btn-cta[disabled] { opacity:.45; box-shadow:none; }
+.btn-secundario { display:flex; align-items:center; justify-content:center; width:100%; font-weight:700; font-size:14px; padding:14px 22px; border-radius:var(--radius-btn); border:1.5px solid rgb(var(--accent-tint)/.35); color:var(--text-1); margin-top:10px; background:none; cursor:pointer; }
+.btn-texto { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; color:var(--text-2); padding:10px; background:none; border:none; cursor:pointer; }
+
+.chip-icono { width:48px; height:48px; border-radius:13px; background:rgb(var(--accent-tint)/.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.chip-icono svg { stroke:var(--accent); }
+.chip-icono.grande { width:64px; height:64px; border-radius:18px; }
+
+.campo { margin-bottom:16px; }
+.campo label { display:block; font-size:12.5px; font-weight:700; color:var(--text-2); margin-bottom:7px; }
+.campo input, .campo select { width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:15px; }
+.campo input:focus, .campo select:focus { outline:none; border-color:var(--accent); }
+.campo-prefijo { position:relative; }
+.campo-prefijo span { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text-2); font-weight:700; }
+.campo-prefijo input { padding-left:30px; }
+.campo-con-moneda { display:flex; gap:8px; }
+.campo-con-moneda .campo-prefijo { flex:1; }
+.selector-moneda { width:84px; flex-shrink:0; padding:14px 8px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:13.5px; font-weight:700; }
+.selector-moneda:focus { outline:none; border-color:var(--accent); }
+.nota-moneda { font-size:11.5px; color:var(--text-2); margin-top:-10px; margin-bottom:16px; }
+
+.slider-wrap { background:var(--surface); border-radius:var(--radius-card); padding:20px; box-shadow:var(--shadow-1); margin-top:6px; }
+.slider-valor { font-family:var(--font-display); font-size:36px; font-weight:700; color:var(--accent); text-align:center; margin-bottom:14px; }
+input[type=range] { width:100%; accent-color:var(--accent); }
+
+.toast { position:fixed; left:20px; right:20px; bottom:24px; max-width:380px; margin:0 auto; background:var(--text-1); color:var(--bg); border-radius:14px; padding:16px 18px; display:flex; gap:12px; align-items:flex-start; box-shadow:var(--shadow-2); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s; }
+.toast.visible { opacity:1; animation:fadeUp .3s ease-out; }
+.toast p { font-size:13px; font-weight:600; }
+.toast svg { flex-shrink:0; margin-top:1px; }

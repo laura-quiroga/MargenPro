@@ -1,0 +1,52 @@
+/* Onboarding MargenPro — conversión fiel de dev/onboarding-paywall-login.html (pasos 1-7).
+   Shell/campos/botones compartidos en src/components/PhoneFrame.css. Tokens: src/globals.css */
+
+.onboarding h1 { font-size:26px; line-height:1.2; }
+.onboarding h1 .acento, .onboarding h2 .acento { color:var(--accent); }
+.onboarding p.sub { color:var(--text-2); font-size:15px; max-width:34ch; }
+
+.onboarding .lista-promesa { text-align:left; display:flex; flex-direction:column; gap:12px; margin-top:8px; width:100%; }
+.onboarding .lista-promesa .fila { display:flex; align-items:center; gap:12px; font-size:14px; font-weight:600; }
+.onboarding .check-custom { width:20px; height:20px; border-radius:50%; background:rgb(var(--accent-tint)/.15); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.onboarding .check-custom svg { width:12px; height:12px; stroke:var(--accent); }
+
+.onboarding .opciones-lista { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.onboarding .opcion-grande { display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:var(--surface); border:1.5px solid var(--sunken); border-radius:var(--radius-card); padding:14px 16px; box-shadow:var(--shadow-1); transition:border-color .15s ease-out, transform .15s ease-out; cursor:pointer; }
+.onboarding .opcion-grande:active { transform:scale(.98); }
+.onboarding .opcion-grande.elegida { border-color:var(--accent); background:rgb(var(--accent-tint)/.07); }
+.onboarding .opcion-grande .texto { font-size:14.5px; font-weight:700; color:var(--text-1); }
+.onboarding .opcion-grande .chip-icono { width:42px; height:42px; border-radius:11px; }
+
+.onboarding .respuesta-empatica { display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px; justify-content:center; flex:1; padding:20px; }
+.onboarding .respuesta-empatica p { font-size:16px; font-weight:700; max-width:28ch; }
+
+.onboarding .insumo-chip { display:flex; align-items:center; gap:10px; background:var(--surface); border-radius:12px; padding:12px 14px; box-shadow:var(--shadow-1); margin-bottom:10px; font-size:13.5px; font-weight:600; }
+.onboarding .insumo-chip .nombre { flex:1; }
+.onboarding .insumo-chip .precio { color:var(--text-2); font-weight:700; }
+.onboarding .insumo-chip .quitar-insumo, .onboarding .insumo-chip .editar-insumo { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:none; cursor:pointer; }
+.onboarding .insumo-chip .quitar-insumo { background:var(--sunken); color:var(--text-2); }
+.onboarding .insumo-chip .editar-insumo { background:rgb(var(--accent-tint)/.14); color:var(--accent); }
+.onboarding .btn-agregar-insumo { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; color:var(--accent); padding:10px; border:1.5px dashed rgb(var(--accent-tint)/.4); border-radius:var(--radius-btn); margin-bottom:10px; background:none; cursor:pointer; }
+
+.onboarding .comparacion-actual { width:100%; border-radius:var(--radius-card); padding:16px 18px; margin-bottom:14px; text-align:left; }
+.onboarding .comparacion-actual.es-error { background:rgb(179 69 58 / .09); border:1.5px solid rgb(179 69 58 / .25); }
+.onboarding .comparacion-actual.es-aviso { background:rgb(201 138 44 / .10); border:1.5px solid rgb(201 138 44 / .28); }
+.onboarding .comparacion-actual.es-exito { background:rgb(var(--accent-tint)/.10); border:1.5px solid rgb(var(--accent-tint)/.3); }
+.onboarding .comparacion-actual .fila-cmp { display:flex; align-items:flex-start; gap:10px; }
+.onboarding .comparacion-actual .fila-cmp svg { flex-shrink:0; margin-top:1px; }
+.onboarding .comparacion-actual.es-error svg { stroke:var(--error); }
+.onboarding .comparacion-actual.es-aviso svg { stroke:var(--aviso); }
+.onboarding .comparacion-actual.es-exito svg { stroke:var(--accent); }
+.onboarding .comparacion-actual p { font-size:13.5px; font-weight:700; line-height:1.4; }
+
+.onboarding .heroe-tarjeta { width:100%; border-radius:var(--radius-card); padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.6), transparent 70%); margin-top:10px; }
+.onboarding .heroe-tarjeta > div { background:var(--surface); border-radius:12.5px; padding:26px 20px; }
+.onboarding .precio-heroe { font-family:var(--font-display); font-size:44px; font-weight:700; color:var(--accent); }
+.onboarding .precio-heroe .sm { display:block; font-size:12.5px; font-weight:600; color:var(--text-2); font-family:var(--font-body); margin-top:4px; }
+.onboarding .fila-dato { display:flex; justify-content:space-between; font-size:13px; color:var(--text-2); padding:9px 0; border-top:1px solid var(--sunken); }
+
+.onboarding .tour-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.onboarding .tour-card { background:var(--surface); border-radius:var(--radius-card); padding:16px; box-shadow:var(--shadow-1); text-align:center; }
+.onboarding .tour-card .chip-icono { margin:0 auto 10px; }
+.onboarding .tour-card .nombre { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-2); }
+.onboarding .tour-card p { font-size:12.5px; font-weight:600; margin-top:6px; }
