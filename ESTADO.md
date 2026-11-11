@@ -7,7 +7,7 @@ Ya resueltos antes de esta etapa (prototipos `dev/*.html`, cosa juzgada, no se r
 
 PROGRESO DE LA CONVERSIÓN A CÓDIGO REAL:
 - [x] Onboarding (7 pasos: bienvenida→tipo de negocio→dolor→insumo→receta→resultado→tour) — `src/pages/Onboarding.tsx`, shell compartido `src/components/PhoneFrame.tsx`, motor de costeo portado a `src/lib/costeo.ts` (reutilizable en Recetas). El usuario revisó y pidió 3 ajustes, ya hechos: (1) iconos de reposteria/panadería estaban rotos o se veían planos — se reemplazaron por iconos reales de Phosphor (Cake/Hamburger/Bread/ForkKnife) en peso duotone, como recomienda el SO para onboarding; (2) el título de bienvenida prometía "3 pasos" pero la barra real llega a 7 — se cambió a una promesa de TIEMPO ("menos de 2 minutos"), sin duplicarla en la lista de abajo (ahí ahora dice "con tu ganancia real, no a ojo"). Verificado en navegador paso a paso incluyendo el caso especial de "volver" desde armar-producto y el modo oscuro — tsc y build limpios, sin errores de consola. Commiteado.
-- [ ] Paywall — siguiente
+- [x] Paywall — `src/pages/Paywall.tsx`. Decisión técnica: no tiene barra de progreso ni botón "volver" (al salir de Onboarding su estado se pierde al desmontar, y un paywall sin botón de salida fácil es estándar) — ambos CTA del pie llevan a /login. Verificado en navegador sin errores, tsc y build limpios.
 - [ ] Login
 - [ ] App interna: Panorama
 - [ ] App interna: Insumos (+ inventario)
