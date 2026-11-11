@@ -120,10 +120,10 @@ export default function Onboarding() {
   function elegirTipoNegocio(tipo: string) {
     setTipoNegocio(tipo)
     const ej = EJEMPLOS_NEGOCIO[tipo] || EJEMPLOS_NEGOCIO.otro
-    const confirmados = ej.insumos.slice(0, -1).map((i) => ({ ...i, moneda }))
-    const ultimo = ej.insumos[ej.insumos.length - 1]
-    setInsumos(confirmados)
-    setForm({ ...ultimo, moneda })
+    // Los insumos los agrega el cliente desde cero — nada precargado, ni como chip ni en
+    // el formulario. Solo se adapta el nombre/precio de ejemplo del PRODUCTO (paso 5).
+    setInsumos([])
+    setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda })
     setRecetaNombre(ej.productoNombre)
     setPrecioActual(ej.precioActual)
     clearTimeout(siguientePasoTimer.current)
@@ -144,12 +144,12 @@ export default function Onboarding() {
   function agregarInsumo() {
     if (insumos.length >= MAX_INSUMOS) return
     if (!form.precio) {
-      mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe el precio de compra antes de agregarlo.')
+      mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe el precio de compra antes de agregarlo.')
       return
     }
     setInsumos((prev) => [...prev, form])
     setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda })
-    mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>, 'Insumo agregado.')
+    mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>, 'Insumo agregado.')
   }
 
   function editarInsumo(idx: number) {
@@ -165,7 +165,7 @@ export default function Onboarding() {
 
   function seguirAReceta() {
     if (!insumos.length) {
-      mostrarToast(<svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Agrega al menos un insumo antes de seguir.')
+      mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Agrega al menos un insumo antes de seguir.')
       return
     }
     setUsoInsumos(insumos.map((i) => i.cantidadUsada ?? (i.unidad === 'unidad' || i.unidad === 'docena' || i.unidad === 'paquete' ? 1 : 100)))
