@@ -3,6 +3,9 @@ import Landing from './pages/Landing'
 import Onboarding from './pages/Onboarding'
 import Paywall from './pages/Paywall'
 import Login from './pages/Login'
+import AppLayout from './components/AppLayout'
+import { AppStoreProvider } from './lib/appStore'
+import Panorama from './pages/app/Panorama'
 
 function Proximamente({ titulo }: { titulo: string }) {
   return (
@@ -21,7 +24,13 @@ function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/paywall" element={<Paywall />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/app" element={<Proximamente titulo="Tu negocio" />} />
+        <Route path="/app" element={<AppStoreProvider><AppLayout /></AppStoreProvider>}>
+          <Route index element={<Panorama />} />
+          <Route path="insumos" element={<Proximamente titulo="Insumos" />} />
+          <Route path="recetas" element={<Proximamente titulo="Recetas" />} />
+          <Route path="cotiza" element={<Proximamente titulo="Cotizaciones" />} />
+          <Route path="ajustes" element={<Proximamente titulo="Ajustes" />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

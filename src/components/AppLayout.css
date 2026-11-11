@@ -1,0 +1,78 @@
+/* Shell + primitivas compartidas de la app por dentro — conversión fiel de
+   dev/app-interna.html. Todo escopado bajo .app-interna para no chocar con
+   las clases de incorporación (PhoneFrame.css usa nombres parecidos con otro
+   look). Tokens: src/globals.css */
+
+.app-interna { min-height: 100dvh; }
+.app-interna .app-frame { max-width:420px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; background:var(--bg); position:relative; padding-bottom:96px; }
+.app-interna .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
+.app-interna .logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700; font-size:16px; }
+.app-interna .logo .mark { width:28px; height:28px; display:block; }
+.app-interna .tema-toggle { width:36px; height:36px; border-radius:10px; background:var(--sunken); display:flex; align-items:center; justify-content:center; color:var(--text-2); flex-shrink:0; }
+.app-interna .tema-toggle svg { width:17px; height:17px; }
+
+.app-interna .seccion { display:flex; flex:1; flex-direction:column; padding:4px 20px 20px; }
+@keyframes appEntradaSeccion { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.app-interna .seccion.activa .entrada { animation:appEntradaSeccion .32s cubic-bezier(.22,1,.36,1); }
+@media (prefers-reduced-motion: reduce) { .app-interna .seccion.activa .entrada { animation:none; } }
+
+.app-interna h2.titulo-seccion { font-family:var(--font-display); font-weight:700; letter-spacing:-0.01em; font-size:21px; margin-bottom:4px; }
+.app-interna .sub-seccion { color:var(--text-2); font-size:13.5px; margin-bottom:18px; }
+
+.app-interna .chip-icono { width:46px; height:46px; border-radius:13px; background:linear-gradient(160deg, rgb(var(--accent-tint)/.22), rgb(var(--accent-tint)/.09)); box-shadow:inset 0 1px 0 rgb(255 255 255/.5), inset 0 -1.5px 2px rgb(var(--accent-tint)/.18), 0 3px 7px -2px rgb(var(--accent-tint)/.38); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent); }
+.app-interna .chip-icono svg { filter:drop-shadow(0 1px 1px rgb(var(--accent-tint)/.25)); stroke:var(--accent); width:20px; height:20px; }
+.app-interna .chip-icono.aviso { background:rgb(var(--aviso-tint)/.14); }
+.app-interna .chip-icono.aviso svg { stroke:var(--aviso); }
+.app-interna .chip-icono.error { background:rgb(var(--error-tint)/.14); }
+.app-interna .chip-icono.error svg { stroke:var(--error); }
+
+.app-interna .btn-cta { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:15px; padding:16px 22px; border-radius:var(--radius-btn); box-shadow:0 10px 24px rgb(var(--accent-tint)/.32); transition:transform .15s ease-out; border:none; cursor:pointer; }
+.app-interna .btn-cta:active { transform:scale(.97); }
+.app-interna .btn-secundario { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; font-weight:700; font-size:14px; padding:14px 22px; border-radius:var(--radius-btn); border:1.5px solid rgb(var(--accent-tint)/.35); color:var(--text-1); background:none; cursor:pointer; }
+
+.app-interna .campo { margin-bottom:16px; }
+.app-interna .campo label { display:block; font-size:12.5px; font-weight:700; color:var(--text-2); margin-bottom:7px; }
+.app-interna .campo input, .app-interna .campo select { width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--sunken); background:var(--surface); color:var(--text-1); font-size:15px; }
+.app-interna .campo input:focus, .app-interna .campo select:focus { outline:none; border-color:var(--accent); }
+.app-interna .ayuda-campo { font-size:11.5px; color:var(--text-2); margin:-10px 0 10px; line-height:1.4; }
+
+.app-interna .tarjeta { background:var(--surface); border-radius:var(--radius-card); padding:16px; box-shadow:var(--shadow-1); margin-bottom:12px; }
+.app-interna .formula-ganancia { font-size:11px; color:var(--text-2); margin-top:10px; line-height:1.4; }
+
+.app-interna .aviso-precio { display:flex; gap:12px; background:rgb(var(--aviso-tint)/.10); border:1.5px solid rgb(var(--aviso-tint)/.28); border-radius:var(--radius-card); padding:14px; margin-bottom:16px; }
+.app-interna .aviso-precio p { font-size:12.5px; font-weight:600; line-height:1.4; }
+.app-interna .aviso-precio button.link { color:var(--accent); font-weight:800; font-size:12.5px; margin-top:4px; background:none; border:none; cursor:pointer; }
+
+.app-interna .fila-filtros { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; }
+.app-interna .filtro-chip { flex-shrink:0; padding:8px 14px; border-radius:999px; background:var(--sunken); font-size:12.5px; font-weight:700; color:var(--text-2); border:none; cursor:pointer; }
+.app-interna .filtro-chip.activo { background:var(--accent); color:var(--on-accent); }
+
+.app-interna .item-lista { display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:var(--radius-card); padding:14px; box-shadow:var(--shadow-1); margin-bottom:10px; }
+.app-interna .item-lista .info { flex:1; min-width:0; }
+.app-interna .item-lista .nombre { font-size:14px; font-weight:700; }
+.app-interna .item-lista .meta { font-size:12px; color:var(--text-2); margin-top:2px; }
+.app-interna .item-lista .cifra { text-align:right; font-weight:800; font-size:14px; flex-shrink:0; }
+.app-interna .item-lista .cifra .sub { display:block; font-size:11px; font-weight:600; color:var(--text-2); }
+
+.app-interna .estado-pill { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+.app-interna .estado-pill.vendida { background:rgb(var(--accent-tint)/.15); color:var(--accent); }
+.app-interna .estado-pill.pendiente { background:rgb(var(--aviso-tint)/.16); color:var(--aviso); }
+.app-interna .estado-pill.rechazada { background:rgb(var(--error-tint)/.14); color:var(--error); }
+
+.app-interna .vacio { text-align:center; padding:40px 20px; color:var(--text-2); }
+.app-interna .vacio svg { stroke:var(--text-2); opacity:.5; margin:0 auto 12px; }
+
+.app-interna .toast { position:fixed; left:50%; bottom:92px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; transition:opacity .25s cubic-bezier(.22,1,.36,1), transform .25s cubic-bezier(.22,1,.36,1); background:var(--text-1); color:var(--bg); border-radius:12px; padding:13px 16px; display:flex; align-items:center; gap:10px; max-width:340px; box-shadow:var(--shadow-2); z-index:60; }
+.app-interna .toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+.app-interna .toast svg { stroke:var(--bg); width:18px; height:18px; flex-shrink:0; }
+.app-interna .toast p { font-size:13px; font-weight:600; }
+
+/* TAB BAR — fija oscura, con nombre debajo de cada ícono */
+.app-interna .tabbar { position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; z-index:40; background:var(--tabbar-bg); box-shadow:0 -8px 24px -12px rgb(43 42 38/.3), inset 0 1px 0 rgb(255 255 255/.04); }
+.app-interna .tabbar-inner { display:flex; width:100%; max-width:420px; margin:0 auto; padding:9px 6px calc(9px + env(safe-area-inset-bottom)); }
+.app-interna .tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:5px 2px; border-radius:14px; transition:background .25s cubic-bezier(.22,1,.36,1); text-decoration:none; }
+.app-interna .tab-btn svg { width:21px; height:21px; stroke:var(--tabbar-icon-inactivo); filter:drop-shadow(0 1px 1px rgb(0 0 0/.3)); transition:stroke .2s; }
+.app-interna .tab-btn span { font-size:10px; font-weight:700; color:var(--tabbar-icon-inactivo); transition:color .2s; }
+.app-interna .tab-btn.activo { background:rgb(var(--accent-tint)/.22); }
+.app-interna .tab-btn.activo svg { stroke:var(--on-accent); filter:drop-shadow(0 1px 1px rgb(0 0 0/.15)); }
+.app-interna .tab-btn.activo span { color:var(--accent); }

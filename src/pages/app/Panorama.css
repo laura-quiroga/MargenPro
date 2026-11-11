@@ -1,0 +1,22 @@
+/* Panorama — conversión fiel de dev/app-interna.html (sección 1). Primitivas
+   compartidas en src/components/AppLayout.css. Tokens: src/globals.css */
+
+.heroe-mes { border-radius:var(--radius-card); padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.6), transparent 70%); margin-bottom:16px; box-shadow:0 10px 24px -14px rgb(var(--accent-tint)/.5); }
+.heroe-mes > div { background:linear-gradient(160deg, rgb(var(--accent-tint)/.14), var(--surface) 55%); border-radius:12.5px; padding:22px 20px; }
+.heroe-mes .label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
+.heroe-mes .nav-mes { display:flex; align-items:center; gap:10px; }
+.heroe-mes .nav-mes button { width:28px; height:28px; border-radius:8px; background:var(--sunken); display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; color:var(--text-2); }
+.heroe-mes .nav-mes button svg { width:14px; height:14px; }
+.heroe-mes .ganancia { font-family:var(--font-display); font-size:38px; font-weight:700; color:var(--accent); margin-top:8px; transition:color .2s; }
+.heroe-mes .ganancia.es-perdida { color:var(--error); }
+.heroe-mes .ganancia-estado { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:700; margin-top:4px; }
+.heroe-mes .ganancia-estado.es-ganancia { color:var(--accent); }
+.heroe-mes .ganancia-estado.es-perdida { color:var(--error); }
+.heroe-mes .ganancia-estado svg { width:14px; height:14px; }
+.heroe-mes .detalle { display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--sunken); font-size:13px; }
+.heroe-mes .detalle .num { font-weight:800; display:block; font-size:15px; margin-top:2px; }
+
+.accesos-rapidos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+.acceso-rapido { background:var(--surface); border-radius:var(--radius-card); padding:16px 14px; box-shadow:var(--shadow-1); text-align:left; border:none; cursor:pointer; }
+.acceso-rapido .chip-icono { margin-bottom:10px; }
+.acceso-rapido .txt { font-size:13.5px; font-weight:700; color:var(--text-1); }

@@ -10,7 +10,9 @@
   --accent-tint: 24 80 98;
   --success: #185062;
   --error: #B3453A;
+  --error-tint: 179 69 58;
   --aviso: #C98A2C;
+  --aviso-tint: 201 138 44;
 
   --radius-card: 14px;
   --radius-btn: 12px;
@@ -23,6 +25,8 @@
   --on-accent: #FFFFFF;
   --phone-bezel: #141612;
   --accent-on-dark: #59A6C0; /* acento para texto sobre superficies oscuras dentro de modo claro (ej. CTA final) */
+  --tabbar-bg: #20231F; /* barra inferior de la app: siempre oscura, a propósito, sin importar el tema claro/oscuro */
+  --tabbar-icon-inactivo: #9A9D96;
 }
 
 .dark {
@@ -35,7 +39,9 @@
   --accent-tint: 89 166 192;
   --success: #59A6C0;
   --error: #E0837A;
+  --error-tint: 224 131 122;
   --aviso: #E0B15C;
+  --aviso-tint: 224 177 92;
 }
 
 body {
