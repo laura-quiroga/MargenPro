@@ -1,0 +1,29 @@
+/* Paywall MargenPro — conversión fiel de dev/onboarding-paywall-login.html (paso 8).
+   Shell/campos/botones compartidos en src/components/PhoneFrame.css. Tokens: src/globals.css */
+
+.paywall h2 .acento { color:var(--accent); }
+.paywall p.sub { color:var(--text-2); }
+
+.paywall .stack-valor { margin-top:20px; background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); }
+.paywall .stack-valor .linea { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--sunken); font-size:13px; }
+.paywall .stack-valor .total { display:flex; justify-content:space-between; padding-top:12px; font-weight:800; font-size:14px; }
+.paywall .stack-valor .total .tachado { text-decoration:line-through; color:var(--text-2); font-weight:600; }
+
+.paywall .plan { border-radius:var(--radius-card); padding:20px; background:var(--surface); box-shadow:var(--shadow-1); margin-top:14px; }
+.paywall .plan.recomendado { padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.6), transparent 70%); box-shadow:var(--shadow-2); }
+.paywall .plan.recomendado > .inner { background:var(--surface); border-radius:calc(var(--radius-card) - 1.5px); padding:18px; }
+.paywall .badge { display:inline-block; background:var(--accent); color:var(--on-accent); font-size:10px; font-weight:800; letter-spacing:.04em; padding:4px 10px; border-radius:999px; margin-bottom:10px; }
+.paywall .nombre-plan { font-size:12px; font-weight:800; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; }
+.paywall .precio-plan { font-family:var(--font-display); font-size:28px; font-weight:700; margin:6px 0 2px; }
+.paywall .precio-plan span { font-size:13px; font-weight:600; color:var(--text-2); font-family:var(--font-body); }
+.paywall .nota-plan { font-size:12px; color:var(--text-2); margin-bottom:4px; }
+.paywall .ahorro { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:12px; }
+
+.paywall .timeline-trial { display:flex; align-items:flex-start; justify-content:space-between; margin-top:18px; padding:16px 10px; background:var(--sunken); border-radius:var(--radius-card); }
+.paywall .punto-timeline { display:flex; flex-direction:column; align-items:center; text-align:center; width:76px; }
+.paywall .punto-timeline .circulo { width:24px; height:24px; border-radius:50%; background:var(--surface); border:1.5px solid rgb(var(--accent-tint)/.4); color:var(--text-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+.paywall .punto-timeline .circulo.activo { background:var(--accent); border-color:var(--accent); color:var(--on-accent); }
+.paywall .punto-timeline .texto { margin-top:6px; display:flex; flex-direction:column; gap:1px; }
+.paywall .punto-timeline .texto strong { font-size:11.5px; font-weight:800; }
+.paywall .punto-timeline .texto span { font-size:10.5px; color:var(--text-2); line-height:1.25; }
+.paywall .linea-timeline { flex:1; height:1.5px; background:rgb(var(--accent-tint)/.3); margin-top:12px; }
