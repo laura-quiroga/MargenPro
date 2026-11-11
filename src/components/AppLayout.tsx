@@ -28,7 +28,7 @@ export default function AppLayout() {
         </div>
 
         <section className="seccion activa">
-          <div className="entrada">
+          <div className="entrada-interna">
             <Outlet />
           </div>
         </section>

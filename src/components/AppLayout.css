@@ -12,9 +12,10 @@
 .app-interna .tema-toggle svg { width:17px; height:17px; }
 
 .app-interna .seccion { display:flex; flex:1; flex-direction:column; padding:4px 20px 20px; }
+.app-interna .entrada-interna { opacity:0; }
 @keyframes appEntradaSeccion { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-.app-interna .seccion.activa .entrada { animation:appEntradaSeccion .32s cubic-bezier(.22,1,.36,1); }
-@media (prefers-reduced-motion: reduce) { .app-interna .seccion.activa .entrada { animation:none; } }
+.app-interna .seccion.activa .entrada-interna { animation:appEntradaSeccion .32s cubic-bezier(.22,1,.36,1) forwards; }
+@media (prefers-reduced-motion: reduce) { .app-interna .entrada-interna { animation:none; opacity:1; } }
 
 .app-interna h2.titulo-seccion { font-family:var(--font-display); font-weight:700; letter-spacing:-0.01em; font-size:21px; margin-bottom:4px; }
 .app-interna .sub-seccion { color:var(--text-2); font-size:13.5px; margin-bottom:18px; }
