@@ -59,7 +59,7 @@ const EJEMPLOS_NEGOCIO: Record<string, EjemploNegocio> = {
 }
 
 const TIPOS_NEGOCIO = [
-  { id: 'reposteria', texto: 'Repostería y pastelería', icono: <><path d="M12 2v3M9 3.5l1 1.5M15 3.5l-1 1.5" /><path d="M4 11c0-2 1.8-3 4-3h8c2.2 0 4 1 4 3" /><path d="M3 11h18l-1.4 8.2A2 2 0 0117.6 21H6.4a2 2 0 01-2-1.8L3 11z" /><path d="M8 15h8" /></> },
+  { id: 'reposteria', texto: 'Repostería y pastelería', icono: <><path d="M6 19L10 7h4l4 12z" /><path d="M8.5 13h7" /><circle cx="12" cy="4.5" r="1" /></> },
   { id: 'comida-rapida', texto: 'Comida rápida y street food', icono: <><path d="M4 10a8 8 0 0116 0z" /><path d="M3 10h18" /><path d="M3 14h18" /><path d="M2.5 14c0 3.5 2.5 6 9.5 6s9.5-2.5 9.5-6" /></> },
   { id: 'panaderia', texto: 'Panadería artesanal', icono: <><path d="M12 4.5c-4.5 0-7.5 2.8-7.5 6.5v6a2 2 0 002 2h11a2 2 0 002-2v-6c0-3.7-3-6.5-7.5-6.5z" /><path d="M9 9.5l1.8 2.3M13.5 9.5l1.8 2.3" /></> },
   { id: 'otro', texto: 'Menús, catering u otro', icono: <><path d="M7 2v7M4 2v7M4 9h3M5.5 9v13" /><path d="M18.5 2c-2 1-3 3-3 6s1 4 3 4v10" /></> },
@@ -222,7 +222,7 @@ export default function Onboarding() {
               <div className="chip-icono grande" style={{ margin: '0 auto' }}>
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" /><circle cx="12" cy="12" r="4" /></svg>
               </div>
-              <h1>En 3 pasos vas a ver el precio <span className="acento">real</span> de tu primer producto</h1>
+              <h1>Vas a ver el precio <span className="acento">real</span> de tu primer producto</h1>
               <p className="sub">Nada de fórmulas ni matemática: tú escribes, MargenPro calcula.</p>
               <div className="lista-promesa">
                 <div className="fila"><span className="check-custom">{iconoCheck()}</span> Sin tarjeta, sin crear cuenta todavía</div>
