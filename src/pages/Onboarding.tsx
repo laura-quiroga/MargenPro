@@ -250,8 +250,8 @@ export default function Onboarding() {
 
         {paso === 2 && (
           <div className="pantalla-contenido entrada">
-            <h2 style={{ fontSize: 21, marginBottom: 6 }}>¿Qué tipo de negocio lideras hoy?</h2>
-            <p className="sub" style={{ fontSize: '13.5px', marginBottom: 18 }}>Así tus ejemplos van a ser de tu propio rubro, no genéricos.</p>
+            <h2 style={{ fontSize: 21, marginBottom: 6, textAlign: 'center' }}>¿Qué tipo de negocio lideras hoy?</h2>
+            <p className="sub" style={{ fontSize: '13.5px', marginBottom: 18, textAlign: 'center' }}>Así tus ejemplos van a ser de tu propio rubro, no genéricos.</p>
             <div className="opciones-lista">
               {TIPOS_NEGOCIO.map((t) => (
                 <button key={t.id} className={`opcion-grande${tipoNegocio === t.id ? ' elegida' : ''}`} onClick={() => elegirTipoNegocio(t.id)}>
@@ -266,8 +266,8 @@ export default function Onboarding() {
         {paso === 3 && (
           dolorElegido === null ? (
             <div className="pantalla-contenido entrada">
-              <h2 style={{ fontSize: 21, marginBottom: 6 }}>¿Cómo calculas tus precios hoy?</h2>
-              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 18 }}>No hay respuesta mala — por eso estás aquí.</p>
+              <h2 style={{ fontSize: 21, marginBottom: 6, textAlign: 'center' }}>¿Cómo calculas tus precios hoy?</h2>
+              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 18, textAlign: 'center' }}>No hay respuesta mala — por eso estás aquí.</p>
               <div className="opciones-lista">
                 {OPCIONES_DOLOR.map((d) => (
                   <button key={d.id} className="opcion-grande" onClick={() => elegirDolor(d.id, d.respuesta)}>
@@ -289,8 +289,8 @@ export default function Onboarding() {
         {paso === 4 && (
           <>
             <div className="pantalla-contenido entrada">
-              <h2 style={{ fontSize: 22, marginBottom: 6 }}>¿Qué compraste para producir?</h2>
-              <p className="sub" style={{ fontSize: 14, marginBottom: 22 }}>Un insumo real tuyo — harina, carne, empaques, lo que sea. Lo puedes editar después.</p>
+              <h2 style={{ fontSize: 22, marginBottom: 6, textAlign: 'center' }}>¿Qué compraste para producir?</h2>
+              <p className="sub" style={{ fontSize: 14, marginBottom: 22, textAlign: 'center' }}>Un insumo real tuyo — harina, carne, empaques, lo que sea. Lo puedes editar después.</p>
               {insumos.length < MAX_INSUMOS && (
                 <>
                   <div className="campo">
@@ -361,8 +361,8 @@ export default function Onboarding() {
         {paso === 5 && (
           <>
             <div className="pantalla-contenido entrada">
-              <h2 style={{ fontSize: 22, marginBottom: 6 }}>Ahora arma tu producto</h2>
-              <p className="sub" style={{ fontSize: 14, marginBottom: 18 }}>¿Cuánto usas de cada insumo, y qué margen de ganancia quieres?</p>
+              <h2 style={{ fontSize: 22, marginBottom: 6, textAlign: 'center' }}>Ahora arma tu producto</h2>
+              <p className="sub" style={{ fontSize: 14, marginBottom: 18, textAlign: 'center' }}>¿Cuánto usas de cada insumo, y qué margen de ganancia quieres?</p>
               <div className="campo">
                 <label htmlFor="recetaNombre">Nombre del producto</label>
                 <input id="recetaNombre" value={recetaNombre} placeholder="Ej: Torta de chocolate x 12 porciones" onChange={(e) => setRecetaNombre(e.target.value)} />
