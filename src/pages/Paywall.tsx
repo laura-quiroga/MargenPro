@@ -19,7 +19,7 @@ export default function Paywall() {
             <div className="linea"><span>Manda cotizaciones con tu logo en 30 segundos</span><span>$20</span></div>
             <div className="total"><span>Valor total</span><span><span className="tachado">$146</span> hoy $5.99/mes</span></div>
           </div>
-          <p className="nota-moneda" style={{ marginTop: -6 }}>Este precio de MargenPro siempre es en USD, sin importar la moneda en la que anotes tus insumos.</p>
+          <p className="nota-moneda">Este precio de MargenPro siempre es en USD, sin importar la moneda en la que anotes tus insumos.</p>
 
           <div className="plan recomendado"><div className="inner">
             <span className="badge">MÁS POPULAR</span>

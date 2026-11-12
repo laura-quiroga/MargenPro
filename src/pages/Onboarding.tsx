@@ -190,7 +190,11 @@ export default function Onboarding() {
     const costoBase = Math.round(costoInsumo + costoInsumo * 0.35)
     const precioSugerido = Math.round(costoBase / (1 - margen / 100))
     setResultado({ costoBase, precioSugerido })
-    if (precioActual && precioActual >= precioSugerido) lanzar(14)
+    if (precioActual && precioActual >= precioSugerido) {
+      // Se retrasa hasta que termine el fundido de entrada de la pantalla (.entrada, 450ms) —
+      // si no, el confeti cae mientras la pantalla todavía está apareciendo y se ve apagado.
+      setTimeout(() => lanzar(14), 480)
+    }
     irA(6)
   }
 
@@ -429,7 +433,7 @@ export default function Onboarding() {
                   </div>
                 ))}
               </div>
-              <p className="sub" style={{ textAlign: 'center', marginTop: 18, fontSize: 13 }}>Marca una cotización <strong>vendida</strong> y celebramos contigo.</p>
+              <p className="sub" style={{ textAlign: 'center', marginTop: 18, fontSize: 13 }}>Esto y mucho más podrás encontrar en <strong>MargenPro</strong>.</p>
             </div>
             <div className="pantalla-footer"><button className="btn-cta" onClick={() => navigate('/paywall')}>Quiero usar todo esto →</button></div>
           </>
