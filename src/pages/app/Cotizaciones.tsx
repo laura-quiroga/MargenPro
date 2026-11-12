@@ -59,6 +59,7 @@ export default function Cotizaciones() {
 
   const [cliente, setCliente] = useState('')
   const [producto, setProducto] = useState('')
+  const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
 
   function abrirNueva() {
     setCliente('')
@@ -92,6 +93,7 @@ export default function Cotizaciones() {
       ajustarInventarioPorVenta(productoCotizado, 1)
     }
     if (nuevoEstado === 'vendida') {
+      setConfettiIdx(idx)
       lanzar()
       mostrarToast(<IconoOk />, '¡Vendida! Esta es tu ganancia real de hoy.')
       if (insumosBajos.length) {
@@ -155,6 +157,7 @@ export default function Cotizaciones() {
         <div>
           {listaFiltrada.map(({ c, idx }) => (
             <div className="tarjeta" key={idx}>
+              {confettiIdx === idx && <Confetti piezas={piezas} />}
               <div className="tarjeta-fila" style={{ marginBottom: 10 }}>
                 <div className={`chip-icono${c.estado === 'rechazada' ? ' error' : c.estado === 'pendiente' ? ' aviso' : ''}`}>{iconoEstado(c.estado)}</div>
                 <div className="info"><div className="nombre">{c.cliente}</div><div className="meta">{c.producto} · {c.fecha}</div></div>
@@ -173,7 +176,6 @@ export default function Cotizaciones() {
         </div>
       )}
       <Toast toast={toast} />
-      <Confetti piezas={piezas} />
     </>
   )
 }

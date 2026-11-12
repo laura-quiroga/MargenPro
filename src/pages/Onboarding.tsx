@@ -190,7 +190,7 @@ export default function Onboarding() {
     const costoBase = Math.round(costoInsumo + costoInsumo * 0.35)
     const precioSugerido = Math.round(costoBase / (1 - margen / 100))
     setResultado({ costoBase, precioSugerido })
-    lanzar(14)
+    if (precioActual && precioActual >= precioSugerido) lanzar(14)
     irA(6)
   }
 

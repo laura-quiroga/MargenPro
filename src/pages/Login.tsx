@@ -12,7 +12,7 @@ export default function Login() {
   }
 
   return (
-    <PhoneFrame>
+    <PhoneFrame onBack={() => navigate('/paywall')}>
       <div className="login">
         <div className="pantalla-contenido entrada" style={{ justifyContent: 'center', gap: 18 }}>
           <div className="chip-icono grande" style={{ margin: '0 auto' }}>
