@@ -1,17 +1,42 @@
+import { useState } from 'react'
 import { useAppStore } from '../../lib/appStore'
+import { Toast, useToast } from '../../components/Toast'
 import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
 
+const IconoOk = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>
+)
+
 export default function Ajustes() {
-  const { cfg, setCfg, modoCalculo, setModoCalculo, moneda, setMoneda, logoNegocio, setLogoNegocio, nombreNegocio, setNombreNegocio, lineaAtencion, setLineaAtencion } = useAppStore()
-  const modoReal = modoCalculo === 'real'
+  const store = useAppStore()
+  const { toast, mostrarToast } = useToast()
+
+  const [cfgLocal, setCfgLocal] = useState(store.cfg)
+  const [modoCalculoLocal, setModoCalculoLocal] = useState(store.modoCalculo)
+  const [monedaLocal, setMonedaLocal] = useState(store.moneda)
+  const [logoLocal, setLogoLocal] = useState(store.logoNegocio)
+  const [nombreLocal, setNombreLocal] = useState(store.nombreNegocio)
+  const [lineaLocal, setLineaLocal] = useState(store.lineaAtencion)
+
+  const modoReal = modoCalculoLocal === 'real'
 
   function manejarSubidaLogo(e: React.ChangeEvent<HTMLInputElement>) {
     const archivo = e.target.files?.[0]
     if (!archivo) return
     const lector = new FileReader()
-    lector.onload = () => setLogoNegocio(typeof lector.result === 'string' ? lector.result : null)
+    lector.onload = () => setLogoLocal(typeof lector.result === 'string' ? lector.result : null)
     lector.readAsDataURL(archivo)
+  }
+
+  function guardarCambios() {
+    store.setCfg(cfgLocal)
+    store.setModoCalculo(modoCalculoLocal)
+    store.setMoneda(monedaLocal)
+    store.setLogoNegocio(logoLocal)
+    store.setNombreNegocio(nombreLocal)
+    store.setLineaAtencion(lineaLocal)
+    mostrarToast(<IconoOk />, 'Cambios guardados.')
   }
 
   return (
@@ -24,7 +49,7 @@ export default function Ajustes() {
 
       <div className="fila-config">
         <div className="txt"><div className="n">Usar mis gastos reales</div><div className="d">En vez del cálculo simple</div></div>
-        <button className={`toggle-switch${modoReal ? ' on' : ''}`} onClick={() => setModoCalculo(modoReal ? 'simple' : 'real')} aria-label="Usar mis gastos reales"><span /></button>
+        <button className={`toggle-switch${modoReal ? ' on' : ''}`} onClick={() => setModoCalculoLocal(modoReal ? 'simple' : 'real')} aria-label="Usar mis gastos reales"><span /></button>
       </div>
 
       {modoReal && (
@@ -41,19 +66,19 @@ export default function Ajustes() {
 
           <div className="slider-wrap">
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas que se va en arriendo, sueldo y servicios</label>
-            <div className="slider-valor">{cfg.fijoPct}%</div>
-            <input type="range" min={0} max={60} value={cfg.fijoPct} onChange={(e) => setCfg((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
+            <div className="slider-valor">{cfgLocal.fijoPct}%</div>
+            <input type="range" min={0} max={60} value={cfgLocal.fijoPct} onChange={(e) => setCfgLocal((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
           </div>
 
           <div className="slider-wrap">
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas en otros gastos (no insumos)</label>
-            <div className="slider-valor">{cfg.variablePct}%</div>
-            <input type="range" min={0} max={40} value={cfg.variablePct} onChange={(e) => setCfg((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
+            <div className="slider-valor">{cfgLocal.variablePct}%</div>
+            <input type="range" min={0} max={40} value={cfgLocal.variablePct} onChange={(e) => setCfgLocal((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
           </div>
 
           <div className="campo">
             <label>¿Cuánto vale tu hora de trabajo?</label>
-            <input type="number" value={cfg.valorHora} onChange={(e) => setCfg((c) => ({ ...c, valorHora: parseFloat(e.target.value) || 0 }))} />
+            <input type="number" value={cfgLocal.valorHora} onChange={(e) => setCfgLocal((c) => ({ ...c, valorHora: parseFloat(e.target.value) || 0 }))} />
           </div>
         </div>
       )}
@@ -63,20 +88,20 @@ export default function Ajustes() {
 
       <div className="campo">
         <label>Nombre de tu negocio</label>
-        <input value={nombreNegocio} onChange={(e) => setNombreNegocio(e.target.value)} placeholder="Ej: Postres de la Abuela" />
+        <input value={nombreLocal} onChange={(e) => setNombreLocal(e.target.value)} placeholder="Ej: Postres de la Abuela" />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
         <div style={{ width: 56, height: 56, borderRadius: 14, overflow: 'hidden', background: 'var(--sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" style={logoNegocio ? { width: '100%', height: '100%', objectFit: 'cover' } : { width: 28, height: 28 }} />
+          <img src={logoLocal || '/isotipo.svg'} alt="Logo de tu negocio" style={logoLocal ? { width: '100%', height: '100%', objectFit: 'cover' } : { width: 28, height: 28 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
           <label className="btn-secundario" style={{ margin: 0, cursor: 'pointer' }}>
-            {logoNegocio ? 'Cambiar logo' : 'Subir mi logo'}
+            {logoLocal ? 'Cambiar logo' : 'Subir mi logo'}
             <input type="file" accept="image/*" style={{ display: 'none' }} onChange={manejarSubidaLogo} />
           </label>
-          {logoNegocio && (
-            <button onClick={() => setLogoNegocio(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
+          {logoLocal && (
+            <button onClick={() => setLogoLocal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
           )}
         </div>
       </div>
@@ -84,19 +109,22 @@ export default function Ajustes() {
       <div className="campo">
         <label>Línea de atención</label>
         <p className="ayuda-campo">Teléfono, WhatsApp o lo que prefieras que tus clientes usen para escribirte.</p>
-        <input value={lineaAtencion} onChange={(e) => setLineaAtencion(e.target.value)} placeholder="Ej: 573001234567" />
+        <input value={lineaLocal} onChange={(e) => setLineaLocal(e.target.value)} placeholder="Ej: 573001234567" />
       </div>
 
       <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Moneda de tus insumos</h3>
       <div className="campo">
-        <select value={moneda} onChange={(e) => setMoneda(e.target.value as Moneda)}>
+        <select value={monedaLocal} onChange={(e) => setMonedaLocal(e.target.value as Moneda)}>
           <option value="COP">Peso colombiano (COP)</option>
           <option value="MXN">Peso mexicano (MXN)</option>
           <option value="PEN">Sol peruano (PEN)</option>
           <option value="USD">Dólar (USD)</option>
         </select>
       </div>
-      <p style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: -8 }}>Tu suscripción a MargenPro siempre se cobra en USD — esto es solo la moneda de tus insumos.</p>
+      <p style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: -8, marginBottom: 20 }}>Tu suscripción a MargenPro siempre se cobra en USD — esto es solo la moneda de tus insumos.</p>
+
+      <button className="btn-cta" onClick={guardarCambios}>Guardar cambios</button>
+      <Toast toast={toast} />
     </>
   )
 }
