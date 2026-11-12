@@ -55,6 +55,14 @@
 .landing .telefono-frame .pantalla { flex:1; padding:6px 16px 16px; display:flex; flex-direction:column; }
 .landing .heroe-tarjeta { margin-top:10px; border-radius:14px; padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.55), transparent 65%); }
 .landing .heroe-tarjeta > div { background:var(--surface); border-radius:12.5px; padding:16px; }
+
+.landing .tabbar-mini { margin-top:auto; display:flex; justify-content:space-around; background:var(--tabbar-bg); margin-left:-16px; margin-right:-16px; margin-bottom:-16px; padding:8px 4px 10px; }
+.landing .tab-mini { display:flex; flex-direction:column; align-items:center; gap:2px; padding:3px 2px; border-radius:10px; flex:1; }
+.landing .tab-mini svg { width:16px; height:16px; stroke:var(--tabbar-icon-inactivo); }
+.landing .tab-mini span { font-size:7.5px; font-weight:700; color:var(--tabbar-icon-inactivo); }
+.landing .tab-mini.activo { background:rgb(var(--accent-tint)/.22); }
+.landing .tab-mini.activo svg { stroke:var(--on-accent); }
+.landing .tab-mini.activo span { color:var(--accent); }
 .landing .paso-indicador { font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); margin-bottom:8px; }
 .landing .precio-heroe { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); }
 .landing .precio-heroe .sm { font-size:12px; font-weight:600; color:var(--text-2); display:block; font-family:var(--font-body); }
@@ -89,7 +97,7 @@
 .landing .antes-despues .despues { background:rgb(var(--accent-tint)/.10); border:1px solid rgb(var(--accent-tint)/.3); }
 
 /* CARRUSEL */
-.landing .carrusel-wrap { margin-top:32px; position:relative; }
+.landing .carrusel-wrap { margin-top:32px; position:relative; max-width:620px; margin-left:auto; margin-right:auto; }
 .landing .carrusel { display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px; scrollbar-width:none; }
 .landing .carrusel::-webkit-scrollbar { display:none; }
 .landing .frame { flex:0 0 180px; scroll-snap-align:start; }

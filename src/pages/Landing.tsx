@@ -45,6 +45,14 @@ const PASOS_SOLUCION = [
   { icono: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />, titulo: 'Te dice cuánto cobrar', texto: 'Elige tu margen de ganancia y recibe el precio justo, sea un postre, un combo o un pedido de catering.' },
 ]
 
+const TABS_MINI = [
+  { label: 'Panorama', activo: true, icono: <><path d="M3 10.5L12 3l9 7.5" /><path d="M5 9.5V21h5v-6h4v6h5V9.5" /></> },
+  { label: 'Insumos', activo: false, icono: <><path d="M21 8l-9-5-9 5 9 5 9-5z" /><path d="M3 8v8l9 5 9-5V8" /><path d="M12 13v8" /></> },
+  { label: 'Recetas', activo: false, icono: <><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></> },
+  { label: 'Cotiza', activo: false, icono: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /> },
+  { label: 'Ajustes', activo: false, icono: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 003.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H8a1.65 1.65 0 001-1.51V2a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H22a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></> },
+]
+
 const CARRUSEL_APP = [
   { icono: <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="M21 15l-5-5L5 21" /></>, nombre: 'Costeo', label: 'Tu primer precio calculado' },
   { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día' },
@@ -193,6 +201,14 @@ export default function Landing() {
                     <div className="fila-dato"><span>Costo real</span><span>$48.000</span></div>
                     <div className="fila-dato"><span>Tu ganancia</span><span style={{ color: 'var(--accent)', fontWeight: 700 }}>43%</span></div>
                   </div>
+                </div>
+                <div className="tabbar-mini">
+                  {TABS_MINI.map((t) => (
+                    <div key={t.label} className={`tab-mini${t.activo ? ' activo' : ''}`}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg>
+                      <span>{t.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
