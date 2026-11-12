@@ -104,11 +104,21 @@ interface AppContextValue {
   ajustarInventarioPorVenta: (nombreProducto: string, signo: 1 | -1) => string[]
   logoNegocio: string | null
   setLogoNegocio: (logo: string | null) => void
+  nombreNegocio: string
+  setNombreNegocio: (nombre: string) => void
+  lineaAtencion: string
+  setLineaAtencion: (linea: string) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
 
 const CLAVE_LOGO_NEGOCIO = 'margenpro-logo-negocio'
+const CLAVE_NOMBRE_NEGOCIO = 'margenpro-nombre-negocio'
+const CLAVE_LINEA_ATENCION = 'margenpro-linea-atencion'
+
+function leerLocalStorage(clave: string, porDefecto: string): string {
+  try { return localStorage.getItem(clave) ?? porDefecto } catch { return porDefecto }
+}
 
 function umbralStockBajo(ins: Insumo, recetas: Receta[]): number {
   let usoTipico = 0
@@ -136,6 +146,8 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [logoNegocio, setLogoNegocioState] = useState<string | null>(() => {
     try { return localStorage.getItem(CLAVE_LOGO_NEGOCIO) } catch { return null }
   })
+  const [nombreNegocio, setNombreNegocioState] = useState<string>(() => leerLocalStorage(CLAVE_NOMBRE_NEGOCIO, 'MargenPro'))
+  const [lineaAtencion, setLineaAtencionState] = useState<string>(() => leerLocalStorage(CLAVE_LINEA_ATENCION, ''))
 
   const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString('es-CO')}`
 
@@ -153,6 +165,16 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // localStorage puede no estar disponible (modo privado); el logo sigue funcionando en esta sesión.
     }
+  }
+
+  function setNombreNegocio(nombre: string) {
+    setNombreNegocioState(nombre)
+    try { localStorage.setItem(CLAVE_NOMBRE_NEGOCIO, nombre) } catch { /* modo privado — sigue funcionando en esta sesión */ }
+  }
+
+  function setLineaAtencion(linea: string) {
+    setLineaAtencionState(linea)
+    try { localStorage.setItem(CLAVE_LINEA_ATENCION, linea) } catch { /* modo privado — sigue funcionando en esta sesión */ }
   }
 
   function ajustarInventarioPorVenta(nombreProducto: string, signo: 1 | -1): string[] {
@@ -186,8 +208,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     costearReal,
     ajustarInventarioPorVenta,
     logoNegocio, setLogoNegocio,
+    nombreNegocio, setNombreNegocio,
+    lineaAtencion, setLineaAtencion,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [insumos, recetas, cotizaciones, cfg, modoCalculo, moneda, mesActualIdx, logoNegocio])
+  }), [insumos, recetas, cotizaciones, cfg, modoCalculo, moneda, mesActualIdx, logoNegocio, nombreNegocio, lineaAtencion])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

@@ -49,7 +49,7 @@ function iconoEstado(estado: EstadoCotizacion) {
 
 const ETIQUETA_ESTADO: Record<EstadoCotizacion, string> = { vendida: 'Marcar vendida', pendiente: 'Marcar pendiente', rechazada: 'Marcar rechazada' }
 
-const MENSAJE_VENTA = '✨ Hecho con ingredientes de calidad — ¡un gusto que no te vas a arrepentir de darte!'
+const MENSAJE_VENTA = '✨ ¡La mejor calidad al mejor precio!'
 
 interface PreviewCotizacion {
   monto: number
@@ -58,7 +58,7 @@ interface PreviewCotizacion {
 }
 
 export default function Cotizaciones() {
-  const { recetas, cotizaciones, setCotizaciones, money, costearReal, ajustarInventarioPorVenta, logoNegocio } = useAppStore()
+  const { recetas, cotizaciones, setCotizaciones, money, costearReal, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
@@ -100,7 +100,9 @@ export default function Cotizaciones() {
     const clienteFinal = cliente.trim() || 'Tu cliente'
     const soloDigitos = telefono.replace(/\D/g, '')
     setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: preview.monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
-    const mensaje = `Hola ${clienteFinal}! Aquí tienes tu cotización de *${producto}*: ${money(preview.monto)}. ${MENSAJE_VENTA}`
+    const negocioFinal = nombreNegocio.trim() || 'MargenPro'
+    const notaContacto = lineaAtencion.trim() ? ` Si tienes alguna inquietud no dudes en contactarnos a nuestra línea de atención ${lineaAtencion.trim()} — será un gusto ayudarte.` : ''
+    const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${producto}*: ${money(preview.monto)}.${notaContacto} ${MENSAJE_VENTA}`
     window.open(`https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`, '_blank')
     setVista('lista')
     mostrarToast(<IconoReloj />, `Anotado. Te recordamos hacerle seguimiento a ${clienteFinal} en 2 días.`)
@@ -173,7 +175,7 @@ export default function Cotizaciones() {
         <h2 className="titulo-seccion" style={{ fontSize: 19 }}>Así la va a ver tu cliente</h2>
         <div className="tarjeta-cotizacion">
           <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" className="logo-negocio" />
-          <p className="nombre-negocio">MargenPro</p>
+          <p className="nombre-negocio">{nombreNegocio.trim() || 'MargenPro'}</p>
           <div className="linea-cot"><span>Cliente</span><span>{cliente.trim() || 'Tu cliente'}</span></div>
           <div className="linea-cot"><span>Producto</span><span>{producto}</span></div>
           {preview.unidades > 1 && (

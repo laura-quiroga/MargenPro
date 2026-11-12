@@ -3,7 +3,7 @@ import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
 
 export default function Ajustes() {
-  const { cfg, setCfg, modoCalculo, setModoCalculo, moneda, setMoneda, logoNegocio, setLogoNegocio } = useAppStore()
+  const { cfg, setCfg, modoCalculo, setModoCalculo, moneda, setMoneda, logoNegocio, setLogoNegocio, nombreNegocio, setNombreNegocio, lineaAtencion, setLineaAtencion } = useAppStore()
   const modoReal = modoCalculo === 'real'
 
   function manejarSubidaLogo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -58,8 +58,14 @@ export default function Ajustes() {
         </div>
       )}
 
-      <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Logo de tu negocio</h3>
-      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Aparece en las cotizaciones que le mandas a tus clientes.</p>
+      <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Tu negocio</h3>
+      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Así aparece en las cotizaciones que le mandas a tus clientes.</p>
+
+      <div className="campo">
+        <label>Nombre de tu negocio</label>
+        <input value={nombreNegocio} onChange={(e) => setNombreNegocio(e.target.value)} placeholder="Ej: Postres de la Abuela" />
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
         <div style={{ width: 56, height: 56, borderRadius: 14, overflow: 'hidden', background: 'var(--sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" style={logoNegocio ? { width: '100%', height: '100%', objectFit: 'cover' } : { width: 28, height: 28 }} />
@@ -73,6 +79,12 @@ export default function Ajustes() {
             <button onClick={() => setLogoNegocio(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
           )}
         </div>
+      </div>
+
+      <div className="campo">
+        <label>Línea de atención</label>
+        <p className="ayuda-campo">Teléfono, WhatsApp o lo que prefieras que tus clientes usen para escribirte.</p>
+        <input value={lineaAtencion} onChange={(e) => setLineaAtencion(e.target.value)} placeholder="Ej: 573001234567" />
       </div>
 
       <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Moneda de tus insumos</h3>
