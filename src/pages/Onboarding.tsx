@@ -399,9 +399,9 @@ export default function Onboarding() {
             <div className="pantalla-contenido entrada" style={{ alignItems: 'center', textAlign: 'center', gap: 8, justifyContent: 'center' }}>
               <div className="paso-indicador" style={{ textAlign: 'center' }}>Tu primer costeo</div>
               <h2 style={{ fontSize: 20, textAlign: 'center', marginBottom: 4 }}>{recetaNombre}</h2>
-              <Confetti piezas={piezas} />
               {cmp && (
                 <div className={`comparacion-actual ${cmp.clase}`}>
+                  {cmp.clase === 'es-exito' && <Confetti piezas={piezas} />}
                   <div className="fila-cmp">
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{cmp.icono}</svg>
                     <p>{cmp.texto}</p>
@@ -422,8 +422,8 @@ export default function Onboarding() {
         {paso === 7 && (
           <>
             <div className="pantalla-contenido entrada">
-              <h2 style={{ fontSize: 21, marginBottom: 4 }}>Esto es lo que vas a <span className="acento">ver y usar</span></h2>
-              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 6 }}>Vistas ilustrativas — la app real está en construcción.</p>
+              <h2 style={{ fontSize: 21, marginBottom: 4, textAlign: 'center' }}>Esto es lo que vas a <span className="acento">ver y usar</span></h2>
+              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 6, textAlign: 'center' }}>Vistas ilustrativas — la app real está en construcción.</p>
               <div className="tour-grid">
                 {TOUR.map((t) => (
                   <div className="tour-card" key={t.nombre}>
