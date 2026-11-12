@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "@supabase/supabase-js": "^2.119.0",
     "@tailwindcss/vite": "^4.3.5",
     "lucide-react": "^1.70.0",
     "motion": "^14.10.1",
