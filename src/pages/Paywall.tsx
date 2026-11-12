@@ -6,7 +6,7 @@ export default function Paywall() {
   const navigate = useNavigate()
 
   return (
-    <PhoneFrame>
+    <PhoneFrame onBack={() => navigate('/onboarding')}>
       <div className="paywall">
         <div className="pantalla-contenido entrada">
           <div className="paso-indicador" style={{ textAlign: 'center' }}>Tu primer costeo está listo</div>
