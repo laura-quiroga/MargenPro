@@ -9,15 +9,7 @@ import Panorama from './pages/app/Panorama'
 import Insumos from './pages/app/Insumos'
 import Recetas from './pages/app/Recetas'
 import Cotizaciones from './pages/app/Cotizaciones'
-
-function Proximamente({ titulo }: { titulo: string }) {
-  return (
-    <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px', textAlign: 'center', padding: '24px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '24px' }}>{titulo}</h1>
-      <p style={{ color: 'var(--text-2)' }}>Esta pantalla se convierte a código real en la próxima sesión.</p>
-    </div>
-  )
-}
+import Ajustes from './pages/app/Ajustes'
 
 function App() {
   return (
@@ -32,7 +24,7 @@ function App() {
           <Route path="insumos" element={<Insumos />} />
           <Route path="recetas" element={<Recetas />} />
           <Route path="cotiza" element={<Cotizaciones />} />
-          <Route path="ajustes" element={<Proximamente titulo="Ajustes" />} />
+          <Route path="ajustes" element={<Ajustes />} />
         </Route>
       </Routes>
     </BrowserRouter>
