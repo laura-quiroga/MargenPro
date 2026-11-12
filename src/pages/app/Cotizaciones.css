@@ -3,11 +3,12 @@
    Tokens: src/globals.css */
 
 .app-interna .tarjeta-cotizacion { background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow-1); padding:24px 20px; text-align:center; margin-bottom:16px; }
-.app-interna .tarjeta-cotizacion .logo-negocio { width:44px; height:44px; margin:0 auto 10px; display:block; }
+.app-interna .tarjeta-cotizacion .logo-negocio { width:44px; height:44px; margin:0 auto 10px; display:block; border-radius:12px; object-fit:cover; }
 .app-interna .tarjeta-cotizacion .nombre-negocio { font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:18px; }
 .app-interna .tarjeta-cotizacion .linea-cot { display:flex; justify-content:space-between; padding:9px 0; border-top:1px solid var(--sunken); font-size:13.5px; text-align:left; }
 .app-interna .tarjeta-cotizacion .linea-cot span:first-child { color:var(--text-2); }
 .app-interna .tarjeta-cotizacion .linea-cot span:last-child { font-weight:700; text-align:right; }
 .app-interna .tarjeta-cotizacion .linea-cot.total { font-size:16px; }
 .app-interna .tarjeta-cotizacion .linea-cot.total span:last-child { color:var(--accent); font-family:var(--font-display); }
-.app-interna .tarjeta-cotizacion .fecha-cot { font-size:11.5px; color:var(--text-2); margin-top:12px; }
+.app-interna .tarjeta-cotizacion .mensaje-venta { font-size:12px; font-weight:600; color:var(--accent); margin-top:14px; line-height:1.4; }
+.app-interna .tarjeta-cotizacion .fecha-cot { font-size:11.5px; color:var(--text-2); margin-top:10px; }

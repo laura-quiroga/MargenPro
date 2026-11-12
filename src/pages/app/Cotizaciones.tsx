@@ -49,8 +49,16 @@ function iconoEstado(estado: EstadoCotizacion) {
 
 const ETIQUETA_ESTADO: Record<EstadoCotizacion, string> = { vendida: 'Marcar vendida', pendiente: 'Marcar pendiente', rechazada: 'Marcar rechazada' }
 
+const MENSAJE_VENTA = '✨ Hecho con ingredientes de calidad — ¡un gusto que no te vas a arrepentir de darte!'
+
+interface PreviewCotizacion {
+  monto: number
+  precioPorUnidad: number
+  unidades: number
+}
+
 export default function Cotizaciones() {
-  const { recetas, cotizaciones, setCotizaciones, money, costear, ajustarInventarioPorVenta } = useAppStore()
+  const { recetas, cotizaciones, setCotizaciones, money, costearReal, ajustarInventarioPorVenta, logoNegocio } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
@@ -60,7 +68,7 @@ export default function Cotizaciones() {
   const [cliente, setCliente] = useState('')
   const [producto, setProducto] = useState('')
   const [telefono, setTelefono] = useState('')
-  const [montoPreview, setMontoPreview] = useState(0)
+  const [preview, setPreview] = useState<PreviewCotizacion | null>(null)
   const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
 
   function abrirNueva() {
@@ -80,16 +88,19 @@ export default function Cotizaciones() {
     const soloDigitos = telefono.replace(/\D/g, '')
     if (soloDigitos.length < 7) { mostrarToast(<IconoAviso />, 'Escribe el número de WhatsApp del cliente.'); return }
     const receta = recetas.find((r) => r.nombre === producto)
-    const monto = receta ? costear(receta.insumosUsados, receta.margen, receta.horas, receta.unidades).precioSugerido : 20000
-    setMontoPreview(monto)
+    // Siempre con gastos reales (costearReal), nunca el modo simple de Ajustes: lo que se le
+    // cobra al cliente tiene que cubrir de verdad los gastos fijos/variables del negocio.
+    const calc = receta ? costearReal(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
+    setPreview({ monto: calc ? calc.precioSugerido : 20000, precioPorUnidad: calc ? calc.precioPorUnidad : 0, unidades: calc ? calc.unidades : 1 })
     setVista('revisar')
   }
 
   function enviarPorWhatsapp() {
+    if (!preview) return
     const clienteFinal = cliente.trim() || 'Tu cliente'
     const soloDigitos = telefono.replace(/\D/g, '')
-    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: montoPreview, estado: 'pendiente', fecha: 'hoy' }, ...prev])
-    const mensaje = `Hola ${clienteFinal}! Aquí tienes tu cotización de *${producto}*: ${money(montoPreview)}. ¡Gracias por tu interés en nuestros productos!`
+    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: preview.monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
+    const mensaje = `Hola ${clienteFinal}! Aquí tienes tu cotización de *${producto}*: ${money(preview.monto)}. ${MENSAJE_VENTA}`
     window.open(`https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`, '_blank')
     setVista('lista')
     mostrarToast(<IconoReloj />, `Anotado. Te recordamos hacerle seguimiento a ${clienteFinal} en 2 días.`)
@@ -154,18 +165,23 @@ export default function Cotizaciones() {
     )
   }
 
-  if (vista === 'revisar') {
+  if (vista === 'revisar' && preview) {
+    const fechaHoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('nueva')}><IconoVolver />Editar</button>
         <h2 className="titulo-seccion" style={{ fontSize: 19 }}>Así la va a ver tu cliente</h2>
         <div className="tarjeta-cotizacion">
-          <img src="/isotipo.svg" alt="MargenPro" className="logo-negocio" />
-          <p className="nombre-negocio">MargenPro Repostería</p>
+          <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" className="logo-negocio" />
+          <p className="nombre-negocio">MargenPro</p>
           <div className="linea-cot"><span>Cliente</span><span>{cliente.trim() || 'Tu cliente'}</span></div>
           <div className="linea-cot"><span>Producto</span><span>{producto}</span></div>
-          <div className="linea-cot total"><span>Total</span><span>{money(montoPreview)}</span></div>
-          <p className="fecha-cot">Cotización de hoy</p>
+          {preview.unidades > 1 && (
+            <div className="linea-cot"><span>Precio por porción</span><span>{money(preview.precioPorUnidad)}</span></div>
+          )}
+          <div className="linea-cot total"><span>Total</span><span>{money(preview.monto)}</span></div>
+          <p className="mensaje-venta">{MENSAJE_VENTA}</p>
+          <p className="fecha-cot">Cotización del {fechaHoy}</p>
         </div>
         <button className="btn-cta" onClick={enviarPorWhatsapp}><IconoWhatsapp />Enviar por WhatsApp</button>
         <Toast toast={toast} />

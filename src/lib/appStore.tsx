@@ -97,11 +97,18 @@ interface AppContextValue {
   setMesActualIdx: React.Dispatch<React.SetStateAction<number>>
   money: (n: number) => string
   costear: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
+  /** Para cotizaciones: SIEMPRE con gastos fijos/variables reales, sin importar el modo elegido
+   * en Ajustes — así el precio que se le manda al cliente nunca deja al negocio en pérdida. */
+  costearReal: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
   /** Descuenta (signo -1) o devuelve (signo +1) del inventario los insumos de la receta vendida/corregida. */
   ajustarInventarioPorVenta: (nombreProducto: string, signo: 1 | -1) => string[]
+  logoNegocio: string | null
+  setLogoNegocio: (logo: string | null) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
+
+const CLAVE_LOGO_NEGOCIO = 'margenpro-logo-negocio'
 
 function umbralStockBajo(ins: Insumo, recetas: Receta[]): number {
   let usoTipico = 0
@@ -126,11 +133,27 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [modoCalculo, setModoCalculo] = useState<'simple' | 'real'>('simple')
   const [moneda, setMoneda] = useState<Moneda>('COP')
   const [mesActualIdx, setMesActualIdx] = useState(0)
+  const [logoNegocio, setLogoNegocioState] = useState<string | null>(() => {
+    try { return localStorage.getItem(CLAVE_LOGO_NEGOCIO) } catch { return null }
+  })
 
   const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString('es-CO')}`
 
   const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades) =>
     calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg)
+
+  const costearReal: AppContextValue['costearReal'] = (insumosUsados, margen, horas, unidades) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, true, cfg)
+
+  function setLogoNegocio(logo: string | null) {
+    setLogoNegocioState(logo)
+    try {
+      if (logo) localStorage.setItem(CLAVE_LOGO_NEGOCIO, logo)
+      else localStorage.removeItem(CLAVE_LOGO_NEGOCIO)
+    } catch {
+      // localStorage puede no estar disponible (modo privado); el logo sigue funcionando en esta sesión.
+    }
+  }
 
   function ajustarInventarioPorVenta(nombreProducto: string, signo: 1 | -1): string[] {
     const receta = recetas.find((r) => r.nombre === nombreProducto)
@@ -160,9 +183,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     mesActualIdx, setMesActualIdx,
     money,
     costear,
+    costearReal,
     ajustarInventarioPorVenta,
+    logoNegocio, setLogoNegocio,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [insumos, recetas, cotizaciones, cfg, modoCalculo, moneda, mesActualIdx])
+  }), [insumos, recetas, cotizaciones, cfg, modoCalculo, moneda, mesActualIdx, logoNegocio])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

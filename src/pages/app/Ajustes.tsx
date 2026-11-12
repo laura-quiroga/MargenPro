@@ -3,8 +3,16 @@ import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
 
 export default function Ajustes() {
-  const { cfg, setCfg, modoCalculo, setModoCalculo, moneda, setMoneda } = useAppStore()
+  const { cfg, setCfg, modoCalculo, setModoCalculo, moneda, setMoneda, logoNegocio, setLogoNegocio } = useAppStore()
   const modoReal = modoCalculo === 'real'
+
+  function manejarSubidaLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0]
+    if (!archivo) return
+    const lector = new FileReader()
+    lector.onload = () => setLogoNegocio(typeof lector.result === 'string' ? lector.result : null)
+    lector.readAsDataURL(archivo)
+  }
 
   return (
     <>
@@ -49,6 +57,23 @@ export default function Ajustes() {
           </div>
         </div>
       )}
+
+      <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Logo de tu negocio</h3>
+      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Aparece en las cotizaciones que le mandas a tus clientes.</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+        <div style={{ width: 56, height: 56, borderRadius: 14, overflow: 'hidden', background: 'var(--sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" style={logoNegocio ? { width: '100%', height: '100%', objectFit: 'cover' } : { width: 28, height: 28 }} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+          <label className="btn-secundario" style={{ margin: 0, cursor: 'pointer' }}>
+            {logoNegocio ? 'Cambiar logo' : 'Subir mi logo'}
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={manejarSubidaLogo} />
+          </label>
+          {logoNegocio && (
+            <button onClick={() => setLogoNegocio(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
+          )}
+        </div>
+      </div>
 
       <h3 style={{ fontSize: 14, margin: '18px 0 4px' }}>Moneda de tus insumos</h3>
       <div className="campo">
