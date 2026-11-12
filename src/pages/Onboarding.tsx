@@ -433,7 +433,7 @@ export default function Onboarding() {
                   </div>
                 ))}
               </div>
-              <p className="sub" style={{ textAlign: 'center', marginTop: 18, fontSize: 13 }}>Esto y mucho más podrás encontrar en <strong>MargenPro</strong>.</p>
+              <p className="sub" style={{ textAlign: 'center', marginTop: 18, fontSize: 13, maxWidth: '78%', marginLeft: 'auto', marginRight: 'auto' }}>Esto y mucho más podrás encontrar en <strong>MargenPro</strong>.</p>
             </div>
             <div className="pantalla-footer"><button className="btn-cta" onClick={() => navigate('/paywall')}>Quiero usar todo esto →</button></div>
           </>
