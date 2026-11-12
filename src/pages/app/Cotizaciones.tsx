@@ -54,16 +54,19 @@ export default function Cotizaciones() {
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
-  const [vista, setVista] = useState<'lista' | 'nueva'>('lista')
+  const [vista, setVista] = useState<'lista' | 'nueva' | 'revisar'>('lista')
   const [filtro, setFiltro] = useState<'todas' | EstadoCotizacion>('todas')
 
   const [cliente, setCliente] = useState('')
   const [producto, setProducto] = useState('')
+  const [telefono, setTelefono] = useState('')
+  const [montoPreview, setMontoPreview] = useState(0)
   const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
 
   function abrirNueva() {
     setCliente('')
     setProducto(recetas[0]?.nombre ?? '')
+    setTelefono('')
     setVista('nueva')
   }
 
@@ -72,11 +75,22 @@ export default function Cotizaciones() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function crearCotizacion() {
-    const clienteFinal = cliente.trim() || 'Tu cliente'
+  function irARevisar() {
+    if (!cliente.trim()) { mostrarToast(<IconoAviso />, 'Escribe el nombre del cliente.'); return }
+    const soloDigitos = telefono.replace(/\D/g, '')
+    if (soloDigitos.length < 7) { mostrarToast(<IconoAviso />, 'Escribe el número de WhatsApp del cliente.'); return }
     const receta = recetas.find((r) => r.nombre === producto)
     const monto = receta ? costear(receta.insumosUsados, receta.margen, receta.horas, receta.unidades).precioSugerido : 20000
-    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
+    setMontoPreview(monto)
+    setVista('revisar')
+  }
+
+  function enviarPorWhatsapp() {
+    const clienteFinal = cliente.trim() || 'Tu cliente'
+    const soloDigitos = telefono.replace(/\D/g, '')
+    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: montoPreview, estado: 'pendiente', fecha: 'hoy' }, ...prev])
+    const mensaje = `Hola ${clienteFinal}! Aquí tienes tu cotización de *${producto}*: ${money(montoPreview)}. ¡Gracias por tu interés en nuestros productos!`
+    window.open(`https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`, '_blank')
     setVista('lista')
     mostrarToast(<IconoReloj />, `Anotado. Te recordamos hacerle seguimiento a ${clienteFinal} en 2 días.`)
   }
@@ -127,15 +141,33 @@ export default function Cotizaciones() {
                 {recetas.map((r) => <option key={r.id} value={r.nombre}>{r.nombre}</option>)}
               </select>
             </div>
-            <div className="tarjeta" style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 12, color: 'var(--text-2)' }}>Tu logo (ejemplo)</p>
-              <div style={{ width: 46, height: 46, borderRadius: 12, background: 'var(--accent)', margin: '10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-accent)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>M</div>
-              <p style={{ fontWeight: 700 }}>MargenPro Repostería</p>
-              <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 6 }}>Cotización lista para enviar por WhatsApp</p>
+            <div className="campo">
+              <label>Número de WhatsApp del cliente</label>
+              <p className="ayuda-campo">Con el indicativo del país, solo números. Ej: 573001234567</p>
+              <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Ej: 573001234567" />
             </div>
-            <button className="btn-cta" onClick={crearCotizacion}><IconoWhatsapp />Revisar y enviar por WhatsApp</button>
+            <button className="btn-cta" onClick={irARevisar}>Revisar cotización →</button>
           </>
         )}
+        <Toast toast={toast} />
+      </>
+    )
+  }
+
+  if (vista === 'revisar') {
+    return (
+      <>
+        <button className="btn-atras-sub" onClick={() => setVista('nueva')}><IconoVolver />Editar</button>
+        <h2 className="titulo-seccion" style={{ fontSize: 19 }}>Así la va a ver tu cliente</h2>
+        <div className="tarjeta-cotizacion">
+          <img src="/isotipo.svg" alt="MargenPro" className="logo-negocio" />
+          <p className="nombre-negocio">MargenPro Repostería</p>
+          <div className="linea-cot"><span>Cliente</span><span>{cliente.trim() || 'Tu cliente'}</span></div>
+          <div className="linea-cot"><span>Producto</span><span>{producto}</span></div>
+          <div className="linea-cot total"><span>Total</span><span>{money(montoPreview)}</span></div>
+          <p className="fecha-cot">Cotización de hoy</p>
+        </div>
+        <button className="btn-cta" onClick={enviarPorWhatsapp}><IconoWhatsapp />Enviar por WhatsApp</button>
         <Toast toast={toast} />
       </>
     )
