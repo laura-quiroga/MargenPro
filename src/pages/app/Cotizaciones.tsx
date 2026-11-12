@@ -108,7 +108,7 @@ export default function Cotizaciones() {
     const soloDigitos = telefono.replace(/\D/g, '')
     const negocioFinal = nombreNegocio.trim() || 'MargenPro'
     const notaContacto = lineaAtencion.trim() ? ` Si tienes alguna inquietud no dudes en contactarnos a nuestra línea de atención ${lineaAtencion.trim()} — será un gusto ayudarte.` : ''
-    const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${producto}*: ${money(preview.monto)}.${notaContacto} ${MENSAJE_VENTA}`
+    const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${producto}*.${notaContacto} ${MENSAJE_VENTA}`
 
     // Se reserva la pestaña de WhatsApp ANTES de generar la imagen (que toma un instante) —
     // si se abre después de un await, los navegadores la bloquean por no verla como un clic directo.
