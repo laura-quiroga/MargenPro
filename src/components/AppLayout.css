@@ -29,6 +29,7 @@
 
 .app-interna .btn-cta { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:15px; padding:16px 22px; border-radius:var(--radius-btn); box-shadow:0 10px 24px rgb(var(--accent-tint)/.32); transition:transform .15s ease-out; border:none; cursor:pointer; }
 .app-interna .btn-cta:active { transform:scale(.97); }
+.app-interna .btn-cta:disabled { opacity:.6; cursor:default; }
 .app-interna .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; font-weight:700; font-size:13.5px; padding:13px 18px; border-radius:var(--radius-btn); border:1.5px dashed rgb(var(--accent-tint)/.4); color:var(--accent); margin-bottom:14px; background:none; cursor:pointer; }
 
 .app-interna .btn-atras-sub { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:14px; width:fit-content; background:none; border:none; cursor:pointer; padding:0; }

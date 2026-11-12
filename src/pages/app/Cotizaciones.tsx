@@ -3,8 +3,13 @@ import { useLocation } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
 import { Toast, useToast } from '../../components/Toast'
 import { Confetti, useConfeti } from '../../components/Confetti'
+import { generarImagenCotizacion } from '../../lib/imagenCotizacion'
 import type { EstadoCotizacion } from '../../lib/types'
 import './Cotizaciones.css'
+
+function fechaCotizacionTexto() {
+  return `Cotización del ${new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}`
+}
 
 const FILTROS: { valor: 'todas' | EstadoCotizacion; label: string }[] = [
   { valor: 'todas', label: 'Todas' },
@@ -70,6 +75,7 @@ export default function Cotizaciones() {
   const [telefono, setTelefono] = useState('')
   const [preview, setPreview] = useState<PreviewCotizacion | null>(null)
   const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
+  const [enviando, setEnviando] = useState(false)
 
   function abrirNueva() {
     setCliente('')
@@ -95,17 +101,71 @@ export default function Cotizaciones() {
     setVista('revisar')
   }
 
-  function enviarPorWhatsapp() {
-    if (!preview) return
+  async function enviarPorWhatsapp() {
+    if (!preview || enviando) return
+    setEnviando(true)
     const clienteFinal = cliente.trim() || 'Tu cliente'
     const soloDigitos = telefono.replace(/\D/g, '')
-    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: preview.monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
     const negocioFinal = nombreNegocio.trim() || 'MargenPro'
     const notaContacto = lineaAtencion.trim() ? ` Si tienes alguna inquietud no dudes en contactarnos a nuestra línea de atención ${lineaAtencion.trim()} — será un gusto ayudarte.` : ''
     const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${producto}*: ${money(preview.monto)}.${notaContacto} ${MENSAJE_VENTA}`
-    window.open(`https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`, '_blank')
+
+    // Se reserva la pestaña de WhatsApp ANTES de generar la imagen (que toma un instante) —
+    // si se abre después de un await, los navegadores la bloquean por no verla como un clic directo.
+    const ventanaWa = window.open('', '_blank')
+
+    const blob = await generarImagenCotizacion({
+      logo: logoNegocio,
+      nombreNegocio: negocioFinal,
+      cliente: clienteFinal,
+      producto,
+      precioPorUnidadTexto: preview.unidades > 1 ? money(preview.precioPorUnidad) : null,
+      totalTexto: money(preview.monto),
+      mensajeVenta: MENSAJE_VENTA,
+      fechaTexto: fechaCotizacionTexto(),
+    })
+
+    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: preview.monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
+
+    let compartidoNativo = false
+    if (blob) {
+      const archivo = new File([blob], 'cotizacion.png', { type: 'image/png' })
+      const navegadorComparte = typeof navigator.canShare === 'function' && navigator.canShare({ files: [archivo] })
+      if (navegadorComparte) {
+        try {
+          await navigator.share({ files: [archivo], text: mensaje })
+          compartidoNativo = true
+        } catch (err) {
+          if ((err as Error)?.name === 'AbortError') compartidoNativo = true // el usuario canceló a propósito, no forzar el respaldo
+        }
+      }
+      if (compartidoNativo) {
+        ventanaWa?.close()
+      } else {
+        const url = URL.createObjectURL(blob)
+        const enlace = document.createElement('a')
+        enlace.href = url
+        enlace.download = 'cotizacion.png'
+        document.body.appendChild(enlace)
+        enlace.click()
+        enlace.remove()
+        URL.revokeObjectURL(url)
+        const waUrl = `https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`
+        if (ventanaWa) ventanaWa.location.href = waUrl
+        else window.open(waUrl, '_blank')
+        mostrarToast(<IconoReloj />, `Descargamos la imagen de tu cotización — adjúntala en WhatsApp. Te recordamos seguir con ${clienteFinal} en 2 días.`)
+      }
+    } else {
+      const waUrl = `https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`
+      if (ventanaWa) ventanaWa.location.href = waUrl
+      else window.open(waUrl, '_blank')
+    }
+
+    if (blob === null || compartidoNativo) {
+      mostrarToast(<IconoReloj />, `Anotado. Te recordamos hacerle seguimiento a ${clienteFinal} en 2 días.`)
+    }
     setVista('lista')
-    mostrarToast(<IconoReloj />, `Anotado. Te recordamos hacerle seguimiento a ${clienteFinal} en 2 días.`)
+    setEnviando(false)
   }
 
   function cambiarEstado(idx: number, nuevoEstado: EstadoCotizacion) {
@@ -168,7 +228,6 @@ export default function Cotizaciones() {
   }
 
   if (vista === 'revisar' && preview) {
-    const fechaHoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('nueva')}><IconoVolver />Editar</button>
@@ -183,9 +242,9 @@ export default function Cotizaciones() {
           )}
           <div className="linea-cot total"><span>Total</span><span>{money(preview.monto)}</span></div>
           <p className="mensaje-venta">{MENSAJE_VENTA}</p>
-          <p className="fecha-cot">Cotización del {fechaHoy}</p>
+          <p className="fecha-cot">{fechaCotizacionTexto()}</p>
         </div>
-        <button className="btn-cta" onClick={enviarPorWhatsapp}><IconoWhatsapp />Enviar por WhatsApp</button>
+        <button className="btn-cta" onClick={enviarPorWhatsapp} disabled={enviando}><IconoWhatsapp />{enviando ? 'Preparando…' : 'Enviar por WhatsApp'}</button>
         <Toast toast={toast} />
       </>
     )
