@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from '../../lib/appStore'
 import { Toast, useToast } from '../../components/Toast'
 import type { Moneda } from '../../lib/types'
@@ -6,6 +6,9 @@ import './Ajustes.css'
 
 const IconoOk = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>
+)
+const IconoAviso = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
 )
 
 export default function Ajustes() {
@@ -19,6 +22,19 @@ export default function Ajustes() {
   const [nombreLocal, setNombreLocal] = useState(store.nombreNegocio)
   const [lineaLocal, setLineaLocal] = useState(store.lineaAtencion)
 
+  // La config real llega de Supabase un instante después del primer render — cuando termina de
+  // cargar, se sincroniza el formulario local (si no, quedaría pegado en los valores por defecto).
+  useEffect(() => {
+    if (store.cargandoConfig) return
+    setCfgLocal(store.cfg)
+    setModoCalculoLocal(store.modoCalculo)
+    setMonedaLocal(store.moneda)
+    setLogoLocal(store.logoNegocio)
+    setNombreLocal(store.nombreNegocio)
+    setLineaLocal(store.lineaAtencion)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.cargandoConfig])
+
   const modoReal = modoCalculoLocal === 'real'
 
   function manejarSubidaLogo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -29,13 +45,12 @@ export default function Ajustes() {
     lector.readAsDataURL(archivo)
   }
 
-  function guardarCambios() {
-    store.setCfg(cfgLocal)
-    store.setModoCalculo(modoCalculoLocal)
-    store.setMoneda(monedaLocal)
-    store.setLogoNegocio(logoLocal)
-    store.setNombreNegocio(nombreLocal)
-    store.setLineaAtencion(lineaLocal)
+  async function guardarCambios() {
+    const ok = await store.guardarConfigNegocio({
+      cfg: cfgLocal, modoCalculo: modoCalculoLocal, moneda: monedaLocal,
+      nombreNegocio: nombreLocal, lineaAtencion: lineaLocal, logoNegocio: logoLocal,
+    })
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos guardar los cambios. Intenta de nuevo.'); return }
     mostrarToast(<IconoOk />, 'Cambios guardados.')
   }
 
@@ -55,25 +70,25 @@ export default function Ajustes() {
       {modoReal && (
         <div style={{ paddingTop: 14 }}>
           <div className="tarjeta" style={{ marginBottom: 18 }}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>¿No sabes qué porcentaje poner? Sácalo de un mes real tuyo:</p>
-            <p style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5 }}>
-              Si en un mes vendiste en total <strong>$5.000.000</strong>, pagaste <strong>$1.000.000</strong> de arriendo y sueldo, y <strong>$2.000.000</strong> en todo lo demás (ingredientes, empaques, envíos, comisiones): tu % de arriendo y gastos fijos es 1.000.000 ÷ 5.000.000 = <strong>20%</strong>.
-            </p>
-            <p style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5, marginTop: 8 }}>
-              Ojo con no contar dos veces: en "otros gastos" de abajo NO vuelvas a meter tus ingredientes y empaques — esos ya los cobra la app exactos, insumo por insumo. Aquí solo van cosas que no registraste como insumo, como comisiones de pago o envíos.
-            </p>
+            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>¿No sabes qué porcentaje poner? Un ejemplo con números:</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>El mes pasado vendiste <strong>$5.000.000</strong> y pagaste <strong>$1.000.000</strong> de arriendo, sueldo y servicios.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 10 }}>La cuenta: divides lo que pagaste entre lo que vendiste — <strong>$1.000.000 ÷ $5.000.000 = 0,20</strong>, o sea <strong>20%</strong>. Pon la primera barra ahí.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>Y en todo lo demás (envíos, comisiones, publicidad) pagaste <strong>$2.000.000</strong>.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)' }}>Misma cuenta: <strong>$2.000.000 ÷ $5.000.000 = 0,40</strong>, o sea <strong>40%</strong>. Pon la segunda barra ahí.</p>
           </div>
 
           <div className="slider-wrap">
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas que se va en arriendo, sueldo y servicios</label>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas que se va en arriendo, sueldo y servicios <span style={{ color: 'var(--text-2)', fontWeight: 400 }}>(costo fijo)</span></label>
             <div className="slider-valor">{cfgLocal.fijoPct}%</div>
-            <input type="range" min={0} max={60} value={cfgLocal.fijoPct} onChange={(e) => setCfgLocal((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
+            <input type="range" min={0} max={80} value={cfgLocal.fijoPct} onChange={(e) => setCfgLocal((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
+            <p className="ayuda-campo" style={{ marginTop: 6 }}>Costo fijo: lo que pagas siempre, vendas mucho o poco (arriendo, sueldo fijo, servicios).</p>
           </div>
 
           <div className="slider-wrap">
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas en otros gastos (no insumos)</label>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas en otros gastos (no insumos) <span style={{ color: 'var(--text-2)', fontWeight: 400 }}>(costo variable)</span></label>
             <div className="slider-valor">{cfgLocal.variablePct}%</div>
-            <input type="range" min={0} max={40} value={cfgLocal.variablePct} onChange={(e) => setCfgLocal((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
+            <input type="range" min={0} max={80} value={cfgLocal.variablePct} onChange={(e) => setCfgLocal((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
+            <p className="ayuda-campo" style={{ marginTop: 6 }}>Costo variable: sube o baja según cuánto vendas (comisiones de pago, domicilios, publicidad).</p>
           </div>
 
           <div className="campo">

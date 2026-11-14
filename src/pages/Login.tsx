@@ -45,7 +45,7 @@ export default function Login() {
   }
 
   async function verificarCodigo() {
-    if (codigo.trim().length < 6) { mostrarToast(<IconoAviso />, 'Escribe el código de 6 dígitos que te llegó.'); return }
+    if (codigo.trim().length < 6) { mostrarToast(<IconoAviso />, 'Escribe el código que te llegó al correo.'); return }
     setCargando(true)
     const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: codigo.trim(), type: 'email' })
     setCargando(false)
@@ -71,11 +71,11 @@ export default function Login() {
             </div>
             <h2 style={{ fontSize: 21, textAlign: 'center', margin: '14px 0 4px' }}>Revisa tu correo</h2>
             <p className="sub" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 18 }}>
-              Te mandamos un enlace a <strong>{email}</strong>. Puedes hacer clic ahí, o escribir aquí el código de 6 dígitos que viene en el mismo correo.
+              Te mandamos un enlace a <strong>{email}</strong>. Puedes hacer clic ahí, o escribir aquí el código que viene en el mismo correo.
             </p>
             <div className="campo">
-              <label htmlFor="loginCodigo">Código de 6 dígitos</label>
-              <input id="loginCodigo" inputMode="numeric" maxLength={6} placeholder="481372" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
+              <label htmlFor="loginCodigo">Código de tu correo</label>
+              <input id="loginCodigo" inputMode="numeric" maxLength={10} placeholder="481372" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
             </div>
             <button className="btn-cta" onClick={verificarCodigo} disabled={cargando}>{cargando ? 'Verificando…' : 'Entrar con el código'}</button>
             <button className="btn-texto" onClick={enviarEnlace} disabled={cargando}>¿No te llegó? Reenviar correo</button>

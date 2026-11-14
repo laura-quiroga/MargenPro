@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
+import { redondearPrecioVenta } from '../../lib/costeo'
 import { Toast, useToast } from '../../components/Toast'
 import { Confetti, useConfeti } from '../../components/Confetti'
 import { generarImagenCotizacion } from '../../lib/imagenCotizacion'
-import type { EstadoCotizacion } from '../../lib/types'
+import type { EstadoCotizacion, ItemCotizacion } from '../../lib/types'
 import './Cotizaciones.css'
 
 function fechaCotizacionTexto() {
@@ -45,6 +46,9 @@ const IconoX = () => (
 const IconoAviso = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>
 )
+const IconoQuitar = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+)
 
 function iconoEstado(estado: EstadoCotizacion) {
   if (estado === 'vendida') return <IconoVendida />
@@ -56,14 +60,25 @@ const ETIQUETA_ESTADO: Record<EstadoCotizacion, string> = { vendida: 'Marcar ven
 
 const MENSAJE_VENTA = '✨ ¡La mejor calidad al mejor precio!'
 
-interface PreviewCotizacion {
+interface ItemPreview {
+  recetaId?: string
+  producto: string
+  cantidad: number
   monto: number
-  precioPorUnidad: number
-  unidades: number
+}
+
+interface PreviewCotizacion {
+  items: ItemPreview[]
+  total: number
+}
+
+interface FilaCotizacion {
+  producto: string
+  cantidad: string
 }
 
 export default function Cotizaciones() {
-  const { recetas, cotizaciones, setCotizaciones, money, costearReal, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion } = useAppStore()
+  const { recetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
@@ -71,17 +86,45 @@ export default function Cotizaciones() {
   const [filtro, setFiltro] = useState<'todas' | EstadoCotizacion>('todas')
 
   const [cliente, setCliente] = useState('')
-  const [producto, setProducto] = useState('')
+  const [filas, setFilas] = useState<FilaCotizacion[]>([])
+  // Por defecto SÍ se incluyen los gastos fijos/variables (lo recomendado, para no vender a
+  // pérdida) — el usuario lo puede apagar si quiere comparar o cotizar distinto.
+  const [incluirGastosReales, setIncluirGastosReales] = useState(true)
   const [telefono, setTelefono] = useState('')
   const [preview, setPreview] = useState<PreviewCotizacion | null>(null)
   const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
   const [enviando, setEnviando] = useState(false)
 
+  function filaNuevaPara(nombreProducto: string): FilaCotizacion {
+    const receta = recetas.find((r) => r.nombre === nombreProducto)
+    return { producto: nombreProducto, cantidad: receta ? String(receta.unidades) : '' }
+  }
+
   function abrirNueva() {
     setCliente('')
-    setProducto(recetas[0]?.nombre ?? '')
+    const primeraReceta = recetas[0]
+    setFilas(primeraReceta ? [filaNuevaPara(primeraReceta.nombre)] : [])
     setTelefono('')
     setVista('nueva')
+  }
+
+  function actualizarFila(idx: number, cambios: Partial<FilaCotizacion>) {
+    setFilas((prev) => prev.map((f, i) => (i === idx ? { ...f, ...cambios } : f)))
+  }
+
+  function elegirProductoFila(idx: number, nombreNuevo: string) {
+    // Al cambiar de producto, la cantidad vuelve al tamaño de tanda de ESA receta por defecto
+    // — el usuario la puede cambiar después si el cliente quiere otra cantidad.
+    actualizarFila(idx, filaNuevaPara(nombreNuevo))
+  }
+
+  function agregarFila() {
+    const siguienteReceta = recetas.find((r) => !filas.some((f) => f.producto === r.nombre)) ?? recetas[0]
+    if (siguienteReceta) setFilas((prev) => [...prev, filaNuevaPara(siguienteReceta.nombre)])
+  }
+
+  function quitarFila(idx: number) {
+    setFilas((prev) => prev.filter((_, i) => i !== idx))
   }
 
   useEffect(() => {
@@ -89,15 +132,33 @@ export default function Cotizaciones() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // El usuario decide con el botón si esta cotización incluye sus gastos fijos/variables o no
+  // (sin importar el modo elegido en Ajustes) — así puede comparar a propósito. Se costea con
+  // el tamaño de tanda PROPIO de cada receta (así los insumos usados son correctos) y luego se
+  // escala el precio por unidad a la cantidad real que pidió el cliente — puede ser distinta al
+  // tamaño de tanda (ej. la receta rinde 5 pero el cliente quiere 12). El monto de cada producto
+  // se redondea hacia arriba al múltiplo de $50 más cercano, para un precio más fácil de cobrar.
+  function calcularItems(): ItemPreview[] | null {
+    const costearElegido = incluirGastosReales ? costearReal : costearSimple
+    const items: ItemPreview[] = []
+    for (const f of filas) {
+      const cantidadNum = parseFloat(f.cantidad) || 0
+      if (cantidadNum <= 0) return null
+      const receta = recetas.find((r) => r.nombre === f.producto)
+      const calc = receta ? costearElegido(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
+      const precioPorUnidad = calc ? calc.precioPorUnidad : 20000
+      items.push({ recetaId: receta?.id, producto: f.producto, cantidad: cantidadNum, monto: redondearPrecioVenta(Math.round(precioPorUnidad * cantidadNum)) })
+    }
+    return items
+  }
+
   function irARevisar() {
     if (!cliente.trim()) { mostrarToast(<IconoAviso />, 'Escribe el nombre del cliente.'); return }
     const soloDigitos = telefono.replace(/\D/g, '')
     if (soloDigitos.length < 7) { mostrarToast(<IconoAviso />, 'Escribe el número de WhatsApp del cliente.'); return }
-    const receta = recetas.find((r) => r.nombre === producto)
-    // Siempre con gastos reales (costearReal), nunca el modo simple de Ajustes: lo que se le
-    // cobra al cliente tiene que cubrir de verdad los gastos fijos/variables del negocio.
-    const calc = receta ? costearReal(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
-    setPreview({ monto: calc ? calc.precioSugerido : 20000, precioPorUnidad: calc ? calc.precioPorUnidad : 0, unidades: calc ? calc.unidades : 1 })
+    const items = calcularItems()
+    if (!items) { mostrarToast(<IconoAviso />, 'Escribe cuántas unidades quiere el cliente de cada producto.'); return }
+    setPreview({ items, total: items.reduce((acc, it) => acc + it.monto, 0) })
     setVista('revisar')
   }
 
@@ -107,8 +168,9 @@ export default function Cotizaciones() {
     const clienteFinal = cliente.trim() || 'Tu cliente'
     const soloDigitos = telefono.replace(/\D/g, '')
     const negocioFinal = nombreNegocio.trim() || 'MargenPro'
+    const nombresProductos = preview.items.map((it) => it.producto).join(' y ')
     const notaContacto = lineaAtencion.trim() ? ` Si tienes alguna inquietud no dudes en contactarnos a nuestra línea de atención ${lineaAtencion.trim()} — será un gusto ayudarte.` : ''
-    const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${producto}*.${notaContacto} ${MENSAJE_VENTA}`
+    const mensaje = `Hola ${clienteFinal}! Te hablamos de ${negocioFinal}. Aquí tienes tu cotización de *${nombresProductos}*.${notaContacto} ${MENSAJE_VENTA}`
 
     // Se reserva la pestaña de WhatsApp ANTES de generar la imagen (que toma un instante) —
     // si se abre después de un await, los navegadores la bloquean por no verla como un clic directo.
@@ -118,14 +180,14 @@ export default function Cotizaciones() {
       logo: logoNegocio,
       nombreNegocio: negocioFinal,
       cliente: clienteFinal,
-      producto,
-      precioPorUnidadTexto: preview.unidades > 1 ? money(preview.precioPorUnidad) : null,
-      totalTexto: money(preview.monto),
+      items: preview.items.map((it) => ({ etiqueta: it.cantidad > 1 ? `${it.producto} x${it.cantidad}` : it.producto, montoTexto: money(it.monto) })),
+      totalTexto: money(preview.total),
       mensajeVenta: MENSAJE_VENTA,
       fechaTexto: fechaCotizacionTexto(),
     })
 
-    setCotizaciones((prev) => [{ cliente: clienteFinal, producto, monto: preview.monto, estado: 'pendiente', fecha: 'hoy' }, ...prev])
+    const itemsParaGuardar: ItemCotizacion[] = preview.items.map((it) => ({ recetaId: it.recetaId, producto: it.producto, cantidad: it.cantidad, monto: it.monto }))
+    await crearCotizacion({ cliente: clienteFinal, telefono: soloDigitos, items: itemsParaGuardar })
 
     let compartidoNativo = false
     if (blob) {
@@ -168,16 +230,17 @@ export default function Cotizaciones() {
     setEnviando(false)
   }
 
-  function cambiarEstado(idx: number, nuevoEstado: EstadoCotizacion) {
-    const estadoAnterior = cotizaciones[idx].estado
-    const productoCotizado = cotizaciones[idx].producto
-    setCotizaciones((prev) => prev.map((c, i) => (i === idx ? { ...c, estado: nuevoEstado } : c)))
+  async function cambiarEstado(idx: number, nuevoEstado: EstadoCotizacion) {
+    const cotizacion = cotizaciones[idx]
+    const estadoAnterior = cotizacion.estado
     if (estadoAnterior === nuevoEstado) return
+    const ok = await cambiarEstadoCotizacion(cotizacion.id, nuevoEstado)
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos actualizar la cotización. Intenta de nuevo.'); return }
     let insumosBajos: string[] = []
     if (nuevoEstado === 'vendida') {
-      insumosBajos = ajustarInventarioPorVenta(productoCotizado, -1)
+      insumosBajos = ajustarInventarioPorVenta(cotizacion.items, -1)
     } else if (estadoAnterior === 'vendida') {
-      ajustarInventarioPorVenta(productoCotizado, 1)
+      ajustarInventarioPorVenta(cotizacion.items, 1)
     }
     if (nuevoEstado === 'vendida') {
       setConfettiIdx(idx)
@@ -196,6 +259,16 @@ export default function Cotizaciones() {
     .filter(({ c }) => filtro === 'todas' || c.estado === filtro)
 
   if (vista === 'nueva') {
+    function montoVivoFila(f: FilaCotizacion): number | null {
+      const cantidadNum = parseFloat(f.cantidad) || 0
+      if (cantidadNum <= 0) return null
+      const receta = recetas.find((r) => r.nombre === f.producto)
+      const calc = receta ? (incluirGastosReales ? costearReal : costearSimple)(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
+      const precioPorUnidad = calc ? calc.precioPorUnidad : 20000
+      return redondearPrecioVenta(Math.round(precioPorUnidad * cantidadNum))
+    }
+    const montosVivos = filas.map(montoVivoFila)
+    const totalVivo = montosVivos.some((m) => m === null) ? null : montosVivos.reduce<number>((acc, m) => acc + (m ?? 0), 0)
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('lista')}><IconoVolver />Cotizaciones</button>
@@ -208,12 +281,41 @@ export default function Cotizaciones() {
               <label>Nombre del cliente</label>
               <input value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder="Ej: Juliana Restrepo" />
             </div>
-            <div className="campo">
-              <label>¿Qué le vas a cobrar?</label>
-              <select value={producto} onChange={(e) => setProducto(e.target.value)}>
-                {recetas.map((r) => <option key={r.id} value={r.nombre}>{r.nombre}</option>)}
-              </select>
+            <div className="fila-config" style={{ marginBottom: 6 }}>
+              <div className="txt"><div className="n">Incluir mis costos fijos y variables</div><div className="d">Para saber tu ganancia real de este pedido</div></div>
+              <button className={`toggle-switch${incluirGastosReales ? ' on' : ''}`} onClick={() => setIncluirGastosReales((v) => !v)} aria-label="Incluir mis costos fijos y variables"><span /></button>
             </div>
+            <p className="ayuda-campo" style={{ marginBottom: 16 }}>
+              {incluirGastosReales
+                ? 'Así sabes REALMENTE cuánto ganas con este precio, incluyendo lo que gastas en arriendo, sueldo y demás — para no vender a pérdida sin darte cuenta.'
+                : 'Sin tus costos fijos y variables, este precio solo cubre los insumos y tu margen — puede no alcanzarte para cubrir arriendo, sueldo y demás. Actívalo para ver tu ganancia neta real.'}
+            </p>
+            <h3 style={{ fontSize: 14, marginBottom: 10 }}>¿Qué le vas a cobrar?</h3>
+            {filas.map((f, idx) => (
+              <div key={idx} className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select style={{ flex: 1.4, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
+                    value={f.producto} onChange={(e) => elegirProductoFila(idx, e.target.value)}>
+                    {recetas.map((r) => <option key={r.id} value={r.nombre}>{r.nombre}</option>)}
+                  </select>
+                  <input type="number" value={f.cantidad} onChange={(e) => actualizarFila(idx, { cantidad: e.target.value })} placeholder="Cant."
+                    style={{ width: 64, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
+                  {filas.length > 1 && <button onClick={() => quitarFila(idx)} aria-label="Quitar producto"><IconoQuitar /></button>}
+                </div>
+                <p className="ayuda-campo" style={{ margin: 0 }}>
+                  Rinde {recetas.find((r) => r.nombre === f.producto)?.unidades ?? 1} por tanda{montosVivos[idx] !== null ? ` — ${money(montosVivos[idx] as number)}` : ''}
+                </p>
+              </div>
+            ))}
+            {filas.length < recetas.length && (
+              <button className="btn-secundario" onClick={agregarFila}>+ Agregar otro producto</button>
+            )}
+            {totalVivo !== null && (
+              <div className="tarjeta" style={{ margin: '16px 0', padding: '12px 16px' }}>
+                <p style={{ fontSize: 12, color: 'var(--text-2)' }}>Le vas a cobrar en total</p>
+                <p style={{ fontWeight: 800, fontSize: 22 }}>{money(totalVivo)}</p>
+              </div>
+            )}
             <div className="campo">
               <label>Número de WhatsApp del cliente</label>
               <p className="ayuda-campo">Con el indicativo del país, solo números. Ej: 573001234567</p>
@@ -236,11 +338,10 @@ export default function Cotizaciones() {
           <img src={logoNegocio || '/isotipo.svg'} alt="Logo de tu negocio" className="logo-negocio" />
           <p className="nombre-negocio">{nombreNegocio.trim() || 'MargenPro'}</p>
           <div className="linea-cot"><span>Cliente</span><span>{cliente.trim() || 'Tu cliente'}</span></div>
-          <div className="linea-cot"><span>Producto</span><span>{producto}</span></div>
-          {preview.unidades > 1 && (
-            <div className="linea-cot"><span>Precio por porción</span><span>{money(preview.precioPorUnidad)}</span></div>
-          )}
-          <div className="linea-cot total"><span>Total</span><span>{money(preview.monto)}</span></div>
+          {preview.items.map((it, idx) => (
+            <div className="linea-cot" key={idx}><span>{it.producto}{it.cantidad > 1 ? ` x${it.cantidad}` : ''}</span><span>{money(it.monto)}</span></div>
+          ))}
+          <div className="linea-cot total"><span>Total</span><span>{money(preview.total)}</span></div>
           <p className="mensaje-venta">{MENSAJE_VENTA}</p>
           <p className="fecha-cot">{fechaCotizacionTexto()}</p>
         </div>
@@ -260,7 +361,9 @@ export default function Cotizaciones() {
           <button key={f.valor} className={`filtro-chip${filtro === f.valor ? ' activo' : ''}`} onClick={() => setFiltro(f.valor)}>{f.label}</button>
         ))}
       </div>
-      {!listaFiltrada.length ? (
+      {cargandoCotizaciones ? (
+        <div className="vacio"><p>Cargando tus cotizaciones…</p></div>
+      ) : !listaFiltrada.length ? (
         <div className="vacio"><p>No hay cotizaciones en este filtro.</p></div>
       ) : (
         <div>

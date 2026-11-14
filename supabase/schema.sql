@@ -48,6 +48,9 @@ create table public.insumos (
   unidades_que_trae  numeric not null default 1 check (unidades_que_trae > 0),
   categoria          text not null check (categoria in ('ingrediente', 'empaque', 'adicional')),
   stock_disponible   numeric,
+  ultima_compra_cantidad numeric,
+  ultima_compra_total    numeric,
+  ultima_compra_medida   text,
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now()
 );
@@ -119,6 +122,7 @@ create table public.cotizaciones (
   telefono   text,
   monto      numeric not null check (monto >= 0),
   estado     text not null default 'pendiente' check (estado in ('pendiente', 'vendida', 'rechazada')),
+  unidades_cotizadas numeric,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -134,6 +138,28 @@ create policy "insert_own" on public.cotizaciones for insert with check ((select
 create policy "update_own" on public.cotizaciones for update
   using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 create policy "delete_own" on public.cotizaciones for delete using ((select auth.uid()) = user_id);
+
+-- ── cotizacion_items — una cotización puede tener VARIOS productos (ej. hamburguesas + galletas
+-- en un mismo pedido). cotizaciones.producto/monto/receta_id/unidades_cotizadas quedan como el
+-- resumen (nombre combinado, total, y null cuando hay más de un producto) — el detalle real vive
+-- acá. Las cotizaciones viejas (antes de esta tabla) no tienen filas aquí; el código las trata
+-- como si tuvieran UN solo ítem armado con sus propios campos.
+create table public.cotizacion_items (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid not null references auth.users(id) on delete cascade,
+  cotizacion_id uuid not null references public.cotizaciones(id) on delete cascade,
+  receta_id     uuid references public.recetas(id) on delete set null,
+  producto      text not null,
+  cantidad      numeric not null check (cantidad > 0),
+  monto         numeric not null check (monto >= 0),
+  created_at    timestamptz not null default now()
+);
+create index cotizacion_items_user_idx on public.cotizacion_items(user_id);
+create index cotizacion_items_cotizacion_idx on public.cotizacion_items(cotizacion_id);
+
+alter table public.cotizacion_items enable row level security;
+create policy "select_own" on public.cotizacion_items for select using ((select auth.uid()) = user_id);
+create policy "insert_own" on public.cotizacion_items for insert with check ((select auth.uid()) = user_id);
 
 -- ── Storage: logo del negocio (bucket público — se comparte igual por WhatsApp) ──
 insert into storage.buckets (id, name, public) values ('logos-negocio', 'logos-negocio', true)

@@ -2,12 +2,17 @@
  * total) para compartir fuera de la app — colores y tipografías leídos de los mismos
  * tokens CSS de globals.css, así respeta claro/oscuro sin valores quemados. */
 
+export interface LineaCotizacionImagen {
+  /** Ej: "Hamburguesa x12" — el nombre ya trae la cantidad cuando es más de 1. */
+  etiqueta: string
+  montoTexto: string
+}
+
 export interface DatosCotizacionImagen {
   logo: string | null
   nombreNegocio: string
   cliente: string
-  producto: string
-  precioPorUnidadTexto: string | null
+  items: LineaCotizacionImagen[]
   totalTexto: string
   mensajeVenta: string
   fechaTexto: string
@@ -57,7 +62,8 @@ function envolverTexto(ctx: CanvasRenderingContext2D, texto: string, x: number, 
 
 export async function generarImagenCotizacion(datos: DatosCotizacionImagen): Promise<Blob | null> {
   const ancho = 640
-  const alto = datos.precioPorUnidadTexto ? 900 : 830
+  // Base = 1 fila "Cliente" + 1 producto + 1 "Total" (830px); cada producto extra suma 48px.
+  const alto = 830 + Math.max(0, datos.items.length - 1) * 48
   const canvas = document.createElement('canvas')
   canvas.width = ancho
   canvas.height = alto
@@ -141,8 +147,7 @@ export async function generarImagenCotizacion(datos: DatosCotizacionImagen): Pro
   }
 
   fila('Cliente', datos.cliente)
-  fila('Producto', datos.producto)
-  if (datos.precioPorUnidadTexto) fila('Precio por porción', datos.precioPorUnidadTexto)
+  datos.items.forEach((it) => fila(it.etiqueta, it.montoTexto))
   fila('Total', datos.totalTexto, true)
 
   y += 26

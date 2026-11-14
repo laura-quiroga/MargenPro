@@ -1,5 +1,12 @@
 import type { ConfigNegocio, Insumo, InsumoUsado, UnidadInsumo } from './types'
 
+/** Redondea el precio que se le COBRA al cliente hacia arriba, al múltiplo de $50 más cercano
+ * (ej. $31.013 → $31.050) — nunca hacia abajo, para no perder margen. Solo se usa en el precio
+ * final que ve y paga el cliente, nunca en el costo interno de una receta. */
+export function redondearPrecioVenta(monto: number): number {
+  return Math.ceil(monto / 50) * 50
+}
+
 /** Costo de 1 unidad BASE (1 gramo, 1 ml, 1 pieza o 1 libra) según cómo se compró el insumo. */
 export function costoPorUnidadBase(precioCompra: number, unidad: UnidadInsumo, unidadesQueTrae: number): number {
   switch (unidad) {

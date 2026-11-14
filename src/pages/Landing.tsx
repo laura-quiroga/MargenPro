@@ -202,6 +202,21 @@ export default function Landing() {
                     <div className="fila-dato"><span>Tu ganancia</span><span style={{ color: 'var(--accent)', fontWeight: 700 }}>43%</span></div>
                   </div>
                 </div>
+                <div className="heroe-reciente">
+                  <div className="titulo">Cotizaciones recientes</div>
+                  <div className="fila">
+                    <div><div className="nombre">Torta de chocolate</div><div className="meta">Valentina R.</div></div>
+                    <span className="estado vendida">Vendida</span>
+                  </div>
+                  <div className="fila">
+                    <div><div className="nombre">Combo hamburguesa x10</div><div className="meta">Catering Luna</div></div>
+                    <span className="estado pendiente">Pendiente</span>
+                  </div>
+                  <div className="fila">
+                    <div><div className="nombre">Pan de yuca x50</div><div className="meta">Doña Marta</div></div>
+                    <span className="estado vendida">Vendida</span>
+                  </div>
+                </div>
                 <div className="tabbar-mini">
                   {TABS_MINI.map((t) => (
                     <div key={t.label} className={`tab-mini${t.activo ? ' activo' : ''}`}>

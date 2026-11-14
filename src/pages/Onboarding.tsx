@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Cake, Hamburger, Bread, ForkKnife } from '@phosphor-icons/react'
+import { Cake, Hamburger, Bread, ForkKnife, Receipt, PaperPlaneTilt, ClockCounterClockwise, ChartBar } from '@phosphor-icons/react'
 import PhoneFrame from '../components/PhoneFrame'
 import { Confetti, useConfeti } from '../components/Confetti'
 import { Toast, useToast } from '../components/Toast'
@@ -75,10 +75,10 @@ const OPCIONES_DOLOR = [
 ]
 
 const TOUR = [
-  { nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día', icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></> },
-  { nombre: 'Cotización', label: 'Lista para enviar por WhatsApp', icono: <path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 11a8.5 8.5 0 0117-.5z" /> },
-  { nombre: 'Historial', label: 'Vendida, pendiente o rechazada', icono: <><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M8 7v10M13 7v10M8 12h5" /></> },
-  { nombre: 'Resumen', label: 'Tu mes, en números claros', icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" /> },
+  { nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día', Icono: Receipt },
+  { nombre: 'Cotización', label: 'Lista para enviar por WhatsApp', Icono: PaperPlaneTilt },
+  { nombre: 'Historial', label: 'Vendida, pendiente o rechazada', Icono: ClockCounterClockwise },
+  { nombre: 'Resumen', label: 'Tu mes, en números claros', Icono: ChartBar },
 ]
 
 function etiquetaCantidadPara(unidad: UnidadInsumo) {
@@ -427,7 +427,7 @@ export default function Onboarding() {
               <div className="tour-grid">
                 {TOUR.map((t) => (
                   <div className="tour-card" key={t.nombre}>
-                    <div className="chip-icono"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{t.icono}</svg></div>
+                    <div className="chip-icono"><t.Icono size={24} weight="duotone" /></div>
                     <div className="nombre">{t.nombre}</div>
                     <p>{t.label}</p>
                   </div>

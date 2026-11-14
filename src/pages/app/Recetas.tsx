@@ -1,15 +1,48 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useAppStore } from '../../lib/appStore'
+import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
 import { convertirAGramos } from '../../lib/costeo'
 import { Toast, useToast } from '../../components/Toast'
-import type { InsumoUsado } from '../../lib/types'
+import type { Insumo, InsumoUsado } from '../../lib/types'
 import './Recetas.css'
 
+type MedidaFila = 'g' | 'ml' | 'libra' | 'pz' | 'taza' | 'cda' | 'cdta'
+
 interface FilaInsumo {
-  insumoId: number
+  insumoId: string
+  textoBusqueda: string
   cantidad: string
-  medida: 'g' | 'taza' | 'cda' | 'cdta' | 'pz'
+  medida: MedidaFila
+  /** Solo se usa (y se pide en pantalla) cuando la medida elegida no coincide con la familia
+   * natural del insumo — ej: el insumo se compra por peso pero aquí se quiere usar por piezas. */
+  equivalencia: string
+}
+
+const ETIQUETA_MEDIDA: Record<MedidaFila, string> = { g: 'gramos', ml: 'mililitros', libra: 'libras', pz: 'piezas', taza: 'tazas', cda: 'cucharadas', cdta: 'cucharaditas' }
+
+/** Las medidas "medibles" (peso/volumen, con densidad aproximable) vs. las "de conteo"
+ * (piezas/libras, 1 a 1 sin densidad) — se usan para saber si hace falta pedir una equivalencia. */
+function familiaDeMedida(m: MedidaFila): 'medible' | 'conteo' {
+  return m === 'libra' || m === 'pz' ? 'conteo' : 'medible'
+}
+function familiaNaturalInsumo(ins: Insumo | undefined): 'medible' | 'conteo' {
+  if (!ins) return 'conteo'
+  return ins.unidad === 'kg' || ins.unidad === 'g' || ins.unidad === 'L' || ins.unidad === 'ml' ? 'medible' : 'conteo'
+}
+function medidaInicialPara(ins: Insumo | undefined): MedidaFila {
+  if (!ins) return 'pz'
+  if (ins.unidad === 'kg' || ins.unidad === 'g') return 'g'
+  if (ins.unidad === 'L' || ins.unidad === 'ml') return 'ml'
+  if (ins.unidad === 'libra') return 'libra'
+  return 'pz'
+}
+/** Cómo se llama la unidad BASE en la que ya se guarda el stock/precio de este insumo —
+ * para preguntar la equivalencia en esos términos. */
+function etiquetaBaseInsumo(ins: Insumo | undefined): string {
+  if (!ins) return 'unidad'
+  if (ins.unidad === 'kg' || ins.unidad === 'g') return 'gramos'
+  if (ins.unidad === 'L' || ins.unidad === 'ml') return 'mililitros'
+  return 'piezas'
 }
 
 const IconoAviso = () => (
@@ -29,31 +62,33 @@ const IconoReceta = () => (
 )
 
 export default function Recetas() {
-  const { insumos, recetas, setRecetas, cfg, modoCalculo, money, costear } = useAppStore()
+  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, cfg, modoCalculo, money, costear } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const location = useLocation()
   const [vista, setVista] = useState<'lista' | 'constructor'>('lista')
 
-  const [editId, setEditId] = useState<number | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [guardando, setGuardando] = useState(false)
   const [nombre, setNombre] = useState('')
   const [unidades, setUnidades] = useState('1')
   const [filas, setFilas] = useState<FilaInsumo[]>([])
   const [margen, setMargen] = useState(50)
   const [horas, setHoras] = useState('')
   const [resultado, setResultado] = useState<{ calc: ReturnType<typeof costear>; insumosUsados: InsumoUsado[]; margen: number; horas: number; unidades: number } | null>(null)
+  const [filaAbierta, setFilaAbierta] = useState<number | null>(null)
 
   function abrirConstructor() {
     setEditId(null)
     setNombre('')
     setUnidades('1')
-    setFilas(insumos.length ? [{ insumoId: insumos[0].id, cantidad: '100', medida: 'g' }] : [])
+    setFilas(insumos.length ? [{ insumoId: insumos[0].id, textoBusqueda: insumos[0].nombre, cantidad: '100', medida: medidaInicialPara(insumos[0]), equivalencia: '' }] : [])
     setMargen(50)
     setHoras('')
     setResultado(null)
     setVista('constructor')
   }
 
-  function abrirEditar(id: number) {
+  function abrirEditar(id: string) {
     const r = recetas.find((x) => x.id === id)
     if (!r) return
     setEditId(id)
@@ -61,8 +96,7 @@ export default function Recetas() {
     setUnidades(String(r.unidades))
     setFilas(r.insumosUsados.map((u) => {
       const ins = insumos.find((i) => i.id === u.insumoId)
-      const esPeso = !!ins && (ins.unidad === 'kg' || ins.unidad === 'g')
-      return { insumoId: u.insumoId, cantidad: String(u.cantidadGramosOPiezas), medida: esPeso ? 'g' : 'pz' }
+      return { insumoId: u.insumoId, textoBusqueda: ins?.nombre ?? '', cantidad: String(u.cantidadGramosOPiezas), medida: medidaInicialPara(ins), equivalencia: '' }
     }))
     setMargen(r.margen)
     setHoras(r.horas ? String(r.horas) : '')
@@ -77,7 +111,7 @@ export default function Recetas() {
 
   function agregarFila() {
     if (!insumos.length) return
-    setFilas((prev) => [...prev, { insumoId: insumos[0].id, cantidad: '100', medida: 'g' }])
+    setFilas((prev) => [...prev, { insumoId: insumos[0].id, textoBusqueda: insumos[0].nombre, cantidad: '100', medida: medidaInicialPara(insumos[0]), equivalencia: '' }])
   }
   function quitarFila(idx: number) {
     setFilas((prev) => prev.filter((_, i) => i !== idx))
@@ -97,29 +131,31 @@ export default function Recetas() {
     const insumosUsados: InsumoUsado[] = filas.map((f) => {
       const ins = insumos.find((i) => i.id === f.insumoId)
       const cantidadNum = parseFloat(f.cantidad) || 0
-      const esPeso = ins && (ins.unidad === 'kg' || ins.unidad === 'g')
-      const cantidadBase = esPeso ? convertirAGramos(cantidadNum, f.medida, ins!.nombre) : cantidadNum
+      const coincide = familiaDeMedida(f.medida) === familiaNaturalInsumo(ins)
+      let cantidadBase: number
+      if (coincide) {
+        cantidadBase = familiaDeMedida(f.medida) === 'medible' ? convertirAGramos(cantidadNum, f.medida, ins?.nombre ?? '') : cantidadNum
+      } else {
+        // Medida distinta a cómo se compra el insumo (ej: lo compras por peso pero aquí lo
+        // usas por piezas) — se necesita la equivalencia que el usuario dio para convertir bien.
+        cantidadBase = cantidadNum * (parseFloat(f.equivalencia) || 0)
+      }
       return { insumoId: f.insumoId, cantidadGramosOPiezas: cantidadBase }
     })
     const calc = costear(insumosUsados, margenNum, horasNum, unidadesNum)
     setResultado({ calc, insumosUsados, margen: margenNum, horas: horasNum, unidades: unidadesNum })
   }
 
-  function guardarReceta() {
+  async function guardarReceta() {
     if (!resultado) return
     const nombreFinal = nombre.trim() || 'Mi producto'
-    if (editId !== null) {
-      setRecetas((prev) => prev.map((r) => (r.id === editId
-        ? { ...r, nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }
-        : r)))
-      setVista('lista')
-      mostrarToast(<IconoOk />, 'Receta actualizada.')
-      return
-    }
-    const siguienteId = recetas.length ? Math.max(...recetas.map((r) => r.id)) + 1 : 0
-    setRecetas((prev) => [...prev, { id: siguienteId, nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }])
+    const datos = { nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }
+    setGuardando(true)
+    const ok = editId !== null ? await actualizarRecetaExistente(editId, datos) : await guardarRecetaNueva(datos)
+    setGuardando(false)
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos guardar la receta. Intenta de nuevo.'); return }
     setVista('lista')
-    mostrarToast(<IconoOk />, 'Receta guardada — ya puedes cotizarla.')
+    mostrarToast(<IconoOk />, editId !== null ? 'Receta actualizada.' : 'Receta guardada — ya puedes cotizarla.')
   }
 
   if (vista === 'constructor') {
@@ -140,31 +176,54 @@ export default function Recetas() {
         <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginBottom: 8 }}>Insumos que usas</label>
         {filas.map((f, idx) => {
           const ins = insumos.find((i) => i.id === f.insumoId)
-          const esPeso = ins && (ins.unidad === 'kg' || ins.unidad === 'g')
+          const necesitaEquivalencia = familiaDeMedida(f.medida) !== familiaNaturalInsumo(ins)
+          const textoBuscado = normalizarParaBuscar(f.textoBusqueda.trim())
+          const sugerencias = textoBuscado ? insumos.filter((i) => normalizarParaBuscar(i.nombre).includes(textoBuscado)).slice(0, 8) : []
           return (
             <div className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }} key={idx}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <select style={{ flex: 1.4, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
-                  value={f.insumoId} onChange={(e) => actualizarFila(idx, { insumoId: parseInt(e.target.value, 10) })}>
-                  {insumos.map((i) => <option key={i.id} value={i.id}>{i.nombre}</option>)}
-                </select>
+                <div style={{ position: 'relative', flex: 1.4 }}>
+                  <input style={{ width: '100%', padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
+                    placeholder="Escribe para buscar…"
+                    value={f.textoBusqueda}
+                    onFocus={() => setFilaAbierta(idx)}
+                    onBlur={() => setTimeout(() => setFilaAbierta((actual) => (actual === idx ? null : actual)), 150)}
+                    onChange={(e) => { actualizarFila(idx, { textoBusqueda: e.target.value }); setFilaAbierta(idx) }} />
+                  {filaAbierta === idx && textoBuscado && (
+                    <div className="lista-sugerencias">
+                      {sugerencias.length ? sugerencias.map((i) => (
+                        <button key={i.id} type="button"
+                          onMouseDown={() => {
+                            actualizarFila(idx, { insumoId: i.id, textoBusqueda: i.nombre, medida: medidaInicialPara(i), equivalencia: '' })
+                            setFilaAbierta(null)
+                          }}>
+                          {i.nombre}
+                        </button>
+                      )) : <div className="sin-resultados">No encontramos ningún insumo con ese nombre — revisa Insumos para ver cómo lo registraste.</div>}
+                    </div>
+                  )}
+                </div>
                 <input type="number" value={f.cantidad} onChange={(e) => actualizarFila(idx, { cantidad: e.target.value })}
                   style={{ width: 64, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
-                {esPeso ? (
-                  <select style={{ flex: 1, padding: '9px 6px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
-                    value={f.medida} onChange={(e) => actualizarFila(idx, { medida: e.target.value as FilaInsumo['medida'] })}>
-                    <option value="g">gramos</option>
-                    <option value="taza">tazas</option>
-                    <option value="cda">cucharadas</option>
-                    <option value="cdta">cucharaditas</option>
-                  </select>
-                ) : (
-                  <select style={{ flex: 1, padding: '9px 6px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} disabled value="pz">
-                    <option value="pz">piezas</option>
-                  </select>
-                )}
+                <select style={{ flex: 1, padding: '9px 6px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
+                  value={f.medida} onChange={(e) => actualizarFila(idx, { medida: e.target.value as MedidaFila })}>
+                  <option value="g">gramos</option>
+                  <option value="ml">mililitros</option>
+                  <option value="taza">tazas</option>
+                  <option value="cda">cucharadas</option>
+                  <option value="cdta">cucharaditas</option>
+                  <option value="pz">piezas</option>
+                  <option value="libra">libras</option>
+                </select>
                 <button onClick={() => quitarFila(idx)} aria-label="Quitar"><IconoQuitar /></button>
               </div>
+              {necesitaEquivalencia && (
+                <div className="campo" style={{ marginTop: 2 }}>
+                  <label style={{ fontSize: 11.5 }}>¿Cuántos {etiquetaBaseInsumo(ins)} tiene 1 {ETIQUETA_MEDIDA[f.medida].replace(/s$/, '')}?</label>
+                  <input type="number" value={f.equivalencia} onChange={(e) => actualizarFila(idx, { equivalencia: e.target.value })}
+                    placeholder="Ej: 20" style={{ padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
+                </div>
+              )}
             </div>
           )
         })}
@@ -202,9 +261,9 @@ export default function Recetas() {
                 {resultado.calc.costoManoDeObra > 0 && (
                   <div className="fila"><span>Tu hora de trabajo</span><span>{money(resultado.calc.costoManoDeObra)}</span></div>
                 )}
-                <div className="fila"><span>Tu parte de arriendo y gastos fijos ({cfg.fijoPct}%)</span><span>{money(resultado.calc.costoFijoAsignado)}</span></div>
+                <div className="fila"><span>Tu parte de arriendo y gastos fijos ({cfg.fijoPct}% · costo fijo)</span><span>{money(resultado.calc.costoFijoAsignado)}</span></div>
                 {cfg.variablePct > 0 && (
-                  <div className="fila"><span>Otros gastos ({cfg.variablePct}%)</span><span>{money(resultado.calc.costoVariableAsignado)}</span></div>
+                  <div className="fila"><span>Otros gastos ({cfg.variablePct}% · costo variable)</span><span>{money(resultado.calc.costoVariableAsignado)}</span></div>
                 )}
                 <div className="fila total"><span>Costo real de esta receta ({resultado.unidades} {resultado.unidades > 1 ? 'unidades' : 'unidad'})</span><span>{money(resultado.calc.costoBase)}</span></div>
                 <p className="formula-ganancia">Tu arriendo y tus otros gastos se cobran como % de tu precio (lo configuras en Ajustes) — no según cuánto vendas al mes, así el precio no cambia de una tanda a otra.</p>
@@ -216,7 +275,9 @@ export default function Recetas() {
           </div>
         )}
         {resultado && (
-          <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarReceta}>{editId !== null ? 'Guardar cambios' : 'Guardar receta'}</button>
+          <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarReceta} disabled={guardando}>
+            {guardando ? 'Guardando…' : editId !== null ? 'Guardar cambios' : 'Guardar receta'}
+          </button>
         )}
         <Toast toast={toast} />
       </>
@@ -228,7 +289,9 @@ export default function Recetas() {
       <h2 className="titulo-seccion">Tus recetas</h2>
       <p className="sub-seccion">Cada una con su costo real y el precio sugerido.</p>
       <button className="btn-cta" style={{ marginBottom: 14 }} onClick={abrirConstructor}>+ Costear receta nueva</button>
-      {!recetas.length ? (
+      {cargandoRecetas ? (
+        <div className="vacio"><p>Cargando tus recetas…</p></div>
+      ) : !recetas.length ? (
         <div className="vacio"><p>Todavía no costeas ninguna receta.</p></div>
       ) : (
         <div>

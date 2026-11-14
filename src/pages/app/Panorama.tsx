@@ -4,7 +4,7 @@ import './Panorama.css'
 
 export default function Panorama() {
   const navigate = useNavigate()
-  const { cotizaciones, mesesMock, mesActualIdx, setMesActualIdx, money } = useAppStore()
+  const { cotizaciones, mesesMock, mesActualIdx, setMesActualIdx, gastoMesActual, money } = useAppStore()
   const mes = mesesMock[mesActualIdx]
 
   const ingreso = mes.esMesActual
@@ -13,7 +13,10 @@ export default function Panorama() {
   const vendidas = mes.esMesActual
     ? cotizaciones.filter((c) => c.estado === 'vendida').length
     : (mes.vendidas ?? 0)
-  const ganancia = ingreso - mes.gasto
+  // El mes actual usa el gasto REAL (suma de compras de insumos ya registradas) — los meses
+  // anteriores siguen con su cifra de ejemplo hasta que haya historial real que mostrar.
+  const gasto = mes.esMesActual ? gastoMesActual : mes.gasto
+  const ganancia = ingreso - gasto
   const esPerdida = ganancia < 0
 
   return (
@@ -46,7 +49,7 @@ export default function Panorama() {
           <p className="formula-ganancia">Ingresos por ventas − lo que gastaste en insumos = tu ganancia real</p>
           <div className="detalle">
             <div><span>Ingresos por ventas</span><span className="num">{money(ingreso)}</span></div>
-            <div style={{ textAlign: 'right' }}><span>Gastaste en insumos</span><span className="num">{money(mes.gasto)}</span></div>
+            <div style={{ textAlign: 'right' }}><span>Gastaste en insumos</span><span className="num">{money(gasto)}</span></div>
           </div>
           <div className="detalle">
             <div><span>Cotizaciones vendidas</span><span className="num">{vendidas}</span></div>
