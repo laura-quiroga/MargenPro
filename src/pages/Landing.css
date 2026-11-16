@@ -9,6 +9,15 @@
 .hero-visual.entrada { animation-delay:120ms; }
 @media (prefers-reduced-motion: reduce) { .entrada { animation:none; opacity:1; } }
 
+/* Entrada con stagger al hacer scroll (Problema, Agitación, Solución, Oferta, Garantía, FAQ) —
+ * los hijos empiezan invisibles y solo se animan cuando useAparecerAlScroll agrega .visto. */
+.aparece > * { opacity:0; }
+.aparece.visto > *:nth-child(1) { animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards; }
+.aparece.visto > *:nth-child(2) { animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards; animation-delay:70ms; }
+.aparece.visto > *:nth-child(3) { animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards; animation-delay:140ms; }
+.aparece.visto > *:nth-child(n+4) { animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards; animation-delay:210ms; }
+@media (prefers-reduced-motion: reduce) { .aparece > * { opacity:1; animation:none; } }
+
 .landing .wrap { max-width:1120px; margin:0 auto; padding:0 20px; }
 .landing .acento { color:var(--accent); }
 .landing section { padding:72px 0; position:relative; overflow:hidden; }
@@ -32,6 +41,7 @@
 .landing .btn-cta { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:15px; padding:16px 26px; border-radius:var(--radius-btn); text-decoration:none; box-shadow:0 10px 24px rgb(var(--accent-tint)/.32); transition:transform .15s ease-out; border:none; cursor:pointer; }
 .landing .btn-cta:active { transform:scale(.97); }
 .landing .btn-secundario { display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; padding:14px 22px; border-radius:var(--radius-btn); border:1.5px solid rgb(var(--accent-tint)/.35); color:var(--text-1); text-decoration:none; }
+.landing .elegir-mensual { display:block; text-align:center; font-weight:700; font-size:13.5px; color:var(--text-2); text-decoration:underline; padding:10px; }
 
 /* HEADER */
 .landing header.top { position:sticky; top:0; z-index:20; background:rgb(250 250 246 / .9); backdrop-filter:blur(8px); border-bottom:1px solid rgb(var(--accent-tint)/.12); }
@@ -110,9 +120,10 @@
 .landing .carrusel { display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px; scrollbar-width:none; }
 .landing .carrusel::-webkit-scrollbar { display:none; }
 .landing .frame { flex:0 0 180px; scroll-snap-align:start; }
-.landing .frame .placeholder { aspect-ratio:9/12; border-radius:18px; background:var(--sunken); border:1.5px dashed rgb(var(--accent-tint)/.4); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:16px; text-align:center; }
-.landing .frame .placeholder svg { stroke:var(--text-2); opacity:.6; }
+.landing .frame .placeholder { aspect-ratio:9/12; border-radius:var(--radius-card); background:var(--surface); box-shadow:var(--shadow-1); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; padding:16px; text-align:center; }
+.landing .frame .placeholder svg { stroke:var(--accent); }
 .landing .frame .placeholder span.nombre { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
+.landing .frame .placeholder span.dato { font-size:13px; font-weight:700; color:var(--text-1); }
 .landing .frame p.label { margin-top:10px; font-size:13.5px; font-weight:700; text-align:center; }
 .landing .dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
 .landing .dots span { width:6px; height:6px; border-radius:50%; background:rgb(var(--accent-tint)/.3); display:block; }

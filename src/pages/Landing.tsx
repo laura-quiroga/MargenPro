@@ -54,10 +54,10 @@ const TABS_MINI = [
 ]
 
 const CARRUSEL_APP = [
-  { icono: <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="M21 15l-5-5L5 21" /></>, nombre: 'Costeo', label: 'Tu primer precio calculado' },
-  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día' },
-  { icono: <path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 11a8.5 8.5 0 0117-.5z" />, nombre: 'Cotización', label: 'Tu cotización lista para enviar' },
-  { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', label: 'Tu mes, en números claros' },
+  { icono: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />, nombre: 'Costeo', dato: '$8.100 · 40% ganancia', label: 'Tu primer precio calculado' },
+  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: '14 insumos al día', label: 'Ingredientes y precios siempre al día' },
+  { icono: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>, nombre: 'Cotización', dato: '$54.500 enviada', label: 'Tu cotización lista para enviar' },
+  { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', dato: '+$680.000 este mes', label: 'Tu mes, en números claros' },
 ]
 
 const FAQ = [
@@ -117,8 +117,9 @@ function Carrusel() {
         {CARRUSEL_APP.map((item) => (
           <div className="frame" key={item.nombre}>
             <div className="placeholder">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{item.icono}</svg>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{item.icono}</svg>
               <span className="nombre">{item.nombre}</span>
+              <span className="dato">{item.dato}</span>
             </div>
             <p className="label">{item.label}</p>
           </div>
@@ -129,6 +130,23 @@ function Carrusel() {
       </div>
     </div>
   )
+}
+
+/** Agrega la clase "visto" a un elemento la PRIMERA vez que entra en pantalla al hacer scroll
+ * — dispara la animación de entrada con stagger definida en Landing.css (.aparece.visto). */
+function useAparecerAlScroll<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [visto, setVisto] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entrada]) => {
+      if (entrada.isIntersecting) { setVisto(true); obs.disconnect() }
+    }, { threshold: 0.15 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return { ref, visto }
 }
 
 function FaqItem({ q, a, abiertoInicial }: { q: string; a: string; abiertoInicial: boolean }) {
@@ -149,6 +167,13 @@ export default function Landing() {
   const heroRef = useRef<HTMLDivElement>(null)
   const ofertaRef = useRef<HTMLDivElement>(null)
   const ctaFinalRef = useRef<HTMLDivElement>(null)
+
+  const problemaScroll = useAparecerAlScroll<HTMLDivElement>()
+  const agitacionScroll = useAparecerAlScroll<HTMLDivElement>()
+  const solucionScroll = useAparecerAlScroll<HTMLDivElement>()
+  const ofertaScroll = useAparecerAlScroll<HTMLDivElement>()
+  const garantiaScroll = useAparecerAlScroll<HTMLDivElement>()
+  const faqScroll = useAparecerAlScroll<HTMLDivElement>()
 
   useEffect(() => {
     function actualizar() {
@@ -233,7 +258,7 @@ export default function Landing() {
 
       {/* 2. PROBLEMA */}
       <section className="elevado" id="problema">
-        <div className="wrap">
+        <div className={`wrap aparece${problemaScroll.visto ? ' visto' : ''}`} ref={problemaScroll.ref}>
           <div className="kicker">¿Te suena?</div>
           <h2>Lo que te quita el sueño cada fin de mes</h2>
           <div className="preguntas">
@@ -249,7 +274,7 @@ export default function Landing() {
 
       {/* 3. AGITACION */}
       <section className="hundido" id="agitacion">
-        <div className="wrap">
+        <div className={`wrap aparece${agitacionScroll.visto ? ' visto' : ''}`} ref={agitacionScroll.ref}>
           <div className="kicker">La cuenta real</div>
           <h2>Lo que te está costando <span className="acento">no saberlo</span></h2>
           <ul className="agitacion-lista">
@@ -288,7 +313,7 @@ export default function Landing() {
       {/* 4. SOLUCION */}
       <section id="solucion">
         <div className="blob" aria-hidden="true" />
-        <div className="wrap">
+        <div className={`wrap aparece${solucionScroll.visto ? ' visto' : ''}`} ref={solucionScroll.ref}>
           <div className="kicker">Cómo funciona</div>
           <h2>Tu precio justo, <span className="acento">calculado en segundos</span></h2>
           <p className="sub">No te faltan ventas — te falta ver lo que de verdad te cuesta cada receta. El <strong>Radar de Ganancia</strong> lo calcula por ti y te dice cuánto cobrar para ganar de verdad.</p>
@@ -318,7 +343,7 @@ export default function Landing() {
           <div className="kicker">La app por dentro</div>
           <h2>Esto es lo que vas a <span className="acento">ver y usar</span></h2>
           <Carrusel />
-          <p style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 14 }}>Vistas ilustrativas — la app real está en construcción.</p>
+          <p style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 14 }}>Vistas ilustrativas de la app.</p>
           <div style={{ textAlign: 'center', marginTop: 30 }}><Link className="btn-cta" to="/onboarding">Calcular mi primer precio gratis →</Link></div>
         </div>
       </section>
@@ -326,15 +351,16 @@ export default function Landing() {
       {/* 6. OFERTA */}
       <section id="oferta" ref={ofertaRef}>
         <div className="blob" aria-hidden="true" />
-        <div className="wrap">
+        <div className={`wrap aparece${ofertaScroll.visto ? ' visto' : ''}`} ref={ofertaScroll.ref}>
           <div className="kicker">Precio</div>
           <h2>Empieza gratis. Sigue por <span className="acento">menos de $0.20 al día</span></h2>
           <div className="stack-valor">
             <div className="linea"><span>MargenPro completo con el Radar de Ganancia (12 meses)</span><span>$96</span></div>
             <div className="linea"><span>Escaneo de facturas con IA (30 al mes)</span><span>$30</span></div>
             <div className="linea"><span>Cotizaciones profesionales con tu logo por WhatsApp</span><span>$20</span></div>
-            <div className="total"><span>Valor total</span><span><span className="tachado">$146</span> hoy $5.99/mes</span></div>
+            <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $71.88/año</span></div>
           </div>
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-2)', marginBottom: 14 }}>Los dos planes empiezan con 7 días de prueba gratis — no pagas nada hoy, elijas el que elijas.</p>
           <div className="planes">
             <div className="plan recomendado"><div className="inner">
               <span className="badge">MÁS POPULAR</span>
@@ -361,7 +387,7 @@ export default function Landing() {
                 <li><span className="check-custom">✓</span> Cotizaciones por WhatsApp con tu logo</li>
                 <li><span className="check-custom">✓</span> Cancelas cuando quieras</li>
               </ul>
-              <Link className="btn-secundario" to="/onboarding">Elegir mensual</Link>
+              <Link className="elegir-mensual" to="/onboarding">Elegir mensual →</Link>
             </div>
           </div>
         </div>
@@ -369,13 +395,13 @@ export default function Landing() {
 
       {/* 7. GARANTIA */}
       <section className="elevado" id="garantia">
-        <div className="wrap">
+        <div className={`wrap aparece${garantiaScroll.visto ? ' visto' : ''}`} ref={garantiaScroll.ref}>
           <div className="garantia-box">
             <div className="escudo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--on-accent)" strokeWidth="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" /><path d="M9 12l2 2 4-4" /></svg></div>
             <div>
               <h3>La Garantía del Primer Precio Real</h3>
-              <p>Si ya pagaste y en tus primeros 7 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. <strong>Sin preguntas.</strong></p>
-              <div className="piso">Respaldada por la garantía Hotmart de 7 días</div>
+              <p>Si ya pagaste y en tus primeros 14 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. <strong>Sin preguntas.</strong></p>
+              <div className="piso">Garantía propia de MargenPro · 14 días</div>
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: 26 }}><Link className="btn-cta" to="/onboarding">Calcular mi primer precio gratis →</Link></div>
@@ -384,7 +410,7 @@ export default function Landing() {
 
       {/* 8. FAQ */}
       <section id="faq">
-        <div className="wrap" style={{ maxWidth: 760 }}>
+        <div className={`wrap aparece${faqScroll.visto ? ' visto' : ''}`} style={{ maxWidth: 760 }} ref={faqScroll.ref}>
           <div className="kicker">Preguntas frecuentes</div>
           <h2>Antes de que lo decidas</h2>
           <div>

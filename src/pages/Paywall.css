@@ -5,12 +5,17 @@
 .paywall p.sub { color:var(--text-2); }
 
 .paywall .stack-valor { margin-top:20px; background:var(--surface); border-radius:var(--radius-card); padding:18px; box-shadow:var(--shadow-1); }
-.paywall .stack-valor .linea { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--sunken); font-size:13px; }
+.paywall .stack-valor .linea { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--sunken); font-size:13px; }
+.paywall .stack-valor .linea > span:first-child { display:flex; align-items:flex-start; gap:8px; }
 .paywall .stack-valor .total { display:flex; justify-content:space-between; padding-top:12px; font-weight:800; font-size:14px; }
 .paywall .stack-valor .total .tachado { text-decoration:line-through; color:var(--text-2); font-weight:600; }
+.paywall .check-custom { width:16px; height:16px; border-radius:50%; background:rgb(var(--accent-tint)/.15); flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:1px; color:var(--accent); font-size:10px; }
 
-.paywall .plan { border-radius:var(--radius-card); padding:20px; background:var(--surface); box-shadow:var(--shadow-1); margin-top:14px; }
+.paywall .plan { border-radius:var(--radius-card); padding:20px; background:var(--surface); box-shadow:var(--shadow-1); margin-top:14px; cursor:pointer; border:2px solid transparent; transition:border-color .15s ease-out, transform .1s ease-out; }
+.paywall .plan:active { transform:scale(.98); }
+.paywall .plan.seleccionado { border-color:var(--accent); }
 .paywall .plan.recomendado { padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.6), transparent 70%); box-shadow:var(--shadow-2); }
+.paywall .plan.recomendado.seleccionado { border-color:transparent; box-shadow:0 0 0 2px var(--accent), var(--shadow-2); }
 .paywall .plan.recomendado > .inner { background:var(--surface); border-radius:calc(var(--radius-card) - 1.5px); padding:18px; }
 .paywall .badge { display:inline-block; background:var(--accent); color:var(--on-accent); font-size:10px; font-weight:800; letter-spacing:.04em; padding:4px 10px; border-radius:999px; margin-bottom:10px; }
 .paywall .nombre-plan { font-size:12px; font-weight:800; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; }
@@ -18,6 +23,7 @@
 .paywall .precio-plan span { font-size:13px; font-weight:600; color:var(--text-2); font-family:var(--font-body); }
 .paywall .nota-plan { font-size:12px; color:var(--text-2); margin-bottom:4px; }
 .paywall .ahorro { font-size:12px; font-weight:700; color:var(--accent); margin-bottom:12px; }
+.paywall .ahorro-neutro { color:var(--text-2); }
 
 .paywall .timeline-trial { display:flex; align-items:flex-start; justify-content:space-between; margin-top:18px; padding:16px 10px; background:var(--sunken); border-radius:var(--radius-card); }
 .paywall .punto-timeline { display:flex; flex-direction:column; align-items:center; text-align:center; width:76px; }
@@ -27,3 +33,20 @@
 .paywall .punto-timeline .texto strong { font-size:11.5px; font-weight:800; }
 .paywall .punto-timeline .texto span { font-size:10.5px; color:var(--text-2); line-height:1.25; }
 .paywall .linea-timeline { flex:1; height:1.5px; background:rgb(var(--accent-tint)/.3); margin-top:12px; }
+
+.paywall .nota-garantia { text-align:center; font-size:11.5px; color:var(--text-2); margin:8px 0 4px; }
+.paywall .nota-plan-elegido { text-align:center; font-size:13.5px; font-weight:600; color:var(--text-1); margin-bottom:8px; }
+
+.paywall .precio-plan { transition:opacity .2s ease-out; }
+.paywall .plan.seleccionado .precio-plan { animation:precioElegido .25s ease-out; }
+@keyframes precioElegido { from { opacity:.4; transform:scale(.94); } to { opacity:1; transform:scale(1); } }
+@media (prefers-reduced-motion: reduce) { .paywall .plan.seleccionado .precio-plan { animation:none; } }
+
+/* Entrada con stagger propio de esta pantalla (no toca el .entrada global compartido) */
+.paywall .pantalla-contenido > .entrada:nth-child(1) { animation-delay:0ms; }
+.paywall .pantalla-contenido > .entrada:nth-child(2) { animation-delay:60ms; }
+.paywall .pantalla-contenido > .entrada:nth-child(3) { animation-delay:120ms; }
+.paywall .pantalla-contenido > .entrada:nth-child(4) { animation-delay:180ms; }
+.paywall .pantalla-contenido > .entrada:nth-child(5),
+.paywall .pantalla-contenido > .entrada:nth-child(6) { animation-delay:240ms; }
+.paywall .pantalla-contenido > .entrada:nth-child(n+7) { animation-delay:300ms; }
