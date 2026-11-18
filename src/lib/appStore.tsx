@@ -186,6 +186,8 @@ function filaACotizacion(fila: Record<string, unknown>, filasItems: Record<strin
     monto,
     estado: fila.estado as Cotizacion['estado'],
     fecha: fechaRelativa(fila.created_at as string),
+    createdAt: fila.created_at as string,
+    vendidaEn: fila.vendida_en ? (fila.vendida_en as string) : undefined,
     recetaId,
     unidadesCotizadas,
     items,
@@ -558,9 +560,12 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function cambiarEstadoCotizacion(id: string, nuevoEstado: Cotizacion['estado']): Promise<boolean> {
-    const { error } = await supabase.from('cotizaciones').update({ estado: nuevoEstado }).eq('id', id)
+    // "vendida_en" es la fecha real de venta — el ingreso de un mes se cuenta con esta fecha,
+    // nunca con la de creación de la cotización. Se limpia si se corrige y deja de estar vendida.
+    const vendidaEn = nuevoEstado === 'vendida' ? new Date().toISOString() : null
+    const { error } = await supabase.from('cotizaciones').update({ estado: nuevoEstado, vendida_en: vendidaEn }).eq('id', id)
     if (error) return false
-    setCotizaciones((prev) => prev.map((c) => (c.id === id ? { ...c, estado: nuevoEstado } : c)))
+    setCotizaciones((prev) => prev.map((c) => (c.id === id ? { ...c, estado: nuevoEstado, vendidaEn: vendidaEn ?? undefined } : c)))
     return true
   }
 

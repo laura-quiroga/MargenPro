@@ -1,5 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTemaOscuro } from './PhoneFrame'
+import { logSesionIniciadaSiCorresponde } from '../lib/eventos'
+import { supabase } from '../lib/supabaseClient'
 import './AppLayout.css'
 
 const TABS = [
@@ -12,6 +15,23 @@ const TABS = [
 
 export default function AppLayout() {
   const { oscuro, alternar } = useTemaOscuro()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    logSesionIniciadaSiCorresponde()
+    async function revisarAcceso() {
+      const { data: userData } = await supabase.auth.getUser()
+      const usuario = userData.user
+      if (!usuario) return
+      const { data: perfil } = await supabase.from('profiles').select('access_status').eq('id', usuario.id).maybeSingle()
+      if (perfil?.access_status === 'disabled') {
+        await supabase.auth.signOut()
+        navigate('/login', { state: { desactivado: true } })
+      }
+    }
+    revisarAcceso()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="app-interna">

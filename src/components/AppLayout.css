@@ -44,7 +44,7 @@
 .app-interna .campo input:focus, .app-interna .campo select:focus { outline:none; border-color:var(--accent); }
 .app-interna .ayuda-campo { font-size:11.5px; color:var(--text-2); margin:-10px 0 10px; line-height:1.4; }
 
-.app-interna .tarjeta { background:var(--surface); border-radius:var(--radius-card); padding:16px; box-shadow:var(--shadow-1); margin-bottom:12px; }
+.app-interna .tarjeta { background:var(--surface); border-radius:var(--radius-card); padding:16px; box-shadow:var(--shadow-1); margin-bottom:12px; border:none; color:var(--text-1); font-family:inherit; }
 .app-interna .formula-ganancia { font-size:11px; color:var(--text-2); margin-top:10px; line-height:1.4; }
 
 .app-interna .aviso-precio { display:flex; gap:12px; background:rgb(var(--aviso-tint)/.10); border:1.5px solid rgb(var(--aviso-tint)/.28); border-radius:var(--radius-card); padding:14px; margin-bottom:16px; }

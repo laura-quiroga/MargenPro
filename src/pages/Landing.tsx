@@ -55,7 +55,7 @@ const TABS_MINI = [
 
 const CARRUSEL_APP = [
   { icono: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />, nombre: 'Costeo', dato: '$8.100 · 40% ganancia', label: 'Tu primer precio calculado' },
-  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: '14 insumos al día', label: 'Ingredientes y precios siempre al día' },
+  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: '3 facturas escaneadas', label: 'Ingredientes y precios siempre al día' },
   { icono: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>, nombre: 'Cotización', dato: '$54.500 enviada', label: 'Tu cotización lista para enviar' },
   { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', dato: '+$680.000 este mes', label: 'Tu mes, en números claros' },
 ]

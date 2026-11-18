@@ -5,6 +5,7 @@ import { redondearPrecioVenta } from '../../lib/costeo'
 import { Toast, useToast } from '../../components/Toast'
 import { Confetti, useConfeti } from '../../components/Confetti'
 import { generarImagenCotizacion } from '../../lib/imagenCotizacion'
+import { logEvent } from '../../lib/eventos'
 import type { EstadoCotizacion, ItemCotizacion } from '../../lib/types'
 import './Cotizaciones.css'
 
@@ -188,6 +189,7 @@ export default function Cotizaciones() {
 
     const itemsParaGuardar: ItemCotizacion[] = preview.items.map((it) => ({ recetaId: it.recetaId, producto: it.producto, cantidad: it.cantidad, monto: it.monto }))
     await crearCotizacion({ cliente: clienteFinal, telefono: soloDigitos, items: itemsParaGuardar })
+    void logEvent('cotizacion_creada')
 
     let compartidoNativo = false
     if (blob) {

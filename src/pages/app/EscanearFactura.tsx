@@ -5,6 +5,7 @@ import { calcularCostoReceta } from '../../lib/costeo'
 import { emparejarInsumo, normalizarItemFactura } from '../../lib/facturaMatching'
 import { crearFacturaEscaneada, escanearFactura, subirFotoFactura, type ItemFactura } from '../../lib/ai/vision'
 import { supabase } from '../../lib/supabaseClient'
+import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
 import type { CategoriaInsumo, UnidadInsumo } from '../../lib/types'
 
@@ -99,7 +100,9 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
     const precioNuevoPorInsumo = new Map<string, number>()
     for (const item of items) {
       if (item.omitir || item.crearNuevo || !item.insumoId) continue
-      precioNuevoPorInsumo.set(item.insumoId, normalizarItemFactura(item).precioPorUnidad)
+      const insumoExistente = insumos.find((i) => i.id === item.insumoId)
+      if (!insumoExistente) continue
+      precioNuevoPorInsumo.set(item.insumoId, normalizarItemFactura(item, insumoExistente).precioPorUnidad)
     }
     const idsQueVanACambiar = [...precioNuevoPorInsumo.keys()]
     const cambiosDePrecio = idsQueVanACambiar
@@ -121,7 +124,8 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
 
     for (const item of items) {
       if (item.omitir) continue
-      const { precioPorUnidad, stockSumado } = normalizarItemFactura(item)
+      const insumoExistente = !item.crearNuevo && item.insumoId ? insumos.find((i) => i.id === item.insumoId) : undefined
+      const { precioPorUnidad, stockSumado } = normalizarItemFactura(item, insumoExistente)
       if (item.crearNuevo) {
         await crearInsumoDesdeFactura({
           nombre: item.producto.trim(), unidad: item.medida as UnidadInsumo, precio: precioPorUnidad,
@@ -133,6 +137,7 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
       }
     }
     await cerrarFacturaEscaneada(facturaId, 'confirmada', imagenPath)
+    void logEvent('factura_escaneada')
 
     // Por receta_id, no por nombre — así sigue funcionando aunque el usuario haya renombrado
     // la receta después de haberla cotizado. Revisa TODOS los productos de la cotización, no

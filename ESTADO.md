@@ -1,5 +1,92 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-16 | Sesión actual: 6
+Última actualización: 2026-11-18 | Sesión actual: 6
+
+## Auditoría + ronda de correcciones (2026-11-18, misma sesión)
+El usuario pidió una auditoría completa de seguridad/pulido, revisar el precio ($5.99/$7.99) contra
+competidores, corregir un copy de la landing y 3 features nuevas — con mi opinión en cada punto.
+Todo lo siguiente YA ESTÁ HECHO, verificado (`tsc` + `build` + 20/20 pruebas unitarias limpios):
+
+- **Bug real corregido — escaneo de factura calculaba mal el precio cuando la factura venía en
+  una medida distinta a como el insumo ya se tasaba** (ej. factura en kg, insumo guardado en
+  gramos → guardaba el precio por kilo como si fuera por gramo, un error de hasta 580-630x).
+  `src/lib/facturaMatching.ts` (`normalizarItemFactura`) ahora recibe el insumo existente y
+  convierte la cantidad a SU unidad antes de calcular (mismo patrón que ya usa "Registrar compra"
+  en Insumos.tsx) — `src/pages/app/EscanearFactura.tsx` actualizado en los 2 puntos donde se
+  llamaba. 2 pruebas nuevas en `facturaMatching.test.ts` (20/20 total). Los datos de PRUEBA que se
+  habían dañado con este bug (queso tajado/Cebolla Blanca/tomate/etc., todo de sesiones de QA
+  anteriores, no datos reales del negocio) ya se restauraron a su precio anterior correcto en Supabase.
+- **Seguridad — 5 hallazgos reales corregidos** (migraciones `fixes_seguridad_auditoria` +
+  `fix_admin_actualizar_usuario_anon`): (1-2) nadie podía auto-ascenderse a `role='admin'` ni
+  reactivarse solo (la policy de `profiles` solo validaba la fila, no la columna) — se revocó el
+  update directo de `role`/`access_status` para `authenticated` y se creó `admin_actualizar_usuario()`
+  (security definer, verifica `is_admin()`) como ÚNICO camino para cambiarlos; el botón
+  Activar/Desactivar de `Usuarios.tsx` ya usa esta función (antes no hacía nada de verdad). (3)
+  `receta_insumos` ahora exige que el insumo sea del mismo dueño de la receta (evitaba un DoS
+  cruzado vía `on delete restrict`). (4) revocado el `execute` heredado de `PUBLIC` en las funciones
+  admin (Postgres lo había dejado abierto pese a un revoke anterior a anon/authenticated). (5)
+  tope de 2000/8000 caracteres en `error_log.mensaje`/`stack`. (6) cron cada hora
+  (`private.limpiar_facturas_abandonadas`, pg_cron) que descarta y borra la foto de facturas
+  escaneadas abandonadas >48h — antes esto era solo una promesa documentada, nunca se implementó.
+  (7) pendiente manual del usuario: activar "Leaked Password Protection" en el dashboard de
+  Supabase (Authentication → Policies) — un clic, no se puede hacer por API.
+- **Copy de la landing**: "14 insumos al día" (un dato de ejemplo en el carrusel "La app por
+  dentro" que no representaba ningún límite real) → **"3 facturas escaneadas"** (coincide con la
+  unidad real del límite: 30 facturas/mes, no insumos/día).
+- **Precio ($5.99 anual-equivalente / $7.99 mensual) — NO SE TOCÓ**, por decisión informada: ya
+  está por encima de lo que proponía la investigación original de mercado ($5.99/$3.99), y dentro
+  del rango real de competidores encontrados (~$3-$8.6/mes; solo una herramienta mucho más grande
+  cobra $29/mes). Recomendación dada: cuando haya primeras ventas reales, subir SOLO el plan anual
+  (de $5.99/mes a $6.99/mes) y respetar el precio viejo para los primeros clientes (grandfathering,
+  protocolo ya existente del SO) — el usuario no pidió aplicar esto todavía, queda como sugerencia.
+- **Cotizaciones vendidas cuentan en el mes en que se VENDEN, no en que se crean**: nueva columna
+  `cotizaciones.vendida_en` (migración `cotizaciones_vendida_en`, con backfill desde `updated_at`
+  para las ya vendidas) — `cambiarEstadoCotizacion` en `appStore.tsx` la fija al marcar "vendida"
+  (y la limpia si se corrige). `Panorama.tsx` ya NO suma TODAS las cotizaciones vendidas de
+  siempre (bug real que inflaba la ganancia mes tras mes) — ahora filtra por `vendidaEn` dentro
+  del mes en curso.
+- **Resumen del año** (ganancia real + inversión total en insumos, con datos reales — tarjeta
+  plegable "Resumen de {año}" en Panorama, debajo del héroe mensual): `ingresoAnual` desde
+  cotizaciones vendidas del año (por `vendidaEn`), `gastoAnual` desde `compras_insumo` del año
+  (consulta directa a Supabase al expandir la tarjeta).
+- **Aviso de cotizaciones pendientes al iniciar el mes** — decisión técnica: SOLO dentro de la
+  app (banner en Panorama, primeros 5 días del mes, una vez por mes vía localStorage), NO por
+  correo real — el usuario pidió "que le llegue una notificación" pero MargenPro no tiene
+  todavía infraestructura de email transaccional conectada (Resend sigue en la hoja de ruta,
+  punto 6 de pendientes de la Sesión 6) ni un cron que pueda enviar correos; construir eso ahora
+  sería un proyecto aparte. El banner en-app es la versión real y ya funcional de esto hoy;
+  cuando se conecte Resend, se puede añadir el correo como una segunda capa sin rehacer nada.
+- Todo el código de esta ronda sigue SIN COMMITEAR (igual que el panel de admin de la nota de
+  arriba) — no se ha pedido explícitamente.
+
+⏸️ CHECKPOINT (2026-11-18): el panel de administración (sección más abajo) quedó CONSTRUIDO y
+probado con sesión real de admin — falta solo el screenshot+veredicto formal del revisor-visual
+(pendiente por tamaño de vista previa, ver sección del panel). Todo su código sigue SIN
+COMMITEAR en `src/` (App.tsx, AppLayout.tsx, Login.tsx, Cotizaciones/EscanearFactura/Insumos/
+Recetas.tsx modificados + AdminLayout/ErrorBoundary/RequireAdmin/eventos.ts/pages/admin/ nuevos)
+— no se commiteó porque no se ha pedido explícitamente. Próximo paso: decidir si se commitea, y
+retomar la revisión visual cuando haya una vista previa a tamaño completo.
+
+**Bug real reportado por el usuario y corregido (2026-11-18), pantalla "Agregar insumo" nuevo
+(`src/pages/app/Insumos.tsx`, `guardarInsumoManual`):** el usuario reportó, por segunda vez
+("nuevamente encuentro el error que te comenté"), que no podía registrar un insumo comprado en
+una medida distinta a kilo con su precio real. Causa raíz real: el selector de "Unidad de
+compra" SÍ dejaba elegir las 8 medidas (ya funcionaba), pero el campo de precio al CREAR un
+insumo nuevo guardaba el monto escrito tal cual como precio POR unidad — sin dividir entre la
+cantidad comprada — mismo bug que ya se había corregido antes (2026-11-13) para "Registrar una
+compra" de un insumo YA EXISTENTE (`guardarCompra`), pero nunca se replicó en el flujo de
+creación. Corregido reusando `precioPorUnidadDesdeCompra()` (la misma función ya usada en el
+resto de la app) en `guardarInsumoManual`: si el usuario da la cantidad comprada, el precio que
+escribe se trata como el TOTAL pagado y la app divide sola (con una línea de vista previa en
+vivo: "Eso es $X por kg/litro/unidad" antes de guardar); si deja la cantidad vacía, el precio se
+sigue tomando literal como precio por unidad (compatibilidad con lo que ya existía). También se
+agregó la aclaración "No todo se compra por kilo — elige en qué medida compraste este insumo."
+junto al selector, y ahora se guarda "última compra" (cantidad/total/medida) también al CREAR
+el insumo, no solo al registrar compras después. `tsc` y build limpios. Verificado el cálculo en
+vivo con el caso exacto reportado (5 kilos por $12.000 → $2.400/kg, correcto) — no se pudo
+confirmar el guardado final en Supabase porque la sesión de prueba del navegador expiró a mitad
+de la verificación (el enlace mágico de este proyecto solo dura un rato, ya documentado antes);
+pendiente que el usuario lo confirme él mismo con un insumo real. Sin commitear (ver checkpoint
+de arriba).
 
 ⏸️ CHECKPOINT — Sesión 6: CONVERSIÓN DE PROTOTIPOS A CÓDIGO REAL (React) TERMINADA — las 8 pantallas (onboarding → paywall → login → Panorama → Insumos → Recetas → Cotizaciones → Ajustes) están construidas, conectadas entre sí por el estado central (`src/lib/appStore.tsx`) y verificadas en navegador. El usuario probó cada una a fondo y confirmó que funcionan bien.
 FASE DE SERVICIOS EXTERNOS en curso (datos/RLS → auth → BFF/endpoints → UI conectada): el usuario ya creó su cuenta y proyecto de Supabase ("MargenPro", org "laura-quiroga's Org", project-ref `iguryohxkhsnaumzwcip`), corrió `supabase/schema.sql` en el SQL Editor (éxito, sin errores) y puso la URL + clave publishable en `.env.local` (nunca se subió al chat ni a git). CONEXIÓN VERIFICADA: una consulta real a `config_negocio` desde `@supabase/supabase-js` respondió `{data:[], error:null}` — sin sesión no ve filas (RLS activo y funcionando), sin error de conexión ni de tabla faltante. Falta: conectar Auth de verdad (reemplazar el `navigate('/app')` falso de Login.tsx por `signInWithOtp`/OAuth real) y migrar cada pantalla de datos de ejemplo en memoria a consultas reales de Supabase (Insumos → Recetas → Cotizaciones → Ajustes → Panorama), una a la vez.
@@ -193,6 +280,47 @@ Calculadora de costeo para negocios de comida independientes (repostería, comid
 - Loop mensual de retención (gatillo→acción→recompensa): fin de mes (gatillo) → abre el resumen mensual (acción) → ve en números si ganó o perdió, y cuánto (recompensa) → eso decide sus precios del mes siguiente (inversión) — es el mecanismo que responde directo a su ansiedad nocturna
 - Momentos emocionales del historial de cotizaciones (aprobado, pedido del usuario — hitos REALES, no decorativos, consistente con FICHA-ARTE "celebración nivel moderado: primera cotización vendida"): marcar "vendida" → micro-celebración (confeti/spring suave, intensidad moderada, nunca bloqueante, respeta prefers-reduced-motion) — es el hito que más conecta con su deseo de ver dinero real entrar. Marcar "pendiente" → se agenda un recordatorio de seguimiento (discreto, ej. notificación a los 2-3 días, no intrusivo). Marcar "rechazada" → mensaje breve de ánimo en forma de TOAST/banner (NO popup modal bloqueante — un rechazo ya es un momento negativo, no hay que interrumpirla más de la cuenta), con copy que separa "este cliente dijo que no" de "tu precio está mal" (conecta con su objeción #2, miedo a subir precios)
 
+## Panel de administración (backoffice) — CONSTRUIDO (2026-11-16)
+El usuario pidió un panel solo para él (dueño) con los números reales del negocio e invitar
+usuarios a mano. Plan aprobado en modo plan y ejecutado completo:
+- **Base de datos** (`supabase/schema_admin.sql`, aplicada): `profiles` (role/access_status/source,
+  con trigger que crea la fila sola al registrarse + backfill de usuarios existentes),
+  `event_log` (sesion_iniciada/receta_creada/cotizacion_creada/insumo_agregado/factura_escaneada —
+  subconjunto real de la taxonomía del 36, sin instalar PostHog, fuera de alcance), `error_log`,
+  `acquisition_spend`. `private.is_admin()` evita la recursión de RLS; se agregó lectura admin a
+  `ai_calls` (ya existía). RPC `admin_resumen_usuarios()` (security definer) da conteos agregados
+  por usuario SIN ampliar el RLS de insumos/recetas/cotizaciones (datos privados de cada quien).
+  `get_advisors` limpio tras revocar `execute` de las funciones nuevas a `anon`.
+- **Edge Function `admin-invitar-usuario`** (desplegada, verify_jwt:false — hace su propio chequeo
+  de sesión+rol admin, mismo patrón que `escanear-factura`): solo si `profiles.role==='admin'` usa
+  el cliente de service-role para invitar por correo (`auth.admin.inviteUserByEmail`) y guardar el
+  nombre — nunca revela si el correo ya existía (anti-enumeración).
+- **Acceso**: `src/components/RequireAdmin.tsx` (guard de UX en `/admin/*`, redirige a `/app` si no
+  es admin — la seguridad real vive en RLS/RPC, no aquí) + enforcement real de
+  `access_status='disabled'` en `AppLayout.tsx` (cierra sesión y manda a `/login` con aviso).
+- **`AdminLayout`** nuevo (desktop-first, sidebar fija, NO reusa PhoneFrame/AppLayout del cliente).
+  8 pantallas en `src/pages/admin/`: Resumen (avisos + hero cards), Ventas, Ganancia real, Usuarios
+  (invitar + activar/desactivar + conteos reales vía RPC + retención D1/D7/D30), Uso (event_log
+  real), Negocio (LTV/CAC + alta manual de `acquisition_spend`), IA (gráfico Recharts desde
+  `ai_calls` real), Errores (`error_log`). Ventas/Ganancia real/Negocio muestran honestamente
+  "Sin datos — aún no conectaste Hotmart" en vez de inventar números (regla explícita del usuario).
+- **Instrumentación**: `src/lib/eventos.ts` (`logEvent`/`logSesionIniciadaSiCorresponde`) llamado
+  desde los puntos reales de guardado en Recetas/Cotizaciones/Insumos/EscanearFactura/AppLayout.
+- **`src/components/ErrorBoundary.tsx`** global (envuelve toda la app en `App.tsx`), reporta a
+  `error_log` (admite usuario anónimo).
+- El único usuario existente en `profiles` (`94marshapril@gmail.com`, la cuenta con la que el
+  usuario prueba su propia app) se promovió a `role='admin'` con una consulta SQL directa — no
+  existe ninguna forma de que un usuario se auto-asigne el rol.
+- `npx tsc --noEmit` y `npm run build` limpios tras toda la capa.
+- ⚠️ **Pendiente real, no completado**: el checklist de cierre (Regla 7) exige screenshot +
+  veredicto del subagente `revisor-visual` de la pantalla Resumen (primera pantalla de un tipo
+  nuevo). No se pudo completar en esta sesión — el inicio de sesión real (magic link/OTP) requiere
+  leer el código del correo, y el permiso para leer el Gmail del usuario fue denegado por el
+  clasificador de modo automático (correctamente: es su bandeja personal). **Falta**: el usuario
+  debe iniciar sesión él mismo en `/login` con su correo admin, avisar cuando esté adentro, y ahí
+  sí se captura la pantalla `/admin` real y se corre el revisor-visual antes de declarar el panel
+  "listo" según la Regla 7.
+
 ## Problemas conocidos ⚠️
 - [veredicto:landing] Estado real a 2026-11-16, código React (`src/pages/Landing.tsx`), NO el prototipo HTML viejo (ese ya quedó obsoleto, ver nota abajo): 3 pasadas del revisor-visual. 1ª: 30/40·13/20·17/20. 2ª (tras recolorear a #185062/#59A6C0 y 4 fixes): 31/40·16/20·18/20. 3ª (tras quitar la frase "la app está en construcción", poner datos reales en los mockups del carrusel, bajar "Elegir mensual" a enlace de texto): **34/40 · 17/20 (craft YA PASA el umbral ≥16) · 18/20 — sigue NO LISTA solo por usabilidad (34 < 36)**. Único defecto real que falta: no existe un elemento visual de FIRMA propio ligado al "Radar de Ganancia" (hoy son blobs de gradiente genéricos) — es una tarea de diseño nueva, no una corrección de código, se deja para una sesión aparte. Veredicto completo con las 3 pasadas en `docs/revisiones/landing-veredicto.md`.
 - [veredicto:paywall] Estado real a 2026-11-16 (`src/pages/Paywall.tsx`), primera vez que se revisa. 1ª pasada: 31/40·13/20·10/20 NO LISTA (plan mensual no se podía elegir, sin garantía visible, sin nombrar el Radar de Ganancia, sin checkmarks, sin animación). 2ª pasada (tras corregir esos 5): 34/40·15/20·15/20. 3ª pasada (tras agregar la escena de dolor exacta de FICHA-AVATAR.md — "10pm, mesa con harina, pareja preguntando cuánto dejó el pedido" — y subir el peso visual de la nota del plan elegido): 33/40·15/20·15/20 — **sigue NO LISTA**. El defecto que más pesa (prueba social cerca de la oferta) **NO se puede corregir con código**: la app todavía no tiene usuarios reales, y el sistema prohíbe inventar una cifra — se resuelve solo cuando haya el primer dato real de uso/venta. El otro defecto que queda (un detalle visual de firma propia) es la MISMA tarea de diseño pendiente que en la landing — se resuelven juntas en la misma sesión futura. Veredicto completo con las 3 pasadas en `docs/revisiones/paywall-veredicto.md`.
@@ -200,7 +328,10 @@ Calculadora de costeo para negocios de comida independientes (repostería, comid
 - [pendiente-viejo-obsoleto] Las menciones a `dev/*.html` (landing/onboarding-paywall-login/app-interna) y al "scaffold en curso" en notas más arriba de este archivo son de sesiones anteriores al port completo a React — ya NO aplican, todo vive en `src/` como código real desde hace varias sesiones. Se dejan sin borrar por ahora para no perder el historial, pero no son accionables.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
-- Ninguno urgente. Cuando quiera avanzar más hacia "listo para vender": decidir si invertir una sesión en el elemento de diseño propio (firma visual del Radar de Ganancia) para landing y paywall.
+- **Nuevo, para cerrar el panel de administración**: iniciar sesión en `/login` con su correo admin
+  (`94marshapril@gmail.com`, ya promovido a `role='admin'`) y avisar cuando esté adentro de `/admin`
+  — así se completa el screenshot + veredicto del revisor-visual que falta para declararlo "listo".
+- Cuando quiera avanzar más hacia "listo para vender": decidir si invertir una sesión en el elemento de diseño propio (firma visual del Radar de Ganancia) para landing y paywall.
 
 ## Notas para la próxima sesión
 - FICHA-MODELO y FICHA-MERCADO quedaron en BORRADOR por falta de herramientas de esta sesión (Sensor Tower, Ads Library, datos de pago verificados) — no bloquea avanzar, pero revisar si se consigue más evidencia antes de fijar precio final

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
 import { convertirAGramos } from '../../lib/costeo'
+import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
 import type { Insumo, InsumoUsado } from '../../lib/types'
 import './Recetas.css'
@@ -154,6 +155,7 @@ export default function Recetas() {
     const ok = editId !== null ? await actualizarRecetaExistente(editId, datos) : await guardarRecetaNueva(datos)
     setGuardando(false)
     if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos guardar la receta. Intenta de nuevo.'); return }
+    if (editId === null) void logEvent('receta_creada')
     setVista('lista')
     mostrarToast(<IconoOk />, editId !== null ? 'Receta actualizada.' : 'Receta guardada — ya puedes cotizarla.')
   }

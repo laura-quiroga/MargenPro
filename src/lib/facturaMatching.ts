@@ -1,18 +1,31 @@
 import type { ItemFactura } from './ai/vision'
 import type { Insumo } from './types'
-import { stockBaseDesdeCantidad } from './appStore'
+import { convertirMedidaCompra, precioPorUnidadDesdeCompra, stockBaseDesdeCantidad } from './appStore'
 
 /** Convierte el ítem leído de la factura (precio TOTAL de esa línea) al precio por UNA unidad
  * de compra — mismo significado que ya usa `Insumo.precio` (precio por kg/L/docena/paquete/unidad,
- * nunca el total pagado por esta compra puntual). Ej: "25kg por $62.500" → precio=2.500. */
-export function normalizarItemFactura(item: Pick<ItemFactura, 'cantidad' | 'precio' | 'medida'>): {
-  precioPorUnidad: number
-  stockSumado: number
-} {
+ * nunca el total pagado por esta compra puntual). Ej: "25kg por $62.500" → precio=2.500.
+ *
+ * `insumoDestino` es el insumo YA EXISTENTE al que se le va a aplicar este ítem (si lo hay) —
+ * la factura puede venir en una medida distinta a como el usuario tasa ese insumo (ej. factura
+ * en kg, insumo guardado en gramos), así que hay que convertir ANTES de calcular precio/stock,
+ * igual que ya hace "Registrar compra" en Insumos.tsx. Si se omite (insumo NUEVO), su propia
+ * unidad va a ser la medida de la factura — no hace falta convertir nada. */
+export function normalizarItemFactura(
+  item: Pick<ItemFactura, 'cantidad' | 'precio' | 'medida'>,
+  insumoDestino?: Pick<Insumo, 'unidad' | 'unidadesQueTrae'>,
+): { precioPorUnidad: number; stockSumado: number } {
   const cantidadSegura = item.cantidad > 0 ? item.cantidad : 1
+  if (!insumoDestino) {
+    return {
+      precioPorUnidad: item.precio / cantidadSegura,
+      stockSumado: stockBaseDesdeCantidad(item.medida, item.cantidad),
+    }
+  }
+  const cantidadEnUnidadInsumo = convertirMedidaCompra(cantidadSegura, item.medida, insumoDestino)
   return {
-    precioPorUnidad: item.precio / cantidadSegura,
-    stockSumado: stockBaseDesdeCantidad(item.medida, item.cantidad),
+    precioPorUnidad: precioPorUnidadDesdeCompra(insumoDestino, cantidadEnUnidadInsumo, item.precio),
+    stockSumado: stockBaseDesdeCantidad(insumoDestino.unidad, cantidadEnUnidadInsumo),
   }
 }
 

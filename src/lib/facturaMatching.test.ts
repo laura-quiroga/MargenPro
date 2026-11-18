@@ -30,6 +30,21 @@ describe('normalizarItemFactura', () => {
     expect(r.precioPorUnidad).toBe(5000)
     expect(r.stockSumado).toBe(4000)
   })
+
+  it('BUG REAL corregido: factura en kg pero el insumo existente se tasa en gramos — convierte antes de calcular, no guarda el precio por kilo como si fuera por gramo', () => {
+    const insumoEnGramos = { unidad: 'g' as const, unidadesQueTrae: 1 }
+    // 1kg de queso por $25.000 -> el insumo (tasado en gramos) debe quedar en $25/g, nunca en $25.000/g.
+    const r = normalizarItemFactura({ cantidad: 1, precio: 25000, medida: 'kg' }, insumoEnGramos)
+    expect(r.precioPorUnidad).toBe(25)
+    expect(r.stockSumado).toBe(1000)
+  })
+
+  it('convierte libras a la unidad del insumo (kg) antes de calcular el precio', () => {
+    const insumoEnKg = { unidad: 'kg' as const, unidadesQueTrae: 1 }
+    // 10 libras (~4.536kg) por $18.000 -> precio por kg, no por libra.
+    const r = normalizarItemFactura({ cantidad: 10, precio: 18000, medida: 'libra' }, insumoEnKg)
+    expect(r.precioPorUnidad).toBeCloseTo(18000 / (10 * 453.592 / 1000), 2)
+  })
 })
 
 describe('emparejarInsumo', () => {

@@ -3,6 +3,7 @@ import { convertirMedidaCompra, encontrarInsumoPorNombreExacto, etiquetaUnidad, 
 import type { Insumo } from '../../lib/types'
 import { Toast, useToast } from '../../components/Toast'
 import type { CategoriaInsumo, UnidadInsumo } from '../../lib/types'
+import { logEvent } from '../../lib/eventos'
 import EscanearFactura from './EscanearFactura'
 import './Insumos.css'
 
@@ -100,11 +101,20 @@ export default function Insumos() {
     const precioNum = parseFloat(precio)
     if (!precioNum || precioNum <= 0) { mostrarToast(<IconoAviso />, 'Escribe cuánto pagaste por este insumo.'); return }
     const unidadesQueTraeNum = Math.max(1, parseFloat(unidadesQueTrae) || 1)
-    const stockNum = stockBaseDesdeCantidad(unidad, Math.max(0, parseFloat(stockInicial) || 0))
+    const cantidadCompradaNum = Math.max(0, parseFloat(stockInicial) || 0)
+    const stockNum = stockBaseDesdeCantidad(unidad, cantidadCompradaNum)
+    // "Precio que pagaste" es el TOTAL de esta compra, no el precio por unidad — igual que en
+    // "Registrar compra" de un insumo ya existente. Si no dio cantidad, se trata como precio
+    // directo por unidad (mismo comportamiento de siempre en ese caso).
+    const precioPorUnidad = precioPorUnidadDesdeCompra({ unidad, unidadesQueTrae: unidadesQueTraeNum }, cantidadCompradaNum, precioNum)
     setGuardando(true)
-    const ok = await agregarInsumo({ nombre: nombreOk, unidad, precio: precioNum, unidadesQueTrae: unidadesQueTraeNum, categoria, stockDisponible: stockNum })
+    const ok = await agregarInsumo({
+      nombre: nombreOk, unidad, precio: precioPorUnidad, unidadesQueTrae: unidadesQueTraeNum, categoria, stockDisponible: stockNum,
+      ...(cantidadCompradaNum > 0 ? { ultimaCompraCantidad: cantidadCompradaNum, ultimaCompraTotal: precioNum, ultimaCompraMedida: unidad } : {}),
+    })
     setGuardando(false)
     if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos guardar el insumo. Intenta de nuevo.'); return }
+    void logEvent('insumo_agregado')
     setVista('lista')
     mostrarToast(<IconoOk />, 'Insumo guardado — ya puedes usarlo en tus recetas.')
   }
@@ -195,6 +205,12 @@ export default function Insumos() {
   if (vista === 'nuevo') {
     const textoBuscado = normalizarParaBuscar(nombre.trim())
     const sugerenciasNombre = textoBuscado ? insumos.filter((i) => normalizarParaBuscar(i.nombre).includes(textoBuscado)).slice(0, 8) : []
+    const unidadesQueTraeNuevoNum = Math.max(1, parseFloat(unidadesQueTrae) || 1)
+    const cantidadNuevoNum = parseFloat(stockInicial) || 0
+    const precioNuevoNum = parseFloat(precio) || 0
+    const previewPrecioUnidadNuevo = cantidadNuevoNum > 0 && precioNuevoNum > 0
+      ? precioPorUnidadDesdeCompra({ unidad, unidadesQueTrae: unidadesQueTraeNuevoNum }, cantidadNuevoNum, precioNuevoNum)
+      : null
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('lista')}><IconoVolver />Insumos</button>
@@ -225,17 +241,12 @@ export default function Insumos() {
             <option value="adicional">Adicional (salsas, toppings, decoración)</option>
           </select>
         </div>
-        <div className="campo-2">
-          <div className="campo">
-            <label>Unidad de compra</label>
-            <select value={unidad} onChange={(e) => setUnidad(e.target.value as UnidadInsumo)}>
-              {UNIDADES.map((u) => <option key={u.valor} value={u.valor}>{u.label}</option>)}
-            </select>
-          </div>
-          <div className="campo">
-            <label>Precio que pagaste</label>
-            <input type="number" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="Ej: 12000" />
-          </div>
+        <div className="campo">
+          <label>Unidad de compra</label>
+          <p className="ayuda-campo">No todo se compra por kilo — elige en qué medida compraste este insumo.</p>
+          <select value={unidad} onChange={(e) => setUnidad(e.target.value as UnidadInsumo)}>
+            {UNIDADES.map((u) => <option key={u.valor} value={u.valor}>{u.label}</option>)}
+          </select>
         </div>
         {esPieza && (
           <div className="campo">
@@ -245,9 +256,19 @@ export default function Insumos() {
         )}
         <div className="campo">
           <label>¿Cuántos {nombreCantidadUnidad(unidad)} compraste esta vez?</label>
-          <p className="ayuda-campo">Así la app te avisa cuando se te esté acabando. Si no lo sabes, puedes dejarlo vacío y lo registras después.</p>
+          <p className="ayuda-campo">Si no lo sabes, puedes dejarlo vacío y escribir directo cuánto te sale por {etiquetaUnidad(unidad)} en el campo de abajo.</p>
           <input type="number" value={stockInicial} onChange={(e) => setStockInicial(e.target.value)} placeholder="Ej: 5" />
         </div>
+        <div className="campo">
+          <label>{cantidadNuevoNum > 0 ? '¿Cuánto pagaste en total por esa compra?' : 'Precio por ' + etiquetaUnidad(unidad)}</label>
+          {cantidadNuevoNum > 0 && <p className="ayuda-campo">La app calcula sola cuánto te sale por {etiquetaUnidad(unidad)}.</p>}
+          <input type="number" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="Ej: 12000" />
+        </div>
+        {previewPrecioUnidadNuevo !== null && (
+          <p className="formula-ganancia" style={{ marginTop: -10, marginBottom: 16, fontWeight: 700 }}>
+            Eso es {money(previewPrecioUnidadNuevo)} por {etiquetaUnidad(unidad)}.
+          </p>
+        )}
         <button className="btn-cta" onClick={guardarInsumoManual} disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar insumo →'}</button>
         <Toast toast={toast} />
       </>

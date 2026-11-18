@@ -52,6 +52,10 @@ export interface Cotizacion {
   monto: number
   estado: EstadoCotizacion
   fecha: string
+  createdAt: string
+  /** Cuándo se marcó "vendida" de verdad (no cuándo se creó la cotización) — el ingreso de un
+   * mes se cuenta con esta fecha, nunca con la de creación. Null mientras no esté vendida. */
+  vendidaEn?: string
   recetaId?: string
   /** Cuántas unidades pidió el cliente (puede ser distinto del tamaño de tanda de la receta,
    * ej. receta rinde 5 y el cliente quiere 12). Si no está (cotizaciones viejas), se asume el

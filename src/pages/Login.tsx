@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import PhoneFrame from '../components/PhoneFrame'
 import { Toast, useToast } from '../components/Toast'
 import { supabase } from '../lib/supabaseClient'
@@ -14,6 +14,7 @@ const IconoOk = () => (
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { toast, mostrarToast } = useToast()
   const [etapa, setEtapa] = useState<'correo' | 'codigo'>('correo')
   const [email, setEmail] = useState('')
@@ -21,6 +22,9 @@ export default function Login() {
   const [cargando, setCargando] = useState(false)
 
   useEffect(() => {
+    if ((location.state as { desactivado?: boolean } | null)?.desactivado) {
+      mostrarToast(<IconoAviso />, 'Tu acceso fue desactivado. Si crees que es un error, contáctanos.')
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate('/app')
     })
