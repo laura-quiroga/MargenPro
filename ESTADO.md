@@ -10,13 +10,15 @@
   insumo reales en ese rango. Un cliente nuevo ve todo en $0 en todos los meses hasta que empiece
   a usar la app. `comprasMes`→`comprasTodas` ahora carga histórico (últimos 6 meses) en vez de
   solo el mes en curso, para poder calcular meses anteriores reales.
-- **Carrusel de "la app por dentro" en la landing:** se agregaron flechas laterales
-  (`.carrusel-flecha`) para que el usuario pueda avanzar/retroceder las tarjetas con un clic,
-  además del scroll/autoplay que ya tenía.
+- **Carrusel de "la app por dentro" en la landing — rediseñado por pedido explícito del
+  usuario (no le gustaba el movimiento automático):** ya NO se mueve solo. Ahora es UNA sola
+  tarjeta fija por vista (más grande, con ícono en chip grande y el dato como cifra héroe) y se
+  avanza SOLO con las flechas o los puntos — se quitó el `setInterval` de autoplay y el scroll
+  horizontal por completo.
 - **Tarjeta "Escaneo" del carrusel:** se quitó el número ("3 facturas escaneadas" → solo
   "Facturas escaneadas") — un número concreto podía sonar a promesa/dato verificable.
-- **Mensaje superior del paywall** reemplazado por el texto exacto que pidió el usuario (agotada,
-  la libreta, la pregunta de la familia).
+- **Mensaje superior del paywall** con el texto exacto que pidió el usuario (agotado(a) — en
+  masculino/femenino para que no sea solo ella, la libreta, la pregunta de la familia).
 - **"Probar 7 días gratis" entra directo a la app sin pedir correo/tarjeta — NO es un bug
   nuevo, es trabajo pendiente ya anotado:** el botón hoy solo hace `navigate('/login')` porque
   Hotmart (quien de verdad pide la tarjeta y cobra) todavía no está conectado — ver la sección de

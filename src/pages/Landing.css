@@ -120,25 +120,30 @@
 .landing .antes-despues .antes { background:var(--sunken); }
 .landing .antes-despues .despues { background:rgb(var(--accent-tint)/.10); border:1px solid rgb(var(--accent-tint)/.3); }
 
-/* CARRUSEL */
-.landing .carrusel-wrap { margin-top:32px; position:relative; max-width:620px; margin-left:auto; margin-right:auto; }
-.landing .carrusel { display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px; scrollbar-width:none; }
-.landing .carrusel::-webkit-scrollbar { display:none; }
-.landing .frame { flex:0 0 180px; scroll-snap-align:start; }
-.landing .frame .placeholder { aspect-ratio:9/12; border-radius:var(--radius-card); background:var(--surface); box-shadow:var(--shadow-1); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; padding:16px; text-align:center; }
-.landing .frame .placeholder svg { stroke:var(--accent); }
-.landing .frame .placeholder span.nombre { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
-.landing .frame .placeholder span.dato { font-size:13px; font-weight:700; color:var(--text-1); }
-.landing .frame p.label { margin-top:10px; font-size:13.5px; font-weight:700; text-align:center; }
-.landing .dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
-.landing .dots span { width:6px; height:6px; border-radius:50%; background:rgb(var(--accent-tint)/.3); display:block; }
-.landing .dots span.activo { background:var(--accent); width:18px; border-radius:4px; }
-.landing .carrusel-flecha { position:absolute; top:calc(50% - 15px); z-index:2; width:36px; height:36px; border-radius:50%; background:var(--surface); box-shadow:var(--shadow-1); border:none; display:flex; align-items:center; justify-content:center; color:var(--text-1); cursor:pointer; transition:opacity .2s, transform .15s; }
-.landing .carrusel-flecha:hover { transform:scale(1.06); }
+/* CARRUSEL — una sola tarjeta fija por vista, sin movimiento automático; las flechas
+ * avanzan de a una (pedido explícito del usuario: nada de auto-scroll). */
+.landing .carrusel-wrap { margin-top:32px; position:relative; max-width:360px; margin-left:auto; margin-right:auto; display:flex; align-items:center; gap:12px; }
+.landing .carrusel-tarjeta {
+  flex:1; min-width:0; aspect-ratio:9/11; border-radius:var(--radius-card);
+  background:linear-gradient(165deg, var(--surface) 0%, rgb(var(--accent-tint)/.07) 100%);
+  box-shadow:var(--shadow-2); border:1px solid rgb(var(--accent-tint)/.18);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;
+  padding:28px 20px; text-align:center;
+  animation:carrusel-entra .32s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes carrusel-entra { from { opacity:0; transform:translateY(6px) scale(.98); } to { opacity:1; transform:none; } }
+.landing .chip-icono-grande { width:60px; height:60px; border-radius:18px; background:rgb(var(--accent-tint)/.14); display:flex; align-items:center; justify-content:center; }
+.landing .chip-icono-grande svg { stroke:var(--accent); }
+.landing .carrusel-tarjeta span.nombre { font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-2); margin-top:4px; }
+.landing .carrusel-tarjeta span.dato { font-size:19px; font-weight:800; color:var(--text-1); }
+.landing .carrusel-tarjeta p.label { margin-top:2px; font-size:14px; font-weight:600; color:var(--text-2); text-align:center; }
+.landing .dots { display:flex; justify-content:center; gap:7px; margin-top:16px; }
+.landing .dots span, .landing .dots button { width:7px; height:7px; border-radius:50%; background:rgb(var(--accent-tint)/.3); display:block; border:none; padding:0; cursor:pointer; }
+.landing .dots button.activo { background:var(--accent); width:20px; border-radius:4px; }
+.landing .carrusel-flecha { position:relative; z-index:2; flex:0 0 36px; width:36px; height:36px; border-radius:50%; background:var(--surface); box-shadow:var(--shadow-1); border:none; display:flex; align-items:center; justify-content:center; color:var(--text-1); cursor:pointer; transition:opacity .2s, transform .15s; }
+.landing .carrusel-flecha:hover:not(:disabled) { transform:scale(1.08); color:var(--accent); }
 .landing .carrusel-flecha:disabled { opacity:.3; cursor:default; pointer-events:none; }
-.landing .carrusel-flecha.izq { left:-6px; }
-.landing .carrusel-flecha.der { right:-6px; }
-@media (min-width:640px) { .landing .carrusel-flecha.izq { left:-46px; } .landing .carrusel-flecha.der { right:-46px; } }
+@media (prefers-reduced-motion: reduce) { .landing .carrusel-tarjeta { animation:none; } }
 
 /* OFERTA */
 .landing .planes { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:28px; align-items:stretch; }

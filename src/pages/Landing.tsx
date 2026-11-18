@@ -86,51 +86,11 @@ const FAQ = [
 ]
 
 function Carrusel() {
-  const ref = useRef<HTMLDivElement>(null)
   const [activo, setActivo] = useState(0)
-  const anchoFrame = 198
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const onScroll = () => setActivo(Math.round(el.scrollLeft / anchoFrame))
-    el.addEventListener('scroll', onScroll)
-    return () => el.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const el = ref.current
-    if (!el) return
-    let pausado = false
-    const timer = setInterval(() => {
-      if (pausado) return
-      const maxScroll = el.scrollWidth - el.clientWidth
-      const siguiente = el.scrollLeft + anchoFrame
-      el.scrollTo({ left: siguiente > maxScroll + 10 ? 0 : siguiente, behavior: 'smooth' })
-    }, 2800)
-    const pausar = () => { pausado = true }
-    const reanudar = () => { pausado = false }
-    el.addEventListener('mouseenter', pausar)
-    el.addEventListener('touchstart', pausar)
-    el.addEventListener('pointerdown', pausar)
-    el.addEventListener('mouseleave', reanudar)
-    const reanudarDiferido = () => setTimeout(reanudar, 4000)
-    el.addEventListener('touchend', reanudarDiferido)
-    return () => {
-      clearInterval(timer)
-      el.removeEventListener('mouseenter', pausar)
-      el.removeEventListener('touchstart', pausar)
-      el.removeEventListener('pointerdown', pausar)
-      el.removeEventListener('mouseleave', reanudar)
-      el.removeEventListener('touchend', reanudarDiferido)
-    }
-  }, [])
+  const item = CARRUSEL_APP[activo]
 
   function irA(i: number) {
-    const el = ref.current
-    if (!el) return
-    el.scrollTo({ left: Math.max(0, Math.min(CARRUSEL_APP.length - 1, i)) * anchoFrame, behavior: 'smooth' })
+    setActivo(Math.max(0, Math.min(CARRUSEL_APP.length - 1, i)))
   }
 
   return (
@@ -138,23 +98,19 @@ function Carrusel() {
       <button type="button" className="carrusel-flecha izq" aria-label="Ver anterior" disabled={activo === 0} onClick={() => irA(activo - 1)}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <div className="carrusel" ref={ref}>
-        {CARRUSEL_APP.map((item) => (
-          <div className="frame" key={item.nombre}>
-            <div className="placeholder">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{item.icono}</svg>
-              <span className="nombre">{item.nombre}</span>
-              <span className="dato">{item.dato}</span>
-            </div>
-            <p className="label">{item.label}</p>
-          </div>
-        ))}
+      <div className="carrusel-tarjeta" key={item.nombre}>
+        <div className="chip-icono-grande"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{item.icono}</svg></div>
+        <span className="nombre">{item.nombre}</span>
+        <span className="dato">{item.dato}</span>
+        <p className="label">{item.label}</p>
       </div>
       <button type="button" className="carrusel-flecha der" aria-label="Ver siguiente" disabled={activo === CARRUSEL_APP.length - 1} onClick={() => irA(activo + 1)}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
       </button>
       <div className="dots">
-        {CARRUSEL_APP.map((_, i) => <span key={i} className={i === activo ? 'activo' : ''} />)}
+        {CARRUSEL_APP.map((_, i) => (
+          <button type="button" key={i} aria-label={`Ver ${CARRUSEL_APP[i].nombre}`} className={i === activo ? 'activo' : ''} onClick={() => irA(i)} />
+        ))}
       </div>
     </div>
   )
