@@ -43,8 +43,13 @@ function densidadPara(nombreInsumo: string) {
   return clave ? DENSIDADES[clave] : DENSIDAD_GENERICA
 }
 
+/** Gramos que tiene 1 libra — para convertir recetas que mezclan gramos y libras del mismo
+ * insumo (ej. insumo tasado en libras pero la receta lo usa en gramos). */
+export const GRAMOS_POR_LIBRA = 453.592
+
 export function convertirAGramos(cantidad: number, medida: string, nombreInsumo: string): number {
   if (medida === 'g') return cantidad
+  if (medida === 'libra') return cantidad * GRAMOS_POR_LIBRA
   const d = densidadPara(nombreInsumo)
   if (medida === 'taza') return cantidad * d.taza
   if (medida === 'cda') return cantidad * d.cda

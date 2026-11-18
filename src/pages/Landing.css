@@ -30,7 +30,12 @@
 .landing #solucion .blob { bottom:-160px; left:-120px; width:420px; height:420px; background:radial-gradient(circle, rgb(var(--accent-tint)/.08), transparent 70%); }
 .landing #app-por-dentro .blob { top:-100px; left:50%; width:520px; height:360px; transform:translateX(-50%); background:radial-gradient(ellipse, rgb(var(--accent-tint)/.07), transparent 72%); }
 .landing #oferta { background:linear-gradient(180deg, rgb(var(--accent-tint)/.05), transparent 55%); }
-.landing #oferta .blob { top:-120px; right:-140px; width:500px; height:500px; background:radial-gradient(circle, rgb(var(--accent-tint)/.16), transparent 68%); }
+
+/* Dispositivo de firma "Radar de Ganancia" — reemplaza el blob genérico en hero/oferta
+ * (el resto de blobs se dejan igual, el sistema solo pide 1-2 reemplazados). */
+.landing .radar-firma { position:absolute; pointer-events:none; z-index:0; opacity:.9; }
+.landing #hero .radar-firma { top:-50px; right:-50px; width:360px; height:360px; background:radial-gradient(circle, rgb(var(--accent-tint)/.10), transparent 70%); }
+.landing #oferta .radar-firma { top:-70px; right:-90px; width:360px; height:360px; background:radial-gradient(circle, rgb(var(--accent-tint)/.14), transparent 68%); }
 .landing .kicker { font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
 .landing h1, .landing h2, .landing h3 { font-family:var(--font-display); font-weight:700; letter-spacing:-0.01em; }
 .landing h2 { font-size:30px; margin-bottom:14px; }
@@ -128,6 +133,12 @@
 .landing .dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
 .landing .dots span { width:6px; height:6px; border-radius:50%; background:rgb(var(--accent-tint)/.3); display:block; }
 .landing .dots span.activo { background:var(--accent); width:18px; border-radius:4px; }
+.landing .carrusel-flecha { position:absolute; top:calc(50% - 15px); z-index:2; width:36px; height:36px; border-radius:50%; background:var(--surface); box-shadow:var(--shadow-1); border:none; display:flex; align-items:center; justify-content:center; color:var(--text-1); cursor:pointer; transition:opacity .2s, transform .15s; }
+.landing .carrusel-flecha:hover { transform:scale(1.06); }
+.landing .carrusel-flecha:disabled { opacity:.3; cursor:default; pointer-events:none; }
+.landing .carrusel-flecha.izq { left:-6px; }
+.landing .carrusel-flecha.der { right:-6px; }
+@media (min-width:640px) { .landing .carrusel-flecha.izq { left:-46px; } .landing .carrusel-flecha.der { right:-46px; } }
 
 /* OFERTA */
 .landing .planes { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:28px; align-items:stretch; }

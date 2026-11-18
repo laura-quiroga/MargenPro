@@ -4,6 +4,22 @@ import './Landing.css'
 
 const PRECIO_HEROE_FINAL = 84000
 
+/** Dispositivo visual de firma propio, ligado al mecanismo bautizado "Radar de Ganancia"
+ * (pedido por el revisor-visual en vez de los blobs de gradiente genéricos — ver
+ * docs/revisiones/landing-veredicto.md). Mismo acento de marca, nada de color nuevo. */
+function RadarFirma() {
+  return (
+    <svg viewBox="0 0 200 200" aria-hidden="true" style={{ width: '100%', height: '100%' }}>
+      <circle cx="100" cy="100" r="88" fill="none" stroke="var(--accent)" strokeOpacity=".16" strokeWidth="1.5" strokeDasharray="3 7" />
+      <circle cx="100" cy="100" r="60" fill="none" stroke="var(--accent)" strokeOpacity=".22" strokeWidth="1.5" strokeDasharray="3 7" />
+      <circle cx="100" cy="100" r="32" fill="none" stroke="var(--accent)" strokeOpacity=".28" strokeWidth="1.5" strokeDasharray="3 7" />
+      <line x1="100" y1="100" x2="166" y2="46" stroke="var(--accent)" strokeOpacity=".55" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="100" cy="100" r="4.5" fill="var(--accent)" fillOpacity=".65" />
+      <circle cx="166" cy="46" r="4.5" fill="var(--accent)" fillOpacity=".75" />
+    </svg>
+  )
+}
+
 function PrecioHeroeAnimado() {
   const [valor, setValor] = useState(0)
 
@@ -55,7 +71,7 @@ const TABS_MINI = [
 
 const CARRUSEL_APP = [
   { icono: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />, nombre: 'Costeo', dato: '$8.100 · 40% ganancia', label: 'Tu primer precio calculado' },
-  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: '3 facturas escaneadas', label: 'Ingredientes y precios siempre al día' },
+  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: 'Facturas escaneadas', label: 'Ingredientes y precios siempre al día' },
   { icono: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>, nombre: 'Cotización', dato: '$54.500 enviada', label: 'Tu cotización lista para enviar' },
   { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', dato: '+$680.000 este mes', label: 'Tu mes, en números claros' },
 ]
@@ -111,8 +127,17 @@ function Carrusel() {
     }
   }, [])
 
+  function irA(i: number) {
+    const el = ref.current
+    if (!el) return
+    el.scrollTo({ left: Math.max(0, Math.min(CARRUSEL_APP.length - 1, i)) * anchoFrame, behavior: 'smooth' })
+  }
+
   return (
     <div className="carrusel-wrap">
+      <button type="button" className="carrusel-flecha izq" aria-label="Ver anterior" disabled={activo === 0} onClick={() => irA(activo - 1)}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+      </button>
       <div className="carrusel" ref={ref}>
         {CARRUSEL_APP.map((item) => (
           <div className="frame" key={item.nombre}>
@@ -125,6 +150,9 @@ function Carrusel() {
           </div>
         ))}
       </div>
+      <button type="button" className="carrusel-flecha der" aria-label="Ver siguiente" disabled={activo === CARRUSEL_APP.length - 1} onClick={() => irA(activo + 1)}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+      </button>
       <div className="dots">
         {CARRUSEL_APP.map((_, i) => <span key={i} className={i === activo ? 'activo' : ''} />)}
       </div>
@@ -203,7 +231,7 @@ export default function Landing() {
 
       {/* 1. HERO */}
       <section className="hero" id="hero" ref={heroRef}>
-        <div className="blob" aria-hidden="true" />
+        <div className="radar-firma" aria-hidden="true"><RadarFirma /></div>
         <div className="wrap hero-grid">
           <div>
             <h1 className="entrada">El precio justo para tu negocio, con <span className="acento">ganancia real</span></h1>
@@ -350,7 +378,7 @@ export default function Landing() {
 
       {/* 6. OFERTA */}
       <section id="oferta" ref={ofertaRef}>
-        <div className="blob" aria-hidden="true" />
+        <div className="radar-firma" aria-hidden="true"><RadarFirma /></div>
         <div className={`wrap aparece${ofertaScroll.visto ? ' visto' : ''}`} ref={ofertaScroll.ref}>
           <div className="kicker">Precio</div>
           <h2>Empieza gratis. Sigue por <span className="acento">menos de $0.20 al día</span></h2>

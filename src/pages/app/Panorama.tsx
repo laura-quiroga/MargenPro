@@ -14,16 +14,12 @@ const CLAVE_AVISO_PENDIENTES = 'margenpro_aviso_pendientes_visto'
 
 export default function Panorama() {
   const navigate = useNavigate()
-  const { cotizaciones, mesesMock, mesActualIdx, setMesActualIdx, gastoMesActual, money } = useAppStore()
-  const mes = mesesMock[mesActualIdx]
+  const { cotizaciones, mesesReales, mesActualIdx, setMesActualIdx, money } = useAppStore()
+  const mes = mesesReales[mesActualIdx]
 
   const inicioMesActual = inicioDeMes()
-  // El ingreso del mes se cuenta con la fecha en que se VENDIÓ (vendidaEn), nunca con la fecha
-  // en que se creó la cotización — antes se sumaban TODAS las vendidas de siempre, sin importar
-  // el mes, lo que inflaba la ganancia mes tras mes.
-  const vendidasEsteMes = cotizaciones.filter((c) => c.estado === 'vendida' && c.vendidaEn && new Date(c.vendidaEn) >= inicioMesActual)
-  const ingreso = mes.esMesActual ? vendidasEsteMes.reduce((s, c) => s + c.monto, 0) : (mes.ingreso ?? 0)
-  const vendidas = mes.esMesActual ? vendidasEsteMes.length : (mes.vendidas ?? 0)
+  const ingreso = mes.ingreso
+  const vendidas = mes.vendidas
 
   // Resumen del año — ganancia e inversión total, con datos reales (no solo el mes en curso).
   const [mostrarResumenAnual, setMostrarResumenAnual] = useState(false)
@@ -56,9 +52,7 @@ export default function Panorama() {
     setAvisoVisible(false)
   }
   const pendientesViejas = cotizaciones.filter((c) => c.estado === 'pendiente' && new Date(c.createdAt) < inicioMesActual)
-  // El mes actual usa el gasto REAL (suma de compras de insumos ya registradas) — los meses
-  // anteriores siguen con su cifra de ejemplo hasta que haya historial real que mostrar.
-  const gasto = mes.esMesActual ? gastoMesActual : mes.gasto
+  const gasto = mes.gasto
   const ganancia = ingreso - gasto
   const esPerdida = ganancia < 0
 
@@ -87,7 +81,7 @@ export default function Panorama() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="label">{mes.label}</span>
             <div className="nav-mes">
-              <button aria-label="Mes anterior" onClick={() => setMesActualIdx((i) => Math.min(mesesMock.length - 1, i + 1))}>
+              <button aria-label="Mes anterior" onClick={() => setMesActualIdx((i) => Math.min(mesesReales.length - 1, i + 1))}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
               <button aria-label="Mes siguiente" style={{ opacity: mesActualIdx === 0 ? 0.35 : 1 }} onClick={() => setMesActualIdx((i) => Math.max(0, i - 1))}>

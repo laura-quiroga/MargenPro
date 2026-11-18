@@ -1,6 +1,101 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-18 | Sesión actual: 6
 
+## Panorama en ceros para cliente nuevo + landing/paywall (2026-11-18, continuación)
+- **Panorama ya NO muestra un mes de ejemplo con datos de otro negocio.** Antes `mesesMock`
+  tenía un "Octubre 2026" fijo (ingreso $177.500, gasto $210.000, 4 vendidas) que le aparecía a
+  CUALQUIER cliente nuevo al tocar "mes anterior" — se quitó por completo. Ahora
+  `mesesReales` (appStore.tsx) arma los últimos 6 meses 100% desde datos reales: el ingreso sale
+  de las cotizaciones "vendida" con `vendidaEn` dentro de ese mes, el gasto de las compras de
+  insumo reales en ese rango. Un cliente nuevo ve todo en $0 en todos los meses hasta que empiece
+  a usar la app. `comprasMes`→`comprasTodas` ahora carga histórico (últimos 6 meses) en vez de
+  solo el mes en curso, para poder calcular meses anteriores reales.
+- **Carrusel de "la app por dentro" en la landing:** se agregaron flechas laterales
+  (`.carrusel-flecha`) para que el usuario pueda avanzar/retroceder las tarjetas con un clic,
+  además del scroll/autoplay que ya tenía.
+- **Tarjeta "Escaneo" del carrusel:** se quitó el número ("3 facturas escaneadas" → solo
+  "Facturas escaneadas") — un número concreto podía sonar a promesa/dato verificable.
+- **Mensaje superior del paywall** reemplazado por el texto exacto que pidió el usuario (agotada,
+  la libreta, la pregunta de la familia).
+- **"Probar 7 días gratis" entra directo a la app sin pedir correo/tarjeta — NO es un bug
+  nuevo, es trabajo pendiente ya anotado:** el botón hoy solo hace `navigate('/login')` porque
+  Hotmart (quien de verdad pide la tarjeta y cobra) todavía no está conectado — ver la sección de
+  Hotmart más abajo ("Trial: 7 días CON tarjeta vía Hotmart"). Falta: cuando el usuario cree su
+  cuenta en Hotmart y arme el producto con el trial, este botón debe apuntar al link de checkout
+  de Hotmart en vez de saltar directo a `/login`. Es un paso de servicios externos, no de código.
+
+## Usuario de prueba + ronda de bugs reales encontrados probando la app por dentro (2026-11-18)
+- **Usuario de prueba creado** para que el dueño pueda probar la app desde cero sin usar su
+  cuenta real: `prueba@margenpro.test` (contraseña por fuera de la UI, solo vía
+  `supabase.auth.signInWithPassword` — el login normal sigue siendo solo enlace mágico/Google,
+  esto es un atajo de prueba, no una función nueva del producto). Creado directo en
+  `auth.users`/`auth.identities` vía SQL (patrón oficial de seed de Supabase, con `pgcrypto`).
+  Rol `user` normal, `profiles.source='prueba_interna'`. De paso se deployó una Edge Function
+  nueva `admin-crear-usuario-prueba` (mismo patrón de seguridad que `admin-invitar-usuario`) por
+  si se necesita crear otro usuario de prueba más adelante desde el propio panel.
+- **3 bugs reales encontrados y corregidos** probando con ese usuario (reportados por el
+  usuario con capturas):
+  1. **Falso aviso de "se está acabando"** sin ninguna receta creada — `umbralStockBajo()` en
+     `src/lib/appStore.tsx` usaba un umbral INVENTADO (200g o 2 piezas) cuando ninguna receta
+     usaba todavía el insumo. Corregido: sin receta que lo use, el umbral es 0 (solo avisa si de
+     verdad no queda nada) — nunca más una suposición.
+  2. **"No se pudo guardar la receta"** — causa raíz real: un insumo tasado en LIBRAS (ej.
+     cebolla, tomate) se clasificaba como "de conteo" (como una pieza suelta) en vez de "de
+     peso" en `src/pages/app/Recetas.tsx` (`familiaNaturalInsumo`), así que al usarlo en una
+     receta en GRAMOS la app pedía una equivalencia sin sentido ("¿cuántas piezas tiene 1
+     gramo?"); al dejarla en 0, `cantidad_base * 0 = 0` violaba el `check (cantidad_base > 0)` de
+     `receta_insumos` y el guardado fallaba — PERO la receta ya se había insertado en `recetas`
+     antes de ese paso, dejando una fila huérfana sin insumos (2 así encontradas y borradas).
+     Corregido de raíz: libra ahora se clasifica como medida de PESO (como kg/g) — se convierte
+     sola a gramos y viceversa (`GRAMOS_POR_LIBRA` nuevo en `costeo.ts`), nunca pide equivalencia
+     para libras. Además, `guardarRecetaNueva` ahora borra la receta a medias si falla el
+     segundo paso, para que nunca vuelva a quedar un registro huérfano.
+  3. **"Quedan 1 piezas" para un insumo en libras** — `formatearStock()` mostraba la etiqueta
+     genérica "piezas" para libra/unidad/docena/paquete por igual; ahora libra muestra "lb".
+  Verificado en vivo con el usuario de prueba: crear una receta con cebolla en gramos (antes
+  fallaba) ya guarda bien y calcula el costo correcto; los insumos en libras ya no disparan el
+  aviso falso y muestran "lb" en vez de "piezas". `tsc`, build y las pruebas unitarias limpios.
+- **Pedido aparte, ya resuelto**: el usuario pidió poder **eliminar una receta** (editar ya
+  existía) — agregado `eliminarReceta()` en `appStore.tsx` + botón "Eliminar esta receta" con
+  confirmación en `Recetas.tsx` (mismo patrón ya usado en Insumos). `cotizaciones.receta_id` es
+  `on delete set null`, así que las cotizaciones ya hechas con esa receta no se rompen, solo
+  pierden el enlace. Probado en vivo: eliminar funciona limpio.
+- Todo este código sigue SIN COMMITEAR (junto con lo de las notas de arriba) — no se ha pedido.
+
+## Checkpoint (2026-11-18, continuación de la misma sesión larga)
+- **Código subido a GitHub**: todo el commit anterior (panel admin + seguridad + bug de factura)
+  ya está en `https://github.com/laura-quiroga/MargenPro` (rama `master`). Remote `origin`
+  configurado con HTTPS + Git Credential Manager (ya autenticado en este equipo).
+- **Firma visual propia "Radar de Ganancia"**: agregado un dispositivo SVG propio (dial con
+  agujas, en el color de acento de la marca) en `src/pages/Landing.tsx`/`Landing.css`
+  (reemplaza el blob genérico en `#hero` y `#oferta`) y como marca de agua sutil en la tarjeta
+  del plan Anual de `src/pages/Paywall.tsx`/`Paywall.css`. Verificado visualmente en navegador
+  (se ve bien, sin errores). Responde al defecto #1 repetido en 3 rondas de revisor-visual
+  (docs/revisiones/landing-veredicto.md y paywall-veredicto.md: "sin dispositivo ownable ligado
+  al mecanismo"). NO se volvió a correr el revisor-visual formal sobre landing/paywall con este
+  cambio (quedaría pendiente si se quiere cerrar el gate del todo) — la captura con Chrome para
+  esa revisión se intentó varias veces y la extensión se puso inestable (ver abajo).
+- **Panel de administración — Resumen, revisado por el subagente revisor-visual con screenshot
+  real de escritorio (1366x599, vía Chrome conectado)**: NO LISTA (20/40 usabilidad, 9/20 craft).
+  5 defectos reales, TODOS corregidos en `src/pages/admin/Resumen.tsx` +
+  `src/components/AdminLayout.css`: (1) se mostraba literalmente "(ai_calls)" en la UI — quitado;
+  (2) pantalla en blanco sin ningún aviso mientras cargaba — ahora hay un skeleton; (3) sin
+  manejo de error — si fallaba una consulta a Supabase la pantalla quedaba en blanco para
+  siempre, ahora hay un mensaje claro; (4) mitad inferior del panel completamente vacía — se
+  agregó un gráfico (Recharts) de actividad real de los últimos 7 días desde `event_log`; (5)
+  emojis ✅/⚠️ como íconos (prohibido por el SO) y números héroe sin el conteo animado que exige
+  FICHA-ARTE — reemplazados por íconos SVG propios + un componente `ValorContado` con conteo al
+  montar. `tsc` y `npm run build` limpios tras el cambio. **No se pudo re-confirmar con una
+  captura nueva**: después de este fix, la extensión de Chrome se puso inestable de forma
+  reproducible en esta pantalla concreta (varios intentos: "Script injection timed out",
+  "CDP sendCommand timed out", "Chrome blocked the extension", y un `Runtime.evaluate` que
+  tardó 45s sin responder) — se descartó que sea un bug de la app probando la MISMA ruta sin
+  sesión en la vista previa integrada, que cargó normal (`readyState: complete`, sin trabarse).
+  Conclusión: es inestabilidad de la extensión/entorno de Chrome de esta sesión, no del código.
+  Pendiente: tomar una captura nueva cuando Chrome esté estable y volver a correr el
+  revisor-visual sobre esta pantalla para intentar cerrar el gate formalmente.
+- Todo lo de este checkpoint sigue SIN COMMITEAR — no se ha pedido explícitamente.
+
 ## Auditoría + ronda de correcciones (2026-11-18, misma sesión)
 El usuario pidió una auditoría completa de seguridad/pulido, revisar el precio ($5.99/$7.99) contra
 competidores, corregir un copy de la landing y 3 features nuevas — con mi opinión en cada punto.
