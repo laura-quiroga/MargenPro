@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { ConfigNegocio, Cotizacion, Insumo, InsumoUsado, ItemCotizacion, Moneda, Receta, UnidadInsumo } from './types'
-import { SIMBOLOS_MONEDA } from './types'
+import { LOCALE_MONEDA, SIMBOLOS_MONEDA } from './types'
 import { calcularCostoReceta, costoPorUnidadBase } from './costeo'
 import { supabase } from './supabaseClient'
 
@@ -137,23 +137,52 @@ export function nombreCantidadUnidad(unidad: UnidadInsumo): string {
   }
 }
 
-export function formatearStock(ins: Insumo): string | null {
+export function formatearStock(ins: Insumo, moneda: Moneda = 'COP'): string | null {
   if (typeof ins.stockDisponible !== 'number') return null
+  const locale = LOCALE_MONEDA[moneda]
   if (ins.unidad === 'kg' || ins.unidad === 'L') {
-    return (ins.stockDisponible / 1000).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
+    return (ins.stockDisponible / 1000).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
   }
   if (ins.unidad === 'g' || ins.unidad === 'ml') {
     return Math.round(ins.stockDisponible) + ' ' + etiquetaUnidad(ins.unidad)
   }
+  if (ins.unidad === 'libra') {
+    return ins.stockDisponible.toLocaleString(locale, { maximumFractionDigits: 2 }) + ' lb'
+  }
   return Math.round(ins.stockDisponible) + ' piezas'
 }
 
-export interface MesMock {
+export interface MesReal {
   label: string
   gasto: number
-  esMesActual?: boolean
-  ingreso?: number
-  vendidas?: number
+  esMesActual: boolean
+  ingreso: number
+  vendidas: number
+}
+
+const NOMBRES_MES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
+/** Arma los últimos `cantidad` meses con datos 100% reales (nunca inventados): el ingreso sale
+ * de las cotizaciones marcadas "vendida" con fecha de venta dentro del mes, y el gasto de las
+ * compras de insumo registradas en ese rango. Un cliente nuevo ve todo en $0 — nunca un mes de
+ * ejemplo con cifras de otro negocio. */
+function construirMesesReales(cotizaciones: Cotizacion[], comprasTodas: { total: number; createdAt: string }[], cantidad = 6): MesReal[] {
+  const hoy = new Date()
+  const meses: MesReal[] = []
+  for (let i = 0; i < cantidad; i++) {
+    const inicio = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1)
+    const fin = new Date(hoy.getFullYear(), hoy.getMonth() - i + 1, 1)
+    const vendidasDelMes = cotizaciones.filter((c) => c.estado === 'vendida' && c.vendidaEn && new Date(c.vendidaEn) >= inicio && new Date(c.vendidaEn) < fin)
+    const gastoDelMes = comprasTodas.filter((c) => new Date(c.createdAt) >= inicio && new Date(c.createdAt) < fin).reduce((s, c) => s + c.total, 0)
+    meses.push({
+      label: `${NOMBRES_MES[inicio.getMonth()]} ${inicio.getFullYear()}`,
+      ingreso: vendidasDelMes.reduce((s, c) => s + c.monto, 0),
+      gasto: gastoDelMes,
+      vendidas: vendidasDelMes.length,
+      esMesActual: i === 0,
+    })
+  }
+  return meses
 }
 
 function fechaRelativa(iso: string): string {
@@ -194,17 +223,15 @@ function filaACotizacion(fila: Record<string, unknown>, filasItems: Record<strin
   }
 }
 
-const MESES_INICIALES: MesMock[] = [
-  { label: 'Noviembre 2026', gasto: 120000, esMesActual: true },
-  { label: 'Octubre 2026', ingreso: 177500, gasto: 210000, vendidas: 4 },
-]
-
 interface AppContextValue {
   insumos: Insumo[]
   recetas: Receta[]
   cargandoRecetas: boolean
   guardarRecetaNueva: (datos: Omit<Receta, 'id'>) => Promise<boolean>
   actualizarRecetaExistente: (id: string, datos: Omit<Receta, 'id'>) => Promise<boolean>
+  /** Borra una receta para siempre. Sus cotizaciones ya hechas NO se tocan (quedan con el
+   * nombre del producto como ya estaba, solo pierden el enlace a esta receta). */
+  eliminarReceta: (id: string) => Promise<boolean>
   cotizaciones: Cotizacion[]
   cargandoCotizaciones: boolean
   crearCotizacion: (datos: { cliente: string; telefono?: string; items: ItemCotizacion[] }) => Promise<boolean>
@@ -212,7 +239,9 @@ interface AppContextValue {
   cfg: ConfigNegocio
   modoCalculo: 'simple' | 'real'
   moneda: Moneda
-  mesesMock: MesMock[]
+  /** Últimos meses con cifras 100% reales (ingreso de cotizaciones vendidas, gasto de compras
+   * de insumo) — un cliente nuevo ve todo en $0, nunca un mes de ejemplo con datos de otro. */
+  mesesReales: MesReal[]
   mesActualIdx: number
   setMesActualIdx: React.Dispatch<React.SetStateAction<number>>
   /** Cuánto se ha gastado de verdad en insumos ESTE mes (suma real de compras registradas,
@@ -255,6 +284,10 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null)
 
+/** Umbral de "se está acabando" — se basa SOLO en cuánto usa alguna receta real de este insumo.
+ * Mientras ninguna receta lo use todavía, no hay ninguna base real para adivinar qué es "poco"
+ * (200g o 2 piezas eran solo un número inventado) — se avisa únicamente si de verdad no queda
+ * nada (0 o menos), nunca por una suposición. */
 function umbralStockBajo(ins: Insumo, recetas: Receta[]): number {
   let usoTipico = 0
   recetas.forEach((r) => {
@@ -262,8 +295,7 @@ function umbralStockBajo(ins: Insumo, recetas: Receta[]): number {
       if (u.insumoId === ins.id) usoTipico = Math.max(usoTipico, u.cantidadGramosOPiezas)
     })
   })
-  if (usoTipico > 0) return usoTipico
-  return ins.unidad === 'kg' || ins.unidad === 'g' || ins.unidad === 'L' || ins.unidad === 'ml' ? 200 : 2
+  return usoTipico
 }
 
 export function stockEsBajo(ins: Insumo, recetas: Receta[]): boolean {
@@ -285,7 +317,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [nombreNegocio, setNombreNegocioState] = useState<string>('MargenPro')
   const [lineaAtencion, setLineaAtencionState] = useState<string>('')
   const [cargandoConfig, setCargandoConfig] = useState(true)
-  const [comprasMes, setComprasMes] = useState<{ total: number }[]>([])
+  const [comprasTodas, setComprasTodas] = useState<{ total: number; createdAt: string }[]>([])
 
   useEffect(() => {
     let activo = true
@@ -342,21 +374,20 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       }
       setCargandoConfig(false)
     }
-    async function cargarComprasMes() {
-      const inicioMes = new Date()
-      inicioMes.setUTCDate(1)
-      inicioMes.setUTCHours(0, 0, 0, 0)
-      const { data, error } = await supabase.from('compras_insumo').select('total').gte('created_at', inicioMes.toISOString())
+    async function cargarCompras() {
+      const hoy = new Date()
+      const desde = new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1)
+      const { data, error } = await supabase.from('compras_insumo').select('total, created_at').gte('created_at', desde.toISOString())
       if (!activo) return
-      if (!error && data) setComprasMes(data as { total: number }[])
+      if (!error && data) setComprasTodas(data.map((c) => ({ total: Number(c.total), createdAt: c.created_at as string })))
     }
     cargarInsumos()
     cargarRecetas()
     cargarCotizaciones()
     cargarConfig()
-    cargarComprasMes()
+    cargarCompras()
     const { data: listener } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') { cargarInsumos(); cargarRecetas(); cargarCotizaciones(); cargarConfig(); cargarComprasMes() }
+      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') { cargarInsumos(); cargarRecetas(); cargarCotizaciones(); cargarConfig(); cargarCompras() }
     })
     return () => { activo = false; listener.subscription.unsubscribe() }
   }, [])
@@ -429,7 +460,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.from('compras_insumo').insert({
       user_id: usuario.id, insumo_id: insumoId, cantidad, total, origen, factura_id: facturaId ?? null,
     })
-    if (!error) setComprasMes((prev) => [...prev, { total }])
+    if (!error) setComprasTodas((prev) => [...prev, { total, createdAt: new Date().toISOString() }])
   }
 
   /** Aplica UN ítem confirmado de una factura escaneada: actualiza precio+stock del insumo
@@ -507,7 +538,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     if (datos.insumosUsados.length) {
       const filas = datos.insumosUsados.map((u) => ({ receta_id: data.id, insumo_id: u.insumoId, cantidad_base: u.cantidadGramosOPiezas }))
       const { error: errorUsos } = await supabase.from('receta_insumos').insert(filas)
-      if (errorUsos) return false
+      if (errorUsos) {
+        // No dejar una receta a medias (creada pero sin insumos) si falló su detalle.
+        await supabase.from('recetas').delete().eq('id', data.id)
+        return false
+      }
     }
     setRecetas((prev) => [...prev, { ...filaARecetaBase(data), insumosUsados: datos.insumosUsados }])
     return true
@@ -525,6 +560,13 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       if (errorUsos) return false
     }
     setRecetas((prev) => prev.map((r) => (r.id === id ? { id, ...datos } : r)))
+    return true
+  }
+
+  async function eliminarReceta(id: string): Promise<boolean> {
+    const { error } = await supabase.from('recetas').delete().eq('id', id)
+    if (error) return false
+    setRecetas((prev) => prev.filter((r) => r.id !== id))
     return true
   }
 
@@ -569,7 +611,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-  const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString('es-CO')}`
+  const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString(LOCALE_MONEDA[moneda] || 'es-CO')}`
 
   const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades) =>
     calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg)
@@ -643,6 +685,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cargandoRecetas,
     guardarRecetaNueva,
     actualizarRecetaExistente,
+    eliminarReceta,
     cotizaciones,
     cargandoCotizaciones,
     crearCotizacion,
@@ -650,9 +693,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cfg,
     modoCalculo,
     moneda,
-    mesesMock: MESES_INICIALES,
+    mesesReales: construirMesesReales(cotizaciones, comprasTodas),
     mesActualIdx, setMesActualIdx,
-    gastoMesActual: comprasMes.reduce((acc, c) => acc + c.total, 0),
+    gastoMesActual: comprasTodas
+      .filter((c) => { const d = new Date(c.createdAt); const hoy = new Date(); return d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth() })
+      .reduce((acc, c) => acc + c.total, 0),
     money,
     costear,
     costearReal,
@@ -673,7 +718,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cargandoConfig,
     guardarConfigNegocio,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [insumos, recetas, cargandoRecetas, cotizaciones, cargandoCotizaciones, cfg, modoCalculo, moneda, mesActualIdx, cargandoInsumos, logoNegocio, nombreNegocio, lineaAtencion, cargandoConfig, comprasMes])
+  }), [insumos, recetas, cargandoRecetas, cotizaciones, cargandoCotizaciones, cfg, modoCalculo, moneda, mesActualIdx, cargandoInsumos, logoNegocio, nombreNegocio, lineaAtencion, cargandoConfig, comprasTodas])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

@@ -6,7 +6,7 @@ import { Confetti, useConfeti } from '../components/Confetti'
 import { Toast, useToast } from '../components/Toast'
 import { costoPorUnidadBase } from '../lib/costeo'
 import type { Moneda, UnidadInsumo } from '../lib/types'
-import { SIMBOLOS_MONEDA } from '../lib/types'
+import { LOCALE_MONEDA, SIMBOLOS_MONEDA } from '../lib/types'
 import './Onboarding.css'
 
 const TOTAL_PASOS = 7
@@ -206,7 +206,7 @@ export default function Onboarding() {
       return {
         clase: 'es-error',
         icono: <><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></>,
-        texto: `Con ${simbolo}${precioActual.toLocaleString('es-CO')} estás perdiendo ${simbolo}${diferencia.toLocaleString('es-CO')} en cada uno — por eso al final del mes la plata no alcanza.`,
+        texto: `Con ${simbolo}${precioActual.toLocaleString(LOCALE_MONEDA[moneda])} estás perdiendo ${simbolo}${diferencia.toLocaleString(LOCALE_MONEDA[moneda])} en cada uno — por eso al final del mes la plata no alcanza.`,
       }
     }
     if (precioActual < precioSugerido) {
@@ -214,14 +214,14 @@ export default function Onboarding() {
       return {
         clase: 'es-aviso',
         icono: <><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /><path d="M12 9v4M12 17h.01" /></>,
-        texto: `Con ${simbolo}${precioActual.toLocaleString('es-CO')} tu ganancia real es solo del ${margenReal}% — no estás perdiendo, pero puedes ganar más.`,
+        texto: `Con ${simbolo}${precioActual.toLocaleString(LOCALE_MONEDA[moneda])} tu ganancia real es solo del ${margenReal}% — no estás perdiendo, pero puedes ganar más.`,
       }
     }
     const margenReal2 = Math.round(((precioActual - costoBase) / precioActual) * 100)
     return {
       clase: 'es-exito',
       icono: <path d="M20 6L9 17l-5-5" />,
-      texto: `¡Vas bien! Con ${simbolo}${precioActual.toLocaleString('es-CO')} ya tienes una ganancia real del ${margenReal2}%.`,
+      texto: `¡Vas bien! Con ${simbolo}${precioActual.toLocaleString(LOCALE_MONEDA[moneda])} ya tienes una ganancia real del ${margenReal2}%.`,
     }
   }
 
@@ -335,7 +335,7 @@ export default function Onboarding() {
                 {insumos.map((ins, idx) => (
                   <div className="insumo-chip" key={idx}>
                     <span className="nombre">{ins.nombre}</span>
-                    <span className="precio">{SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.precio).toLocaleString('es-CO')}</span>
+                    <span className="precio">{SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.precio).toLocaleString(LOCALE_MONEDA[ins.moneda])}</span>
                     <button type="button" className="editar-insumo" aria-label="Editar insumo" onClick={() => editarInsumo(idx)}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
                     </button>
@@ -409,8 +409,8 @@ export default function Onboarding() {
                 </div>
               )}
               <div className="heroe-tarjeta"><div>
-                <div className="precio-heroe">{simbolo}{resultado.precioSugerido.toLocaleString('es-CO')}<span className="sm">precio sugerido por unidad</span></div>
-                <div className="fila-dato"><span>Costo real</span><span>{simbolo}{resultado.costoBase.toLocaleString('es-CO')}</span></div>
+                <div className="precio-heroe">{simbolo}{resultado.precioSugerido.toLocaleString(LOCALE_MONEDA[moneda])}<span className="sm">precio sugerido por unidad</span></div>
+                <div className="fila-dato"><span>Costo real</span><span>{simbolo}{resultado.costoBase.toLocaleString(LOCALE_MONEDA[moneda])}</span></div>
                 <div className="fila-dato"><span>Tu ganancia</span><span style={{ color: 'var(--accent)', fontWeight: 700 }}>{margen}%</span></div>
               </div></div>
               <p className="sub" style={{ textAlign: 'center', marginTop: 16, fontSize: '13.5px' }}>Así de simple es cada vez — y esto fue con datos reales tuyos.</p>
@@ -423,7 +423,7 @@ export default function Onboarding() {
           <>
             <div className="pantalla-contenido entrada">
               <h2 style={{ fontSize: 21, marginBottom: 4, textAlign: 'center' }}>Esto es lo que vas a <span className="acento">ver y usar</span></h2>
-              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 6, textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Vistas ilustrativas — la app real está en construcción.</p>
+              <p className="sub" style={{ fontSize: '13.5px', marginBottom: 6, textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>Vistas ilustrativas de la app.</p>
               <div className="tour-grid">
                 {TOUR.map((t) => (
                   <div className="tour-card" key={t.nombre}>

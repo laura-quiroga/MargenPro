@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { convertirMedidaCompra, encontrarInsumoPorNombreExacto, etiquetaUnidad, formatearStock, medidasDeCompraPara, mismaFamiliaMedida, nombreCantidadUnidad, normalizarParaBuscar, precioPorUnidadDesdeCompra, stockBaseDesdeCantidad, stockEsBajo, useAppStore, valorInventario, valorStockInsumo } from '../../lib/appStore'
-import type { Insumo } from '../../lib/types'
+import type { Insumo, Moneda } from '../../lib/types'
 import { Toast, useToast } from '../../components/Toast'
 import type { CategoriaInsumo, UnidadInsumo } from '../../lib/types'
+import { LOCALE_MONEDA } from '../../lib/types'
 import { logEvent } from '../../lib/eventos'
 import EscanearFactura from './EscanearFactura'
 import './Insumos.css'
@@ -44,13 +45,13 @@ const IconoLapiz = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
 )
 
-function textoUltimaCompra(i: Insumo, money: (n: number) => string): string | null {
+function textoUltimaCompra(i: Insumo, money: (n: number) => string, moneda: Moneda): string | null {
   if (!i.ultimaCompraCantidad || !i.ultimaCompraTotal) return null
-  return `${i.ultimaCompraCantidad.toLocaleString('es-CO', { maximumFractionDigits: 2 })} ${etiquetaUnidad(i.ultimaCompraMedida ?? i.unidad)} · ${money(i.ultimaCompraTotal)}`
+  return `${i.ultimaCompraCantidad.toLocaleString(LOCALE_MONEDA[moneda], { maximumFractionDigits: 2 })} ${etiquetaUnidad(i.ultimaCompraMedida ?? i.unidad)} · ${money(i.ultimaCompraTotal)}`
 }
 
 export default function Insumos() {
-  const { insumos, cargandoInsumos, agregarInsumo, registrarCompraInsumo, actualizarNombreInsumo, eliminarInsumo, recetas, money } = useAppStore()
+  const { insumos, cargandoInsumos, agregarInsumo, registrarCompraInsumo, actualizarNombreInsumo, eliminarInsumo, recetas, money, moneda } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const [vista, setVista] = useState<'lista' | 'nuevo' | 'detalle' | 'factura'>('lista')
   const [filtro, setFiltro] = useState<'todos' | CategoriaInsumo>('todos')
@@ -276,9 +277,9 @@ export default function Insumos() {
   }
 
   if (vista === 'detalle' && insumoDetalle) {
-    const stockTxt = formatearStock(insumoDetalle)
+    const stockTxt = formatearStock(insumoDetalle, moneda)
     const bajo = !!stockTxt && stockEsBajo(insumoDetalle, recetas)
-    const ultimaCompraTxt = textoUltimaCompra(insumoDetalle, money)
+    const ultimaCompraTxt = textoUltimaCompra(insumoDetalle, money, moneda)
     return (
       <>
         <button className="btn-atras-sub" onClick={() => setVista('lista')}><IconoVolver />Insumos</button>
@@ -375,7 +376,7 @@ export default function Insumos() {
     .slice()
     .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
 
-  const insumosBajos = insumos.filter((i) => !!formatearStock(i) && stockEsBajo(i, recetas))
+  const insumosBajos = insumos.filter((i) => !!formatearStock(i, moneda) && stockEsBajo(i, recetas))
 
   return (
     <>
@@ -412,9 +413,9 @@ export default function Insumos() {
       ) : (
         <div>
           {lista.map((i) => {
-            const stockTxt = formatearStock(i)
+            const stockTxt = formatearStock(i, moneda)
             const bajo = !!stockTxt && stockEsBajo(i, recetas)
-            const ultimaCompraTxt = textoUltimaCompra(i, money)
+            const ultimaCompraTxt = textoUltimaCompra(i, money, moneda)
             return (
               <div className="item-lista" key={i.id} onClick={() => abrirDetalle(i.id)} style={{ cursor: 'pointer' }}>
                 <div className="chip-icono"><IconoInsumo /></div>

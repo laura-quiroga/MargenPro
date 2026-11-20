@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
+import { supabase } from '../../lib/supabaseClient'
 import { Toast, useToast } from '../../components/Toast'
 import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
@@ -14,6 +16,11 @@ const IconoAviso = () => (
 export default function Ajustes() {
   const store = useAppStore()
   const { toast, mostrarToast } = useToast()
+  const navigate = useNavigate()
+
+  const [confirmandoBorrado, setConfirmandoBorrado] = useState(false)
+  const [textoBorrado, setTextoBorrado] = useState('')
+  const [borrando, setBorrando] = useState(false)
 
   const [cfgLocal, setCfgLocal] = useState(store.cfg)
   const [modoCalculoLocal, setModoCalculoLocal] = useState(store.modoCalculo)
@@ -43,6 +50,19 @@ export default function Ajustes() {
     const lector = new FileReader()
     lector.onload = () => setLogoLocal(typeof lector.result === 'string' ? lector.result : null)
     lector.readAsDataURL(archivo)
+  }
+
+  async function eliminarMiCuenta() {
+    setBorrando(true)
+    const { data: sesion } = await supabase.auth.getSession()
+    const token = sesion.session?.access_token
+    const { data, error } = await supabase.functions.invoke('eliminar-mi-cuenta', {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+    setBorrando(false)
+    if (error || !data?.ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar tu cuenta. Intenta de nuevo o escríbenos a soporte@margenpro.app.'); return }
+    await supabase.auth.signOut()
+    navigate('/')
   }
 
   async function guardarCambios() {
@@ -139,6 +159,45 @@ export default function Ajustes() {
       <p style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: -8, marginBottom: 20 }}>Tu suscripción a MargenPro siempre se cobra en USD — esto es solo la moneda de tus insumos.</p>
 
       <button className="btn-cta" onClick={guardarCambios}>Guardar cambios</button>
+
+      <h3 style={{ fontSize: 14, margin: '28px 0 4px' }}>Tu cuenta</h3>
+      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>
+        <a href="/como-cancelar" style={{ color: 'var(--text-2)' }}>Cómo cancelar tu suscripción</a> ·{' '}
+        <a href="/privacidad" style={{ color: 'var(--text-2)' }}>Privacidad</a> ·{' '}
+        <a href="/terminos" style={{ color: 'var(--text-2)' }}>Términos</a>
+      </p>
+
+      {!confirmandoBorrado ? (
+        <button className="btn-texto" style={{ color: 'var(--error)' }} onClick={() => setConfirmandoBorrado(true)}>Eliminar mi cuenta</button>
+      ) : (
+        <div className="tarjeta" style={{ borderColor: 'rgb(var(--error-tint)/.4)' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>¿Eliminar tu cuenta para siempre?</p>
+          <p className="ayuda-campo" style={{ marginBottom: 10 }}>
+            Esto borra TODOS tus datos de MargenPro — insumos, recetas, cotizaciones, facturas escaneadas y tu configuración. No se puede deshacer.
+          </p>
+          <div className="nota-estimado" style={{ marginBottom: 12 }}>
+            <IconoAviso />
+            <span>
+              <strong>Esto NO cancela tu suscripción ni tu cobro en Hotmart.</strong> Son dos sistemas distintos —
+              si solo eliminas tu cuenta aquí, Hotmart te puede seguir cobrando. Primero cancela tu
+              suscripción (<a href="/como-cancelar" target="_blank" rel="noopener noreferrer">ver cómo</a>),
+              y después elimina tu cuenta.
+            </span>
+          </div>
+          <div className="campo" style={{ marginBottom: 10 }}>
+            <label>Para confirmar, escribe ELIMINAR</label>
+            <input value={textoBorrado} onChange={(e) => setTextoBorrado(e.target.value)} placeholder="ELIMINAR" />
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1 }} onClick={() => { setConfirmandoBorrado(false); setTextoBorrado('') }}>Cancelar</button>
+            <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1, borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' }}
+              disabled={textoBorrado.trim().toUpperCase() !== 'ELIMINAR' || borrando} onClick={eliminarMiCuenta}>
+              {borrando ? 'Eliminando…' : 'Sí, eliminar para siempre'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <Toast toast={toast} />
     </>
   )

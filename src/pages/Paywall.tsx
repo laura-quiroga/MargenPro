@@ -24,6 +24,20 @@ function PrecioAnualAnimado() {
   return <>${valor.toFixed(2)}</>
 }
 
+/** Mismo dispositivo de firma que la landing ("Radar de Ganancia"), en miniatura, como marca
+ * de agua sutil en la tarjeta recomendada — el detalle de identidad propia que pedía el
+ * revisor-visual (ver docs/revisiones/paywall-veredicto.md, defecto de identidad). */
+function RadarFirmaMini() {
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden="true" className="radar-firma-mini">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="var(--accent)" strokeOpacity=".5" strokeWidth="1.2" strokeDasharray="2 5" />
+      <circle cx="50" cy="50" r="28" fill="none" stroke="var(--accent)" strokeOpacity=".6" strokeWidth="1.2" strokeDasharray="2 5" />
+      <line x1="50" y1="50" x2="84" y2="20" stroke="var(--accent)" strokeOpacity=".7" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="50" cy="50" r="2.5" fill="var(--accent)" fillOpacity=".7" />
+    </svg>
+  )
+}
+
 export default function Paywall() {
   const navigate = useNavigate()
   const [planElegido, setPlanElegido] = useState<'anual' | 'mensual'>('anual')
@@ -33,9 +47,9 @@ export default function Paywall() {
       <div className="paywall">
         <div className="pantalla-contenido">
           <div className="paso-indicador entrada" style={{ textAlign: 'center' }}>Tu primer costeo está listo</div>
-          <p className="sub entrada" style={{ textAlign: 'center', fontSize: 12.5, marginBottom: 2, fontStyle: 'italic' }}>Son las 10pm, limpias la mesa llena de harina y sacas la libreta para sumar gastos — y no quieres volver a quedarte sin saber qué responderle a tu pareja.</p>
+          <p className="sub entrada" style={{ textAlign: 'center', fontSize: 12.5, marginBottom: 2, fontStyle: 'italic' }}>Son las 10pm, estás agotado(a), sacas tu libreta para hacer cuentas pero al final no sabes si realmente ganaste o perdiste dinero en tus ventas. Tu familia te pregunta "¿cómo va el negocio?" y no sabes qué responder.</p>
           <h2 className="entrada" style={{ fontSize: 21, textAlign: 'center', marginBottom: 4 }}>El <span className="acento">Radar de Ganancia</span> te dice si ganaste o perdiste, antes de que termine el mes</h2>
-          <p className="sub entrada" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 4 }}>Sin recetas limitadas, y con tus precios actualizándose solos cuando suban tus insumos.</p>
+          <p className="sub entrada" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 4 }}>Sin recetas limitadas, y tus precios se recalculan solos en cuanto anotas que subió un insumo.</p>
 
           <div className="stack-valor entrada">
             <div className="linea"><span><span className="check-custom">✓</span> Recetas y cotizaciones ilimitadas</span><span>$96</span></div>
@@ -52,6 +66,7 @@ export default function Paywall() {
             onClick={() => setPlanElegido('anual')}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPlanElegido('anual') }}
           ><div className="inner">
+            <RadarFirmaMini />
             <span className="badge">MÁS POPULAR</span>
             <div className="nombre-plan">Anual</div>
             <div className="precio-plan"><PrecioAnualAnimado /> <span>/mes</span></div>

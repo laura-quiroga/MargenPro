@@ -1,5 +1,230 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-18 | Sesión actual: 6
+Última actualización: 2026-11-20 | Sesión actual: 6
+
+## Auditoría legal completa (47-LEGAL-FISCAL-Y-PRIVACIDAD.md) — 2026-11-20
+- **Hallazgo crítico antes de empezar:** NINGUNA de las 6 páginas legales existía — el footer de
+  la landing enlazaba a `/privacidad`, `/terminos`, `/reembolsos`, `/aviso-ia` y ninguna ruta
+  existía en `App.tsx`. Links muertos desde siempre.
+- **Creadas y enrutadas las 5 páginas** (`src/pages/Privacidad.tsx`, `Terminos.tsx`,
+  `Reembolsos.tsx`, `AvisoIA.tsx`, `ComoCancelar.tsx`, con layout compartido
+  `src/components/PaginaLegal.tsx`), describiendo LA APP REAL (no genérico): IA = Claude de
+  Anthropic (transferencia internacional declarada), proveedores nombrados (Supabase, Anthropic,
+  Vercel, Hotmart, Google), garantía de 14 días (coherente con landing/paywall), trial 7 días,
+  responsable = "MargenPro" operado como persona natural desde Colombia (el usuario pidió no
+  publicar su nombre real — disponible solo si alguien lo pide formalmente a soporte@margenpro.app).
+  Enlazadas desde el footer y desde Ajustes.
+- **Derecho de eliminación — NO estaba implementado, ahora SÍ y probado de verdad:** nueva Edge
+  Function `eliminar-mi-cuenta` (autoservicio, cualquier usuario borra su propia cuenta) + botón
+  real en Ajustes con confirmación escribiendo "ELIMINAR". Se probó end-to-end con una cuenta
+  desechable (no la de pruebas reusable): se creó, se le agregó un insumo, se eliminó desde la UI,
+  y se confirmó en la base de datos que usuario/perfil/insumo quedaron en 0 filas. Todas las
+  tablas de datos del usuario ya tenían `on delete cascade` hacia `auth.users` (se verificó una
+  por una); solo faltaba el camino para que el usuario lo activara, y faltaba limpiar los archivos
+  de Storage (factura escaneadas, logo), que ahora la función borra explícitamente.
+- **Consentimiento — antes era un texto implícito, ahora es un checkbox real sin marcar:**
+  `Login.tsx` tenía solo una frase ("Al continuar aceptas...") sin casilla — no es autorización
+  EXPRESA como exige la Ley 1581 de Colombia. Se agregó un checkbox real, sin premarcar, que
+  bloquea tanto el botón de enlace mágico como el de Google hasta que se acepte.
+  Probado visualmente: ambos botones quedan deshabilitados por defecto.
+- **Disclaimer de IA — antes solo iba a quedar enterrado en los Términos, ahora también está
+  junto a la salida de la IA:** se agregó una línea visible justo donde `EscanearFactura.tsx`
+  muestra lo que detectó la IA ("Esto lo leyó una inteligencia artificial y puede equivocarse —
+  revísalo antes de confirmar", con link a `/aviso-ia`).
+- **Verificado y NO aplica (documentado, no se inventó nada):** no hay cookies de terceros ni
+  analytics de terceros (grep confirmó cero Google Analytics/Meta Pixel/etc.) → no hace falta
+  banner de cookies. No hay contenido de usuarios (UGC) ni salidas de IA públicas/compartibles →
+  la sección de Trust & Safety del 47 no aplica.
+- **Pendiente, solo accionable cuando exista cuenta real de Hotmart (ver sección de Hotmart más
+  abajo):** la página "Cómo cancelar" da instrucciones genéricas de Hotmart (hotmart.com → tus
+  compras) porque todavía no hay un enlace directo al portal real de esta cuenta — actualizar con
+  el enlace exacto en cuanto se cree el producto. Y recordar: la ventana de reembolso configurada
+  en el panel del producto de Hotmart debe quedar en 14 días, igual que la promesa ya publicada.
+- ⚠️ Esta auditoría certifica COMPLETITUD de la capa legal del proyecto contra la doctrina del SO
+  — no es asesoría legal colegiada. Antes de la primera venta real (o si se maneja algún dato
+  sensible/de menores), se recomienda que un abogado local en Colombia revise estas páginas.
+
+## Aviso de "sin conexión" + paracaídas de Error Boundary por sección (2026-11-20)
+- **`src/components/OfflineBanner.tsx`** (nuevo): franja fija arriba de TODA la app que escucha
+  los eventos `online`/`offline` del navegador. Al perder conexión avisa "Estás sin conexión — lo
+  que hagas ahora no se va a guardar hasta que vuelva internet"; al recuperarla muestra "Ya volvió
+  tu conexión" por 3 segundos y se oculta sola. Montado una sola vez en `App.tsx`, fuera del
+  router, así se ve en landing/onboarding/app/admin por igual. Probado disparando los eventos a
+  mano en el navegador — funciona en los dos sentidos.
+- **Error Boundary por sección:** antes había UN solo paracaídas para toda la app (si algo se
+  rompía en cualquier pantalla, se caía TODO, incluida la barra de navegación). Ahora
+  `ErrorBoundary` (`src/components/ErrorBoundary.tsx`) acepta una `variante="seccion"` con un
+  aviso más chico y un botón "Reintentar", y en `App.tsx` cada pantalla de `/app/*` y `/admin/*`
+  (Panorama, Insumos, Recetas, Cotiza, Ajustes, Resumen, Ventas, Ganancia real, Usuarios, Uso,
+  Negocio, IA, Errores) quedó envuelta en su propio paracaídas. El de la raíz de `App.tsx` se deja
+  como último respaldo. **Probado de verdad:** se forzó un error real dentro de Panorama y se
+  confirmó que solo esa pantalla mostró el aviso — la barra de navegación y las demás pestañas
+  (Insumos, etc.) siguieron funcionando con normalidad.
+- **Encontrado de paso, sin corregir todavía (anotado para no perderlo):** en Insumos se vio un
+  caso con stock negativo mostrado tal cual ("quedan -310 g") — cuando se registra más consumo del
+  que había en stock. No es grave (no rompe nada) pero visualmente debería aclararse (ej. mostrar
+  "0 g — te quedaste corto" en vez de un número negativo). Revisar cuando se retome pulido de
+  Insumos/Recetas.
+
+## Fix de MFA (factor a medias) + separador de miles por moneda (2026-11-20)
+- **MFA:** `RequireAdmin.tsx` ahora limpia solo un factor TOTP "unverified" abandonado (de un
+  intento anterior que nunca se completó) antes de inscribir uno nuevo — esto era lo que producía
+  "No pudimos preparar la verificación en dos pasos" tanto en el usuario de prueba como, se
+  confirmó, en la cuenta real de la dueña (se le borró el registro atascado). Se agregó botón
+  "Reintentar" como red de seguridad si algo más falla. Probado de punta a punta simulando el
+  mismo error.
+- **Separador de miles según la moneda elegida:** antes TODO el dinero de la app (insumos,
+  recetas, cotizaciones, panorama, onboarding) se formateaba con `'es-CO'` sin importar qué moneda
+  eligiera el usuario — eso hacía que un precio en pesos mexicanos se viera con los separadores al
+  revés (México usa coma para miles, Colombia/Perú usan punto). Se agregó `LOCALE_MONEDA` en
+  `src/lib/types.ts` (COP→es-CO, MXN→es-MX, PEN→es-PE, USD→en-US) y se aplicó en `money()` y
+  `formatearStock()` de `appStore.tsx`, y en los precios de `Onboarding.tsx` e
+  `EscanearFactura.tsx`. Verificado: 1.234.567 (COP) vs 1,234,567 (MXN/PEN/USD).
+
+## Verificación en dos pasos (MFA/TOTP) para /admin + ascender/quitar admin (2026-11-20)
+- **Por qué:** el login normal es sin contraseña (enlace mágico/Google) — si alguien entra al
+  correo o la cuenta de Google del dueño, con eso solo NO debía bastar para ver el panel. Pedido
+  explícito del usuario tras la verificación del backoffice.
+- **Qué se construyó:** `src/components/RequireAdmin.tsx` reescrito — ahora, DESPUÉS de
+  confirmar `profiles.role==='admin'` (capa de seguridad real, sin cambios), exige también AAL2
+  (segundo factor) vía `supabase.auth.mfa` (TOTP nativo de Supabase, sin servicio externo):
+  - Primera vez de un admin sin factor: pantalla de inscripción con QR + código de respaldo +
+    input de 6 dígitos (`mfa.enroll` → `mfa.challenge` → `mfa.verify`).
+  - Ya inscrito: pantalla que solo pide el código de 6 dígitos de su app autenticadora.
+  - El QR/código SOLO se genera para una sesión que YA pasó el chequeo de rol — nadie que no
+    tenga ya una cuenta marcada admin llega a verlo.
+  - Probado de punta a punta con el usuario de prueba elevado temporalmente (rol revertido y
+    contraseña rotada a un valor aleatorio al terminar, como las veces anteriores).
+- **Ascender/quitar administrador desde el panel** (`src/pages/admin/Usuarios.tsx` + RPC
+  `admin_actualizar_usuario`, que ya existía): se agregó la columna "Rol" + botón
+  "Hacer admin"/"Quitar admin" con confirmación de un paso. Protecciones: (a) el propio admin no
+  puede cambiarse su propio rol/estado — bloqueado en el SERVIDOR dentro del RPC (evita que se
+  quite el acceso por error y quede afuera), (b) `admin_resumen_usuarios()` ahora también
+  devuelve `role` para pintar la columna.
+- **Pulido visual del panel** (pedido explícito — "de básica a premium"): íconos de línea en
+  cada sección de la barra lateral, chip de ícono por tarjeta de métrica, elevación al pasar el
+  mouse sobre tarjetas y filas de tabla, nuevo componente `InfoTooltip`
+  (`src/components/InfoTooltip.tsx`) — un ícono de información que al pasar el mouse explica en
+  simple qué significa cada métrica técnica (Retención D1/D7/D30, costo real de IA, usuarios
+  activos, etc.), ya aplicado en Resumen/Usuarios/IA/Ganancia real.
+- Migraciones aplicadas: `fix_search_path_set_updated_at` (lint de seguridad menor),
+  `admin_resumen_usuarios_con_rol`, `admin_actualizar_usuario_evita_auto_cambio`.
+
+## Verificación final del backoffice (2026-11-20)
+- Se recorrieron las 8 pantallas (`Resumen`, `Ventas`, `Ganancia real`, `Usuarios`, `Uso`,
+  `Negocio`, `IA`, `Errores`) con sesión real de admin (elevando temporalmente al usuario de
+  prueba, luego revertido a `role='user'` y con contraseña rotada a un valor aleatorio que nadie
+  conoce — quedó inutilizable de nuevo, como estaba). Todas cargan, muestran "Sin datos" honesto
+  donde falta Hotmart, y los números reales (usuarios, uso, costo de IA) son correctos.
+- RLS revisada en `profiles`/`event_log`/`error_log`/`acquisition_spend`/`ai_calls`: todas
+  correctas (dueño ve lo suyo, admin ve todo vía `private.is_admin()`). Los 2 RPC
+  `security definer` (`admin_actualizar_usuario`, `admin_resumen_usuarios`) siguen verificando
+  `is_admin()` internamente — el advisor los marca como WARN porque son ejecutables por
+  cualquier usuario autenticado, pero están bloqueados por dentro; es el diseño esperado.
+- Arreglado: `private.set_updated_at()` no tenía `search_path` fijo (lint de seguridad menor) —
+  corregido con una migración (`fix_search_path_set_updated_at`).
+- Limpiado: la pantalla de Errores tenía 17 filas de ruido que eran artefactos del hot-reload de
+  esta sesión de desarrollo (`MESES_INICIALES is not defined`, `comprasMes is not defined`, etc.
+  del 18-nov, mientras se refactorizaba `appStore.tsx`) — no eran errores reales de un usuario,
+  se borraron de `error_log` para que la pantalla solo muestre fallos de verdad.
+- Pendiente sin cambios: Leaked Password Protection sigue deshabilitado (acción manual del
+  usuario en el dashboard de Supabase Auth).
+
+## Panorama en ceros para cliente nuevo + landing/paywall (2026-11-18, continuación)
+- **Panorama ya NO muestra un mes de ejemplo con datos de otro negocio.** Antes `mesesMock`
+  tenía un "Octubre 2026" fijo (ingreso $177.500, gasto $210.000, 4 vendidas) que le aparecía a
+  CUALQUIER cliente nuevo al tocar "mes anterior" — se quitó por completo. Ahora
+  `mesesReales` (appStore.tsx) arma los últimos 6 meses 100% desde datos reales: el ingreso sale
+  de las cotizaciones "vendida" con `vendidaEn` dentro de ese mes, el gasto de las compras de
+  insumo reales en ese rango. Un cliente nuevo ve todo en $0 en todos los meses hasta que empiece
+  a usar la app. `comprasMes`→`comprasTodas` ahora carga histórico (últimos 6 meses) en vez de
+  solo el mes en curso, para poder calcular meses anteriores reales.
+- **Carrusel de "la app por dentro" en la landing — rediseñado por pedido explícito del
+  usuario (no le gustaba el movimiento automático):** ya NO se mueve solo. Ahora es UNA sola
+  tarjeta fija por vista (más grande, con ícono en chip grande y el dato como cifra héroe) y se
+  avanza SOLO con las flechas o los puntos — se quitó el `setInterval` de autoplay y el scroll
+  horizontal por completo.
+- **Tarjeta "Escaneo" del carrusel:** se quitó el número ("3 facturas escaneadas" → solo
+  "Facturas escaneadas") — un número concreto podía sonar a promesa/dato verificable.
+- **Mensaje superior del paywall** con el texto exacto que pidió el usuario (agotado(a) — en
+  masculino/femenino para que no sea solo ella, la libreta, la pregunta de la familia).
+- **"Probar 7 días gratis" entra directo a la app sin pedir correo/tarjeta — NO es un bug
+  nuevo, es trabajo pendiente ya anotado:** el botón hoy solo hace `navigate('/login')` porque
+  Hotmart (quien de verdad pide la tarjeta y cobra) todavía no está conectado — ver la sección de
+  Hotmart más abajo ("Trial: 7 días CON tarjeta vía Hotmart"). Falta: cuando el usuario cree su
+  cuenta en Hotmart y arme el producto con el trial, este botón debe apuntar al link de checkout
+  de Hotmart en vez de saltar directo a `/login`. Es un paso de servicios externos, no de código.
+
+## Usuario de prueba + ronda de bugs reales encontrados probando la app por dentro (2026-11-18)
+- **Usuario de prueba creado** para que el dueño pueda probar la app desde cero sin usar su
+  cuenta real: `prueba@margenpro.test` (contraseña por fuera de la UI, solo vía
+  `supabase.auth.signInWithPassword` — el login normal sigue siendo solo enlace mágico/Google,
+  esto es un atajo de prueba, no una función nueva del producto). Creado directo en
+  `auth.users`/`auth.identities` vía SQL (patrón oficial de seed de Supabase, con `pgcrypto`).
+  Rol `user` normal, `profiles.source='prueba_interna'`. De paso se deployó una Edge Function
+  nueva `admin-crear-usuario-prueba` (mismo patrón de seguridad que `admin-invitar-usuario`) por
+  si se necesita crear otro usuario de prueba más adelante desde el propio panel.
+- **3 bugs reales encontrados y corregidos** probando con ese usuario (reportados por el
+  usuario con capturas):
+  1. **Falso aviso de "se está acabando"** sin ninguna receta creada — `umbralStockBajo()` en
+     `src/lib/appStore.tsx` usaba un umbral INVENTADO (200g o 2 piezas) cuando ninguna receta
+     usaba todavía el insumo. Corregido: sin receta que lo use, el umbral es 0 (solo avisa si de
+     verdad no queda nada) — nunca más una suposición.
+  2. **"No se pudo guardar la receta"** — causa raíz real: un insumo tasado en LIBRAS (ej.
+     cebolla, tomate) se clasificaba como "de conteo" (como una pieza suelta) en vez de "de
+     peso" en `src/pages/app/Recetas.tsx` (`familiaNaturalInsumo`), así que al usarlo en una
+     receta en GRAMOS la app pedía una equivalencia sin sentido ("¿cuántas piezas tiene 1
+     gramo?"); al dejarla en 0, `cantidad_base * 0 = 0` violaba el `check (cantidad_base > 0)` de
+     `receta_insumos` y el guardado fallaba — PERO la receta ya se había insertado en `recetas`
+     antes de ese paso, dejando una fila huérfana sin insumos (2 así encontradas y borradas).
+     Corregido de raíz: libra ahora se clasifica como medida de PESO (como kg/g) — se convierte
+     sola a gramos y viceversa (`GRAMOS_POR_LIBRA` nuevo en `costeo.ts`), nunca pide equivalencia
+     para libras. Además, `guardarRecetaNueva` ahora borra la receta a medias si falla el
+     segundo paso, para que nunca vuelva a quedar un registro huérfano.
+  3. **"Quedan 1 piezas" para un insumo en libras** — `formatearStock()` mostraba la etiqueta
+     genérica "piezas" para libra/unidad/docena/paquete por igual; ahora libra muestra "lb".
+  Verificado en vivo con el usuario de prueba: crear una receta con cebolla en gramos (antes
+  fallaba) ya guarda bien y calcula el costo correcto; los insumos en libras ya no disparan el
+  aviso falso y muestran "lb" en vez de "piezas". `tsc`, build y las pruebas unitarias limpios.
+- **Pedido aparte, ya resuelto**: el usuario pidió poder **eliminar una receta** (editar ya
+  existía) — agregado `eliminarReceta()` en `appStore.tsx` + botón "Eliminar esta receta" con
+  confirmación en `Recetas.tsx` (mismo patrón ya usado en Insumos). `cotizaciones.receta_id` es
+  `on delete set null`, así que las cotizaciones ya hechas con esa receta no se rompen, solo
+  pierden el enlace. Probado en vivo: eliminar funciona limpio.
+- Todo este código sigue SIN COMMITEAR (junto con lo de las notas de arriba) — no se ha pedido.
+
+## Checkpoint (2026-11-18, continuación de la misma sesión larga)
+- **Código subido a GitHub**: todo el commit anterior (panel admin + seguridad + bug de factura)
+  ya está en `https://github.com/laura-quiroga/MargenPro` (rama `master`). Remote `origin`
+  configurado con HTTPS + Git Credential Manager (ya autenticado en este equipo).
+- **Firma visual propia "Radar de Ganancia"**: agregado un dispositivo SVG propio (dial con
+  agujas, en el color de acento de la marca) en `src/pages/Landing.tsx`/`Landing.css`
+  (reemplaza el blob genérico en `#hero` y `#oferta`) y como marca de agua sutil en la tarjeta
+  del plan Anual de `src/pages/Paywall.tsx`/`Paywall.css`. Verificado visualmente en navegador
+  (se ve bien, sin errores). Responde al defecto #1 repetido en 3 rondas de revisor-visual
+  (docs/revisiones/landing-veredicto.md y paywall-veredicto.md: "sin dispositivo ownable ligado
+  al mecanismo"). NO se volvió a correr el revisor-visual formal sobre landing/paywall con este
+  cambio (quedaría pendiente si se quiere cerrar el gate del todo) — la captura con Chrome para
+  esa revisión se intentó varias veces y la extensión se puso inestable (ver abajo).
+- **Panel de administración — Resumen, revisado por el subagente revisor-visual con screenshot
+  real de escritorio (1366x599, vía Chrome conectado)**: NO LISTA (20/40 usabilidad, 9/20 craft).
+  5 defectos reales, TODOS corregidos en `src/pages/admin/Resumen.tsx` +
+  `src/components/AdminLayout.css`: (1) se mostraba literalmente "(ai_calls)" en la UI — quitado;
+  (2) pantalla en blanco sin ningún aviso mientras cargaba — ahora hay un skeleton; (3) sin
+  manejo de error — si fallaba una consulta a Supabase la pantalla quedaba en blanco para
+  siempre, ahora hay un mensaje claro; (4) mitad inferior del panel completamente vacía — se
+  agregó un gráfico (Recharts) de actividad real de los últimos 7 días desde `event_log`; (5)
+  emojis ✅/⚠️ como íconos (prohibido por el SO) y números héroe sin el conteo animado que exige
+  FICHA-ARTE — reemplazados por íconos SVG propios + un componente `ValorContado` con conteo al
+  montar. `tsc` y `npm run build` limpios tras el cambio. **No se pudo re-confirmar con una
+  captura nueva**: después de este fix, la extensión de Chrome se puso inestable de forma
+  reproducible en esta pantalla concreta (varios intentos: "Script injection timed out",
+  "CDP sendCommand timed out", "Chrome blocked the extension", y un `Runtime.evaluate` que
+  tardó 45s sin responder) — se descartó que sea un bug de la app probando la MISMA ruta sin
+  sesión en la vista previa integrada, que cargó normal (`readyState: complete`, sin trabarse).
+  Conclusión: es inestabilidad de la extensión/entorno de Chrome de esta sesión, no del código.
+  Pendiente: tomar una captura nueva cuando Chrome esté estable y volver a correr el
+  revisor-visual sobre esta pantalla para intentar cerrar el gate formalmente.
+- Todo lo de este checkpoint sigue SIN COMMITEAR — no se ha pedido explícitamente.
 
 ## Auditoría + ronda de correcciones (2026-11-18, misma sesión)
 El usuario pidió una auditoría completa de seguridad/pulido, revisar el precio ($5.99/$7.99) contra
@@ -332,6 +557,30 @@ usuarios a mano. Plan aprobado en modo plan y ejecutado completo:
   (`94marshapril@gmail.com`, ya promovido a `role='admin'`) y avisar cuando esté adentro de `/admin`
   — así se completa el screenshot + veredicto del revisor-visual que falta para declararlo "listo".
 - Cuando quiera avanzar más hacia "listo para vender": decidir si invertir una sesión en el elemento de diseño propio (firma visual del Radar de Ganancia) para landing y paywall.
+
+## ⚠️ PENDIENTE RECORDAR SIEMPRE: conectar Hotmart (el usuario pidió que se le recuerde en cada sesión)
+Mientras Hotmart no esté conectado, estas piezas quedan bloqueadas — recordárselo cada vez que se
+toque el tema de ventas/admin, sin que ella tenga que volver a preguntar:
+- El botón "Probar 7 días gratis" del paywall entra directo a la app sin pedir tarjeta (`Paywall.tsx`).
+- `/admin/ventas` y `/admin/ganancia` muestran "Sin datos" (ingresos, MRR, cancelaciones).
+- **Churn por mes, pedido explícitamente el 2026-11-20**: cuántos usuarios se dieron de baja cada
+  mes. Depende 100% del webhook de cancelación de Hotmart (MargenPro no procesa pagos ni
+  cancelaciones — eso vive en Hotmart) — en cuanto se conecte, se agrega a `admin/Ventas.tsx` junto
+  con MRR e ingresos.
+- **Preguntar el motivo al cancelar, pedido explícitamente el 2026-11-20**: cuando un cliente
+  cancele, mostrarle una pregunta corta de opción múltiple (muy caro / no lo usé / le faltó algo /
+  encontré otra opción / otro) ANTES o justo después de confirmar la baja, y guardar la respuesta
+  para poder verla agrupada en el panel (qué está empujando a la gente a irse). Esto se arma como
+  parte del flujo de cancelación real de Hotmart (una pantalla intermedia propia, o el campo de
+  encuesta que permite Hotmart al cancelar) — no se puede construir hasta que exista una cuenta de
+  Hotmart real donde conectar ese flujo. Diseño de referencia: `docs/sistema/58-RETENCION-DE-INGRESOS.md`.
+- **De la auditoría legal (2026-11-20):** la página `/como-cancelar` da instrucciones genéricas
+  ("entra a hotmart.com, busca tus compras") porque todavía no hay un link directo a esta cuenta —
+  actualizar con la URL real en cuanto exista el producto. Y, MUY IMPORTANTE: la garantía de 14
+  días ya publicada (landing, paywall, `/reembolsos`) debe quedar configurada EXACTAMENTE igual —
+  14 días — en el panel de reembolsos del producto dentro de Hotmart. Si quedan configurados menos
+  días ahí, un cliente que pida el reembolso el día 10 lo tendría que aprobar Hotmart pero el
+  incumplimiento de la promesa recae sobre nosotros.
 
 ## Notas para la próxima sesión
 - FICHA-MODELO y FICHA-MERCADO quedaron en BORRADOR por falta de herramientas de esta sesión (Sensor Tower, Ads Library, datos de pago verificados) — no bloquea avanzar, pero revisar si se consigue más evidencia antes de fijar precio final

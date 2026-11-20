@@ -11,38 +11,48 @@
 .admin-marca-sub { font-size: 11.5px; color: var(--text-2); }
 
 .admin-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-.admin-nav-item { padding: 10px 12px; border-radius: var(--radius-btn); font-size: 13.5px; font-weight: 600; color: var(--text-2); text-decoration: none; transition: background .12s ease-out, color .12s ease-out; }
+.admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-btn); font-size: 13.5px; font-weight: 600; color: var(--text-2); text-decoration: none; transition: background .12s ease-out, color .12s ease-out; }
 .admin-nav-item:hover { background: var(--sunken); color: var(--text-1); }
 .admin-nav-item.activo { background: rgb(var(--accent-tint) / .12); color: var(--accent); }
+.admin-nav-icono { flex-shrink: 0; opacity: .75; }
+.admin-nav-item.activo .admin-nav-icono { opacity: 1; }
 
 .admin-salir { margin-top: 12px; padding: 10px 12px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 600; color: var(--text-2); background: transparent; border: 1px solid var(--sunken); cursor: pointer; transition: border-color .12s ease-out, color .12s ease-out; }
 .admin-salir:hover { border-color: var(--accent); color: var(--accent); }
 
 .admin-main { flex: 1; padding: 32px 40px 64px; max-width: 1180px; }
 
-.admin-titulo { font-family: var(--font-display); font-size: 26px; font-weight: 700; margin-bottom: 4px; }
-.admin-subtitulo { font-size: 13.5px; color: var(--text-2); margin-bottom: 24px; }
+.admin-titulo { font-family: var(--font-display); font-size: 26px; font-weight: 700; margin-bottom: 4px; letter-spacing: -.01em; }
+.admin-subtitulo { font-size: 13.5px; color: var(--text-2); margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--sunken); }
 
 .admin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-.admin-card { background: var(--surface); border-radius: var(--radius-card); padding: 20px; box-shadow: var(--shadow-1); }
-.admin-card-label { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
-.admin-card-valor { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.admin-card {
+  position: relative; background: var(--surface); border-radius: var(--radius-card); padding: 20px;
+  box-shadow: var(--shadow-1); border: 1px solid transparent;
+  transition: box-shadow .16s ease-out, transform .16s ease-out, border-color .16s ease-out;
+}
+.admin-card:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); border-color: rgb(var(--accent-tint) / .18); }
+.admin-card-icono { width: 32px; height: 32px; border-radius: 10px; background: rgb(var(--accent-tint) / .12); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.admin-card-label { display: flex; align-items: center; font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+.admin-card-valor { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 4px; letter-spacing: -.01em; }
 .admin-card-insight { font-size: 12.5px; color: var(--text-2); }
 .admin-card-sin-datos { font-size: 13px; color: var(--text-2); font-style: italic; }
 
-.admin-banner { border-radius: var(--radius-card); padding: 16px 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+.admin-banner { border-radius: var(--radius-card); padding: 16px 20px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow-1); }
 .admin-banner.ok { background: rgb(var(--accent-tint) / .1); border: 1px solid rgb(var(--accent-tint) / .25); }
 .admin-banner.aviso { background: rgb(var(--aviso-tint) / .12); border: 1px solid rgb(var(--aviso-tint) / .3); }
 .admin-banner-item { font-size: 13.5px; line-height: 1.5; }
 .admin-banner-item strong { font-weight: 700; }
 
 .admin-seccion { background: var(--surface); border-radius: var(--radius-card); padding: 24px; box-shadow: var(--shadow-1); margin-bottom: 20px; }
-.admin-seccion h3 { font-family: var(--font-display); font-size: 16px; margin-bottom: 14px; }
+.admin-seccion h3 { font-family: var(--font-display); font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; }
 
 .admin-tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
-.admin-tabla th { text-align: left; padding: 8px 10px; color: var(--text-2); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--sunken); }
-.admin-tabla td { padding: 10px 10px; border-bottom: 1px solid var(--sunken); }
+.admin-tabla th { text-align: left; padding: 10px; color: var(--text-2); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--sunken); }
+.admin-tabla td { padding: 12px 10px; border-bottom: 1px solid var(--sunken); }
 .admin-tabla tr:last-child td { border-bottom: none; }
+.admin-tabla tbody tr { transition: background .1s ease-out; }
+.admin-tabla tbody tr:hover { background: var(--sunken); }
 
 .admin-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
 .admin-badge.activo { background: rgb(var(--accent-tint) / .15); color: var(--accent); }
@@ -59,3 +69,8 @@
 
 .admin-sin-datos-bloque { padding: 32px 16px; text-align: center; color: var(--text-2); font-size: 13.5px; }
 .admin-sin-datos-bloque strong { display: block; color: var(--text-1); font-size: 14px; margin-bottom: 6px; }
+
+.admin-card-skeleton { display: flex; flex-direction: column; }
+.skeleton-linea { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--sunken) 25%, rgb(var(--accent-tint)/.12) 50%, var(--sunken) 75%); background-size: 200% 100%; animation: admin-skeleton-pulso 1.4s ease-in-out infinite; }
+@keyframes admin-skeleton-pulso { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton-linea { animation: none; } }

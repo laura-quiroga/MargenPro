@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
 import type { CategoriaInsumo, UnidadInsumo } from '../../lib/types'
+import { LOCALE_MONEDA } from '../../lib/types'
 
 const IconoVolver = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
@@ -41,7 +42,7 @@ interface ItemEditable extends ItemFactura {
 type Paso = 'elegir' | 'procesando' | 'revisar' | 'resumen'
 
 export default function EscanearFactura({ onVolver }: { onVolver: () => void }) {
-  const { insumos, recetas, cotizaciones, cfg, modoCalculo, money, confirmarItemFactura, crearInsumoDesdeFactura, cerrarFacturaEscaneada, deshacerFactura } = useAppStore()
+  const { insumos, recetas, cotizaciones, cfg, modoCalculo, money, moneda, confirmarItemFactura, crearInsumoDesdeFactura, cerrarFacturaEscaneada, deshacerFactura } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -198,6 +199,10 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
         <button className="btn-atras-sub" onClick={onVolver}><IconoVolver />Insumos</button>
         <h2 className="titulo-seccion" style={{ fontSize: 19 }}>Revisa lo que encontramos</h2>
         <p className="sub-seccion">Ajusta lo que haga falta antes de confirmar — nada se guarda todavía.</p>
+        <p style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: -6, marginBottom: 12 }}>
+          Esto lo leyó una inteligencia artificial y puede equivocarse — revísalo antes de confirmar.{' '}
+          <a href="/aviso-ia" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)' }}>Más info</a>
+        </p>
         <div className="nota-estimado" style={{ marginBottom: 14 }}>
           <IconoAviso />
           Si un producto ya existe en tu inventario, escribe exactamente el mismo nombre — así se junta solo con el que ya tienes, en vez de crear uno repetido.
@@ -298,7 +303,7 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
             <div key={r.insumoId} className="fila-dato" style={{ marginBottom: 6 }}>
               <span>{r.nombre}</span>
               <span style={{ color: r.costoDespues > r.costoAntes ? 'var(--error)' : 'var(--accent)', fontWeight: 700 }}>
-                {Math.round(r.costoAntes).toLocaleString('es-CO')} → {Math.round(r.costoDespues).toLocaleString('es-CO')}
+                {Math.round(r.costoAntes).toLocaleString(LOCALE_MONEDA[moneda])} → {Math.round(r.costoDespues).toLocaleString(LOCALE_MONEDA[moneda])}
               </span>
             </div>
           ))}

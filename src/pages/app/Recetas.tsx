@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
-import { convertirAGramos } from '../../lib/costeo'
+import { convertirAGramos, GRAMOS_POR_LIBRA } from '../../lib/costeo'
 import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
 import type { Insumo, InsumoUsado } from '../../lib/types'
@@ -21,14 +21,16 @@ interface FilaInsumo {
 
 const ETIQUETA_MEDIDA: Record<MedidaFila, string> = { g: 'gramos', ml: 'mililitros', libra: 'libras', pz: 'piezas', taza: 'tazas', cda: 'cucharadas', cdta: 'cucharaditas' }
 
-/** Las medidas "medibles" (peso/volumen, con densidad aproximable) vs. las "de conteo"
- * (piezas/libras, 1 a 1 sin densidad) — se usan para saber si hace falta pedir una equivalencia. */
+/** Las medidas "medibles" (peso/volumen, convertibles por una constante fija o una densidad
+ * aproximada) vs. las "de conteo" (piezas sueltas, sin ninguna conversión física posible) — se
+ * usan para saber si hace falta pedir una equivalencia a mano. La libra es peso, igual que el
+ * kilo o el gramo — NUNCA necesita equivalencia para pasar a gramos, se convierte sola. */
 function familiaDeMedida(m: MedidaFila): 'medible' | 'conteo' {
-  return m === 'libra' || m === 'pz' ? 'conteo' : 'medible'
+  return m === 'pz' ? 'conteo' : 'medible'
 }
 function familiaNaturalInsumo(ins: Insumo | undefined): 'medible' | 'conteo' {
   if (!ins) return 'conteo'
-  return ins.unidad === 'kg' || ins.unidad === 'g' || ins.unidad === 'L' || ins.unidad === 'ml' ? 'medible' : 'conteo'
+  return ins.unidad === 'kg' || ins.unidad === 'g' || ins.unidad === 'L' || ins.unidad === 'ml' || ins.unidad === 'libra' ? 'medible' : 'conteo'
 }
 function medidaInicialPara(ins: Insumo | undefined): MedidaFila {
   if (!ins) return 'pz'
@@ -43,6 +45,7 @@ function etiquetaBaseInsumo(ins: Insumo | undefined): string {
   if (!ins) return 'unidad'
   if (ins.unidad === 'kg' || ins.unidad === 'g') return 'gramos'
   if (ins.unidad === 'L' || ins.unidad === 'ml') return 'mililitros'
+  if (ins.unidad === 'libra') return 'libras'
   return 'piezas'
 }
 
@@ -63,13 +66,15 @@ const IconoReceta = () => (
 )
 
 export default function Recetas() {
-  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, cfg, modoCalculo, money, costear } = useAppStore()
+  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, eliminarReceta, cfg, modoCalculo, money, costear } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const location = useLocation()
   const [vista, setVista] = useState<'lista' | 'constructor'>('lista')
 
   const [editId, setEditId] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
+  const [confirmandoEliminar, setConfirmandoEliminar] = useState(false)
+  const [eliminando, setEliminando] = useState(false)
   const [nombre, setNombre] = useState('')
   const [unidades, setUnidades] = useState('1')
   const [filas, setFilas] = useState<FilaInsumo[]>([])
@@ -86,6 +91,7 @@ export default function Recetas() {
     setMargen(50)
     setHoras('')
     setResultado(null)
+    setConfirmandoEliminar(false)
     setVista('constructor')
   }
 
@@ -102,7 +108,18 @@ export default function Recetas() {
     setMargen(r.margen)
     setHoras(r.horas ? String(r.horas) : '')
     setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades), insumosUsados: r.insumosUsados, margen: r.margen, horas: r.horas, unidades: r.unidades })
+    setConfirmandoEliminar(false)
     setVista('constructor')
+  }
+
+  async function eliminarEstaReceta() {
+    if (editId === null) return
+    setEliminando(true)
+    const ok = await eliminarReceta(editId)
+    setEliminando(false)
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar la receta. Intenta de nuevo.'); setConfirmandoEliminar(false); return }
+    setVista('lista')
+    mostrarToast(<IconoOk />, 'Receta eliminada.')
   }
 
   useEffect(() => {
@@ -135,7 +152,14 @@ export default function Recetas() {
       const coincide = familiaDeMedida(f.medida) === familiaNaturalInsumo(ins)
       let cantidadBase: number
       if (coincide) {
-        cantidadBase = familiaDeMedida(f.medida) === 'medible' ? convertirAGramos(cantidadNum, f.medida, ins?.nombre ?? '') : cantidadNum
+        if (familiaDeMedida(f.medida) === 'medible') {
+          const gramos = convertirAGramos(cantidadNum, f.medida, ins?.nombre ?? '')
+          // La base de un insumo tasado en libras es la LIBRA, no el gramo (mismo criterio que
+          // ya usa costoPorUnidadBase) — si la receta lo usa en gramos, hay que volver a libras.
+          cantidadBase = ins?.unidad === 'libra' ? gramos / GRAMOS_POR_LIBRA : gramos
+        } else {
+          cantidadBase = cantidadNum
+        }
       } else {
         // Medida distinta a cómo se compra el insumo (ej: lo compras por peso pero aquí lo
         // usas por piezas) — se necesita la equivalencia que el usuario dio para convertir bien.
@@ -280,6 +304,20 @@ export default function Recetas() {
           <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarReceta} disabled={guardando}>
             {guardando ? 'Guardando…' : editId !== null ? 'Guardar cambios' : 'Guardar receta'}
           </button>
+        )}
+        {editId !== null && (
+          confirmandoEliminar ? (
+            <div className="tarjeta" style={{ marginTop: 16, borderColor: 'rgb(var(--error-tint)/.4)' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>¿Eliminar "{nombre}" para siempre?</p>
+              <p className="ayuda-campo" style={{ marginBottom: 12 }}>Esto no se puede deshacer. Tus cotizaciones ya hechas con esta receta se quedan igual, solo quedan sin enlace a ella.</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1 }} onClick={() => setConfirmandoEliminar(false)}>Cancelar</button>
+                <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1, borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' }} onClick={eliminarEstaReceta} disabled={eliminando}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button>
+              </div>
+            </div>
+          ) : (
+            <button className="btn-texto" style={{ marginTop: 10, color: 'var(--error)' }} onClick={() => setConfirmandoEliminar(true)}>Eliminar esta receta</button>
+          )
         )}
         <Toast toast={toast} />
       </>

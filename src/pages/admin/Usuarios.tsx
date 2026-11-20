@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import InfoTooltip from '../../components/InfoTooltip'
+
+const IconoUsuarios = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3.2" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M16 6.2a3.2 3.2 0 010 6M21 20c0-2.8-1.9-5.1-4.5-5.8" /></svg>
+)
+const IconoRayo = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h7l-1 8 11-14h-7l1-6z" /></svg>
+)
+const IconoAncla = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="2.2" /><path d="M12 7v14M5 12H2a10 10 0 0020 0h-3M5 12a7 7 0 0014 0" /></svg>
+)
 
 interface FilaUsuario {
   user_id: string
   email: string
   name: string | null
+  role: 'user' | 'admin'
   access_status: 'active' | 'disabled'
   created_at: string
   insumos_count: number
@@ -19,6 +31,13 @@ export default function AdminUsuarios() {
   const [nombreNuevo, setNombreNuevo] = useState('')
   const [invitando, setInvitando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
+  const [miPropioId, setMiPropioId] = useState<string | null>(null)
+  const [confirmandoRol, setConfirmandoRol] = useState<string | null>(null)
+  const [cambiandoRol, setCambiandoRol] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setMiPropioId(data.user?.id ?? null))
+  }, [])
 
   async function cargar() {
     const { data } = await supabase.rpc('admin_resumen_usuarios')
@@ -73,6 +92,15 @@ export default function AdminUsuarios() {
     setFilas((prev) => prev?.map((f) => (f.user_id === userId ? { ...f, access_status: nuevo } : f)) ?? null)
   }
 
+  async function cambiarRol(userId: string, nuevo: 'user' | 'admin') {
+    setCambiandoRol(true)
+    const { error } = await supabase.rpc('admin_actualizar_usuario', { target_user_id: userId, nuevo_role: nuevo })
+    setCambiandoRol(false)
+    setConfirmandoRol(null)
+    if (error) { setMensaje('No pudimos cambiar el rol. Intenta de nuevo.'); return }
+    setFilas((prev) => prev?.map((f) => (f.user_id === userId ? { ...f, role: nuevo } : f)) ?? null)
+  }
+
   const usuariosActivosD7 = filas ? filas.filter((f) => new Date(f.created_at).getTime() >= Date.now() - 7 * 86400000).length : 0
 
   return (
@@ -82,15 +110,18 @@ export default function AdminUsuarios() {
 
       <div className="admin-grid">
         <div className="admin-card">
+          <div className="admin-card-icono"><IconoUsuarios /></div>
           <div className="admin-card-label">Total de usuarios</div>
           <div className="admin-card-valor">{filas?.length ?? '…'}</div>
         </div>
         <div className="admin-card">
+          <div className="admin-card-icono"><IconoRayo /></div>
           <div className="admin-card-label">Nuevos últimos 7 días</div>
           <div className="admin-card-valor">{filas ? usuariosActivosD7 : '…'}</div>
         </div>
         <div className="admin-card">
-          <div className="admin-card-label">Retención D1 / D7 / D30</div>
+          <div className="admin-card-icono"><IconoAncla /></div>
+          <div className="admin-card-label">Retención D1 / D7 / D30<InfoTooltip texto="De cada 100 personas que se registran, cuántas vuelven a abrir la app 1, 7 y 30 días después. Si baja mucho, la app no está enganchando." /></div>
           {retencion ? (
             <div className="admin-card-valor" style={{ fontSize: 18 }}>{retencion.d1}% / {retencion.d7}% / {retencion.d30}%</div>
           ) : (
@@ -122,7 +153,7 @@ export default function AdminUsuarios() {
         ) : (
           <table className="admin-tabla">
             <thead>
-              <tr><th>Correo</th><th>Nombre</th><th>Insumos</th><th>Recetas</th><th>Cotizaciones</th><th>Estado</th><th></th></tr>
+              <tr><th>Correo</th><th>Nombre</th><th>Insumos</th><th>Recetas</th><th>Cotizaciones</th><th>Rol</th><th>Estado</th><th></th></tr>
             </thead>
             <tbody>
               {filas.map((f) => (
@@ -132,12 +163,26 @@ export default function AdminUsuarios() {
                   <td>{f.insumos_count}</td>
                   <td>{f.recetas_count}</td>
                   <td>{f.cotizaciones_count}</td>
+                  <td><span className={`admin-badge ${f.role === 'admin' ? 'activo' : ''}`}>{f.role === 'admin' ? 'Administrador' : 'Usuario'}</span></td>
                   <td><span className={`admin-badge ${f.access_status === 'active' ? 'activo' : 'disabled'}`}>{f.access_status === 'active' ? 'Activo' : 'Desactivado'}</span></td>
-                  <td>
+                  <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     {f.access_status === 'active' ? (
                       <button className="admin-btn admin-btn-secundario" onClick={() => cambiarAcceso(f.user_id, 'disabled')}>Desactivar</button>
                     ) : (
                       <button className="admin-btn admin-btn-secundario" onClick={() => cambiarAcceso(f.user_id, 'active')}>Activar</button>
+                    )}
+                    {f.user_id === miPropioId ? (
+                      <span className="admin-card-sin-datos" style={{ fontStyle: 'normal' }}>Eres tú</span>
+                    ) : confirmandoRol === f.user_id ? (
+                      <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <span style={{ fontSize: 12.5 }}>{f.role === 'admin' ? '¿Quitarle el acceso de administrador?' : '¿Hacerlo administrador?'}</span>
+                        <button className="admin-btn" disabled={cambiandoRol} onClick={() => cambiarRol(f.user_id, f.role === 'admin' ? 'user' : 'admin')}>Sí</button>
+                        <button className="admin-btn admin-btn-secundario" disabled={cambiandoRol} onClick={() => setConfirmandoRol(null)}>No</button>
+                      </span>
+                    ) : (
+                      <button className="admin-btn admin-btn-secundario" onClick={() => setConfirmandoRol(f.user_id)}>
+                        {f.role === 'admin' ? 'Quitar admin' : 'Hacer admin'}
+                      </button>
                     )}
                   </td>
                 </tr>
