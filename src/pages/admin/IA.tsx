@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { supabase } from '../../lib/supabaseClient'
+import InfoTooltip from '../../components/InfoTooltip'
+
+const IconoChispa = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l1.8 4.3L18 8l-4.2 1.7L12 14l-1.8-4.3L6 8l4.2-1.7L12 2z" /><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z" /></svg>
+)
+const IconoCalendario = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+)
+const IconoUsuario = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg>
+)
 
 interface Fila { tipo: string; tokens_in: number; tokens_out: number; costo_usd: number; created_at: string; user_id: string }
 interface Dia { fecha: string; costo: number }
@@ -67,15 +78,18 @@ export default function AdminIA() {
 
       <div className="admin-grid">
         <div className="admin-card">
-          <div className="admin-card-label">Gasto de IA hoy</div>
+          <div className="admin-card-icono"><IconoChispa /></div>
+          <div className="admin-card-label">Gasto de IA hoy<InfoTooltip texto="Lo que ya te cobró el proveedor de IA hoy, calculado sobre cada escaneo de factura real — no es un estimado." /></div>
           <div className="admin-card-valor">US${costoHoy.toFixed(2)}</div>
         </div>
         <div className="admin-card">
+          <div className="admin-card-icono"><IconoCalendario /></div>
           <div className="admin-card-label">Gasto últimos 14 días</div>
           <div className="admin-card-valor">US${costoTotal.toFixed(2)}</div>
         </div>
         <div className="admin-card">
-          <div className="admin-card-label">Usuario que más gasta</div>
+          <div className="admin-card-icono"><IconoUsuario /></div>
+          <div className="admin-card-label">Usuario que más gasta<InfoTooltip texto="Quién de tus usuarios acumuló más costo de IA en los últimos 14 días — útil para detectar un abuso o un plan que necesita un tope." /></div>
           <div className="admin-card-insight" style={{ fontSize: 12 }}>{usuarioMasCaro ? `US$${usuarioMasCaro[1].toFixed(2)} gastados` : '—'}</div>
         </div>
       </div>

@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import InfoTooltip from '../../components/InfoTooltip'
+
+const IconoChispa = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l1.8 4.3L18 8l-4.2 1.7L12 14l-1.8-4.3L6 8l4.2-1.7L12 2z" /><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z" /></svg>
+)
 
 function inicioDeMesUtc(): string {
   const d = new Date()
@@ -29,7 +34,8 @@ export default function AdminGananciaReal() {
         <h3>Lo único que ya es real este mes</h3>
         <div className="admin-grid" style={{ gridTemplateColumns: '1fr' }}>
           <div className="admin-card">
-            <div className="admin-card-label">Costo real de IA este mes</div>
+            <div className="admin-card-icono"><IconoChispa /></div>
+            <div className="admin-card-label">Costo real de IA este mes<InfoTooltip texto="Lo que de verdad te cobró el proveedor de IA este mes por cada escaneo de factura — no un estimado ni un promedio." /></div>
             <div className="admin-card-valor">{costoIaMes === null ? '…' : `US$${costoIaMes.toLocaleString('es-CO', { maximumFractionDigits: 2 })}`}</div>
             <div className="admin-card-insight">desde ai_calls — escaneos de factura</div>
           </div>

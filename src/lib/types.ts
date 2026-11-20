@@ -73,3 +73,8 @@ export interface ConfigNegocio {
 }
 
 export const SIMBOLOS_MONEDA: Record<Moneda, string> = { COP: '$', MXN: '$', PEN: 'S/', USD: 'US$' }
+
+/** Estilo de puntos/comas de cada moneda — México usa coma para miles y punto para decimales
+ * (al revés que Colombia/Perú); formatear todo con 'es-CO' hacía que un precio en pesos
+ * mexicanos se viera con el separador cambiado. */
+export const LOCALE_MONEDA: Record<Moneda, string> = { COP: 'es-CO', MXN: 'es-MX', PEN: 'es-PE', USD: 'en-US' }

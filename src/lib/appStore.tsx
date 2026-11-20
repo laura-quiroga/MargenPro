@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { ConfigNegocio, Cotizacion, Insumo, InsumoUsado, ItemCotizacion, Moneda, Receta, UnidadInsumo } from './types'
-import { SIMBOLOS_MONEDA } from './types'
+import { LOCALE_MONEDA, SIMBOLOS_MONEDA } from './types'
 import { calcularCostoReceta, costoPorUnidadBase } from './costeo'
 import { supabase } from './supabaseClient'
 
@@ -137,16 +137,17 @@ export function nombreCantidadUnidad(unidad: UnidadInsumo): string {
   }
 }
 
-export function formatearStock(ins: Insumo): string | null {
+export function formatearStock(ins: Insumo, moneda: Moneda = 'COP'): string | null {
   if (typeof ins.stockDisponible !== 'number') return null
+  const locale = LOCALE_MONEDA[moneda]
   if (ins.unidad === 'kg' || ins.unidad === 'L') {
-    return (ins.stockDisponible / 1000).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
+    return (ins.stockDisponible / 1000).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
   }
   if (ins.unidad === 'g' || ins.unidad === 'ml') {
     return Math.round(ins.stockDisponible) + ' ' + etiquetaUnidad(ins.unidad)
   }
   if (ins.unidad === 'libra') {
-    return ins.stockDisponible.toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' lb'
+    return ins.stockDisponible.toLocaleString(locale, { maximumFractionDigits: 2 }) + ' lb'
   }
   return Math.round(ins.stockDisponible) + ' piezas'
 }
@@ -610,7 +611,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-  const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString('es-CO')}`
+  const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString(LOCALE_MONEDA[moneda] || 'es-CO')}`
 
   const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades) =>
     calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg)

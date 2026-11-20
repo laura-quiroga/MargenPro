@@ -49,7 +49,7 @@ export default function Paywall() {
           <div className="paso-indicador entrada" style={{ textAlign: 'center' }}>Tu primer costeo está listo</div>
           <p className="sub entrada" style={{ textAlign: 'center', fontSize: 12.5, marginBottom: 2, fontStyle: 'italic' }}>Son las 10pm, estás agotado(a), sacas tu libreta para hacer cuentas pero al final no sabes si realmente ganaste o perdiste dinero en tus ventas. Tu familia te pregunta "¿cómo va el negocio?" y no sabes qué responder.</p>
           <h2 className="entrada" style={{ fontSize: 21, textAlign: 'center', marginBottom: 4 }}>El <span className="acento">Radar de Ganancia</span> te dice si ganaste o perdiste, antes de que termine el mes</h2>
-          <p className="sub entrada" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 4 }}>Sin recetas limitadas, y con tus precios actualizándose solos cuando suban tus insumos.</p>
+          <p className="sub entrada" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 4 }}>Sin recetas limitadas, y tus precios se recalculan solos en cuanto anotas que subió un insumo.</p>
 
           <div className="stack-valor entrada">
             <div className="linea"><span><span className="check-custom">✓</span> Recetas y cotizaciones ilimitadas</span><span>$96</span></div>

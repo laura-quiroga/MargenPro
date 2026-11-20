@@ -422,6 +422,7 @@ export default function Landing() {
             <Link to="/terminos">Términos y Condiciones</Link>
             <Link to="/reembolsos">Reembolsos</Link>
             <Link to="/aviso-ia">Aviso de uso de IA</Link>
+            <Link to="/como-cancelar">Cómo cancelar</Link>
           </div>
           <div className="footer-meta">MargenPro · soporte@margenpro.app</div>
         </div>

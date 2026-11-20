@@ -1,0 +1,12 @@
+.mfa-pantalla { min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 24px; }
+.mfa-tarjeta { width: 100%; max-width: 380px; background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow-2); padding: 32px 28px; display: flex; flex-direction: column; gap: 12px; }
+.mfa-tarjeta h1 { font-family: var(--font-display); font-size: 20px; font-weight: 700; text-align: center; }
+.mfa-sub { font-size: 13.5px; color: var(--text-2); text-align: center; line-height: 1.5; margin-bottom: 4px; }
+.mfa-qr { width: 180px; height: 180px; align-self: center; border-radius: 12px; }
+.mfa-secreto { font-size: 12px; color: var(--text-2); text-align: center; word-break: break-all; }
+.mfa-secreto code { background: var(--sunken); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+.mfa-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.mfa-input { font-size: 22px; letter-spacing: .4em; text-align: center; padding: 12px; border-radius: var(--radius-btn); border: 1px solid var(--sunken); background: var(--bg); color: var(--text-1); }
+.mfa-error { font-size: 12.5px; color: var(--error); text-align: center; }
+.mfa-btn { padding: 12px; border-radius: var(--radius-btn); font-size: 14px; font-weight: 700; border: none; cursor: pointer; background: var(--accent); color: var(--on-accent); margin-top: 4px; }
+.mfa-btn:disabled { opacity: .5; cursor: default; }
