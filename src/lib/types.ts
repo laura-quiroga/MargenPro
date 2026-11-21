@@ -18,6 +18,9 @@ export interface Insumo {
   /** En qué medida se registró esa última compra — puede ser distinta a `unidad` (ej. el insumo
    * se tasa en kg pero esa compra puntual se registró en gramos). */
   ultimaCompraMedida?: UnidadInsumo
+  /** Última vez que se tocó el precio o el stock de este insumo — para avisar cuando llevan
+   * muchos días sin actualizarse (el insumo puede haber subido de precio sin que se registre). */
+  actualizadoEn?: string
 }
 
 export interface InsumoUsado {

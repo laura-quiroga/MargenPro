@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { convertirMedidaCompra, encontrarInsumoPorNombreExacto, etiquetaUnidad, formatearStock, medidasDeCompraPara, mismaFamiliaMedida, nombreCantidadUnidad, normalizarParaBuscar, precioPorUnidadDesdeCompra, stockBaseDesdeCantidad, stockEsBajo, useAppStore, valorInventario, valorStockInsumo } from '../../lib/appStore'
 import type { Insumo, Moneda } from '../../lib/types'
 import { Toast, useToast } from '../../components/Toast'
@@ -51,7 +52,8 @@ function textoUltimaCompra(i: Insumo, money: (n: number) => string, moneda: Mone
 }
 
 export default function Insumos() {
-  const { insumos, cargandoInsumos, agregarInsumo, registrarCompraInsumo, actualizarNombreInsumo, eliminarInsumo, recetas, money, moneda } = useAppStore()
+  const { insumos, cargandoInsumos, agregarInsumo, registrarCompraInsumo, actualizarNombreInsumo, eliminarInsumo, recetas, money, moneda, plan } = useAppStore()
+  const navigate = useNavigate()
   const { toast, mostrarToast } = useToast()
   const [vista, setVista] = useState<'lista' | 'nuevo' | 'detalle' | 'factura'>('lista')
   const [filtro, setFiltro] = useState<'todos' | CategoriaInsumo>('todos')
@@ -400,7 +402,15 @@ export default function Insumos() {
         </div>
       )}
       <button className="btn-cta" style={{ marginBottom: 10 }} onClick={abrirNuevo}>+ Agregar insumo</button>
-      <button className="btn-secundario" style={{ marginBottom: 10 }} onClick={() => setVista('factura')}><IconoCamara />Escanear factura</button>
+      <button className="btn-secundario" style={{ marginBottom: 10 }} onClick={() => {
+        if (plan === 'gratis') { mostrarToast(<IconoAviso />, 'El escaneo de facturas con IA es de los planes pagos. Pásate a Pro para activarlo.'); return }
+        setVista('factura')
+      }}><IconoCamara />Escanear factura{plan === 'gratis' ? ' 🔒' : ''}</button>
+      {plan === 'gratis' && (
+        <p style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: -6, marginBottom: 10 }}>
+          Escanear facturas con IA es de los planes pagos — <button className="btn-texto" style={{ padding: 0, fontSize: 11.5, verticalAlign: 'baseline' }} onClick={() => navigate('/paywall')}>ver planes</button>.
+        </p>
+      )}
       <div className="fila-filtros" style={{ marginTop: 16 }}>
         {CATEGORIAS.map((c) => (
           <button key={c.valor} className={`filtro-chip${filtro === c.valor ? ' activo' : ''}`} onClick={() => setFiltro(c.valor)}>{c.label}</button>

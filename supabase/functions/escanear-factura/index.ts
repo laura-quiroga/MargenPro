@@ -97,6 +97,13 @@ async function manejar(req: Request): Promise<Response> {
   if (userError || !userData.user) return json({ error: 'No autenticado' }, 401)
   const user = userData.user
 
+  // El escaneo con IA es de los planes pagos — se revisa aquí (no solo en el botón del
+  // frontend) para que nadie lo active llamando la función directo.
+  const { data: perfil } = await supabase.from('profiles').select('plan').eq('id', user.id).maybeSingle()
+  if (perfil?.plan !== 'pro') {
+    return json({ error: 'El escaneo de facturas con IA es de los planes pagos. Pásate a Pro para activarlo.' }, 403)
+  }
+
   const { data: factura, error: facturaError } = await supabase
     .from('facturas_escaneadas').select('*').eq('id', facturaId).single()
   if (facturaError || !factura) return json({ error: 'No encontramos esa factura.' }, 404)

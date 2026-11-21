@@ -1,6 +1,79 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-21 | Sesión actual: 6
 
+## Plan gratis real implementado (resuelve parte del hallazgo crítico de ayer) — 2026-11-21
+Se definió y se construyó de verdad el plan gratis (decisión tomada con el usuario, "hazlo como
+lo consideres mejor"). Ya no es cierto que cualquiera tenga acceso ilimitado gratis para siempre:
+- **Plan `gratis` (default de TODA cuenta nueva):** hasta **3 recetas activas**, insumos y
+  cotizaciones sin límite (no cuestan nada), **SIN escaneo de factura con IA**, cotizaciones
+  **sin logo de marca**.
+- **Plan `pro`:** todo ilimitado + escaneo de factura (30/mes) + logo en cotizaciones.
+- Columna `profiles.plan` ('gratis'/'pro'), protegida con `revoke update (plan) ... from
+  authenticated/anon` (igual que `role`) — nadie puede auto-asignarse "pro" por su cuenta.
+- Aplicado en 2 capas (frontend Y servidor): `Recetas.tsx` bloquea la 4ª receta con aviso + banner;
+  `Insumos.tsx` bloquea el botón de escanear con candado 🔒; la Edge Function
+  `escanear-factura` TAMBIÉN revisa `plan='pro'` del lado del servidor (no se puede saltar
+  llamando la función directo); `Cotizaciones.tsx` no manda el logo si el plan es gratis.
+  Probado en vivo con la cuenta de prueba: el aviso aparece justo al llegar a 3 recetas, el botón
+  de escaneo queda bloqueado.
+- **Panel admin → Usuarios:** nueva columna "Plan" con botón "Marcar como Pro" / "Pasar a Gratis"
+  — mientras no exista el webhook de Hotmart, así es como el usuario (dueña) sube manualmente a
+  alguien a Pro en cuanto confirme el pago a mano.
+- La cuenta real de la dueña (94marshapril@gmail.com) se marcó `pro` manualmente para que no le
+  limite nada mientras prueba/demuestra su propia app.
+- Paywall: el botón "Seguir con el plan gratis" ahora dice explícitamente "(3 recetas, sin IA)".
+
+## ⚠️ PRIORIDAD #1 CONFIRMADA CON LA USUARIA: bloqueo de acceso ligado a Hotmart
+La usuaria confirmó que esto debe quedar resuelto el mismo día que se conecte Hotmart, no después:
+cuando exista el webhook de pago, debe escribir `profiles.plan='pro'` (ya existe la columna y la
+protección) al confirmar una compra, y `profiles.plan='gratis'` (o quitar pro) al cancelar/fallar
+el pago — así el plan gratis recién construido pasa a ser también el estado real de quien cancela
+su suscripción, en vez de un bloqueo total. Recordar esto cada vez que se retome el tema de Hotmart.
+
+## Notificación de insumos sin actualizar — implementada (sin esperar a Resend)
+Aviso dentro de Panorama (no por correo, eso depende de Resend/Hotmart, sigue pendiente): si algún
+insumo lleva 15+ días sin que se le toque el precio o el stock (campo `updated_at` de `insumos`),
+aparece un banner con los nombres y un link a Insumos. Se reavisa cada 7 días, no a diario (se
+guarda en localStorage cuándo se mostró por última vez). Campo nuevo `Insumo.actualizadoEn`
+(mapeado desde `insumos.updated_at`, ya existía en la tabla).
+
+## Lista de pendientes acordada con la usuaria (2026-11-21)
+- **Video de la app:** pendiente, no urgente — no hacerlo con mala calidad a última hora.
+- **Testimonio real:** pendiente — solo se puede conseguir con el primer cliente real (nunca inventar uno).
+- **Agregar el testimonio al marketing** en cuanto exista: pendiente, ligado al punto anterior.
+- **Gamificación (rachas/puntos):** descartada — la usuaria estuvo de acuerdo en NO sumarla.
+- **Posible subida de precio ($1-2 USD):** la usuaria lo está evaluando por margen (publicidad y
+  otros costos) — está muy por debajo de la competencia real encontrada (ver auditoría del
+  2026-11-21 más abajo), hay espacio para subir sin dejar de ser la opción más barata.
+
+## ⚠️ HALLAZGO CRÍTICO — auditoría pre-lanzamiento 9 pasos (2026-11-21)
+**No existe ningún mecanismo que bloquee el acceso a quien no pagó.** `/login` es una ruta
+pública sin ningún guard de suscripción — hoy cualquier correo puede crear una cuenta 100%
+funcional (sin límites) directo, sin pasar por Hotmart ni por el paywall. El botón "Seguir con
+el plan gratis limitado" del paywall lleva al MISMO lugar que el botón de pago y no limita nada
+en el código. Esto es MÁS urgente que conectar Hotmart: conectar Hotmart sin esto significa que
+alguien puede cancelar su suscripción ahí y seguir usando la app gratis para siempre, porque nada
+en `AppLayout.tsx` revisa el estado de la suscripción (solo revisa `access_status` para el
+bloqueo manual de admin). **Acción pendiente antes de vender de verdad:** cuando se conecte
+Hotmart, el webhook debe escribir un estado de suscripción real (ej. `profiles.plan_activo` o
+reusar `access_status`), y `AppLayout.tsx` debe revisarlo igual que ya revisa `disabled`,
+redirigiendo a `/paywall` si no hay suscripción activa. También definir qué incluye de verdad el
+"plan gratis limitado" antes de dejar ese botón tal como está (hoy promete un límite que no existe).
+
+**Otros hallazgos de esta auditoría (ya verificados, sin acción pendiente):**
+- Costo real de IA medido en producción: ~US$0.0058 promedio por escaneo de factura, tope de 30/mes
+  YA aplicado de verdad en `supabase/functions/escanear-factura/index.ts` (no solo prometido) —
+  costo máximo real ~US$0.23/mes por cliente, ~4% del plan de $5.99 (muy por debajo del 25% pedido).
+- Cotizaciones se generan como imagen (canvas, 100% cliente, costo $0) — correcto para WhatsApp,
+  mejor que PDF para este canal; un export a PDF opcional (jsPDF, gratis) queda como idea de V2.
+- Precio de MargenPro ($5.99-7.99/mes) es más barato que los competidores reales encontrados:
+  CostoCero ($9.99-14.99/mes), CostoPRO (~US$15.8/mes equivalente anual), Gastrometrics
+  ($15-70/mes) — fuentes: costocero.app, costopro.lat, gastrometrics.org (verificado 2026-11-21).
+- Las 3 promesas de "ilimitado" en landing/paywall (recetas, insumos, cotizaciones) son honestas —
+  ninguna usa IA ni tiene costo por uso.
+- El "momento ¡ajá!" ya está bien ubicado: paso 6 de 7 del onboarding, el usuario ve su propio
+  precio calculado con sus propios datos, antes del paywall.
+
 ## ⚠️ Pendiente: validar la capa legal país por país (México y Perú) — 2026-11-21
 La app vende en Colombia (base, ya validada contra Ley 1581), México y Perú (monedas MXN/PEN
 soportadas) y en USD para cualquier otro país. La auditoría del 2026-11-20 siguió la doctrina del

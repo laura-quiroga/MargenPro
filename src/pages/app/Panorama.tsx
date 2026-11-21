@@ -11,10 +11,12 @@ function inicioDeAnio(d = new Date()): Date {
   return new Date(d.getFullYear(), 0, 1)
 }
 const CLAVE_AVISO_PENDIENTES = 'margenpro_aviso_pendientes_visto'
+const CLAVE_AVISO_INSUMOS_VIEJOS = 'margenpro_aviso_insumos_viejos_visto'
+const DIAS_INSUMO_VIEJO = 15
 
 export default function Panorama() {
   const navigate = useNavigate()
-  const { cotizaciones, mesesReales, mesActualIdx, setMesActualIdx, money } = useAppStore()
+  const { cotizaciones, insumos, mesesReales, mesActualIdx, setMesActualIdx, money } = useAppStore()
   const mes = mesesReales[mesActualIdx]
 
   const inicioMesActual = inicioDeMes()
@@ -52,6 +54,23 @@ export default function Panorama() {
     setAvisoVisible(false)
   }
   const pendientesViejas = cotizaciones.filter((c) => c.estado === 'pendiente' && new Date(c.createdAt) < inicioMesActual)
+
+  // Aviso de insumos que llevan muchos días sin que se les actualice el precio — el insumo pudo
+  // haber subido sin que el usuario lo haya registrado todavía. Se reavisa cada 7 días, no a diario.
+  const [avisoInsumosVisible, setAvisoInsumosVisible] = useState(false)
+  const insumosViejos = insumos.filter((i) => i.actualizadoEn && (Date.now() - new Date(i.actualizadoEn).getTime()) / 86400000 >= DIAS_INSUMO_VIEJO)
+  useEffect(() => {
+    if (!insumosViejos.length) { setAvisoInsumosVisible(false); return }
+    const ultimaVez = localStorage.getItem(CLAVE_AVISO_INSUMOS_VIEJOS)
+    if (ultimaVez && (Date.now() - Number(ultimaVez)) / 86400000 < 7) return
+    setAvisoInsumosVisible(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [insumos])
+  function cerrarAvisoInsumosViejos() {
+    localStorage.setItem(CLAVE_AVISO_INSUMOS_VIEJOS, String(Date.now()))
+    setAvisoInsumosVisible(false)
+  }
+
   const gasto = mes.gasto
   const ganancia = ingreso - gasto
   const esPerdida = ganancia < 0
@@ -72,6 +91,24 @@ export default function Panorama() {
               Dales seguimiento — quizás ya puedes marcarlas como vendidas o rechazadas.
             </p>
             <button className="btn-texto" style={{ marginTop: 6, padding: 0 }} onClick={cerrarAvisoPendientes}>Ya las revisé</button>
+          </div>
+        </div>
+      )}
+
+      {avisoInsumosVisible && (
+        <div className="aviso-precio" style={{ marginBottom: 16 }}>
+          <div className="chip-icono aviso" style={{ width: 36, height: 36 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p>
+              <strong>{insumosViejos.length} insumo{insumosViejos.length === 1 ? '' : 's'} sin actualizar hace más de {DIAS_INSUMO_VIEJO} días:</strong>{' '}
+              {insumosViejos.slice(0, 4).map((i) => i.nombre).join(', ')}{insumosViejos.length > 4 ? '…' : ''}. Revisa si subieron de precio.
+            </p>
+            <div style={{ display: 'flex', gap: 14, marginTop: 6 }}>
+              <button className="btn-texto" style={{ padding: 0 }} onClick={() => navigate('/app/insumos')}>Revisar insumos</button>
+              <button className="btn-texto" style={{ padding: 0, color: 'var(--text-2)' }} onClick={cerrarAvisoInsumosViejos}>Ya los revisé</button>
+            </div>
           </div>
         </div>
       )}

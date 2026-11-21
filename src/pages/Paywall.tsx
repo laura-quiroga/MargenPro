@@ -98,7 +98,7 @@ export default function Paywall() {
           <p className="nota-plan-elegido">Vas a empezar con el plan {planElegido === 'anual' ? 'Anual ($5.99/mes)' : 'Mensual ($7.99/mes)'}</p>
           <button className="btn-cta" onClick={() => navigate('/login')}>Probar 7 días gratis →</button>
           <p className="nota-garantia">Garantía propia de MargenPro · 14 días</p>
-          <button className="btn-texto" onClick={() => navigate('/login')}>Seguir con el plan gratis limitado</button>
+          <button className="btn-texto" onClick={() => navigate('/login')}>Seguir con el plan gratis (3 recetas, sin IA)</button>
         </div>
       </div>
     </PhoneFrame>

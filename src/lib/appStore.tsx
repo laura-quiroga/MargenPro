@@ -18,6 +18,7 @@ function filaAInsumo(fila: Record<string, unknown>): Insumo {
     ultimaCompraCantidad: fila.ultima_compra_cantidad === null || fila.ultima_compra_cantidad === undefined ? undefined : Number(fila.ultima_compra_cantidad),
     ultimaCompraTotal: fila.ultima_compra_total === null || fila.ultima_compra_total === undefined ? undefined : Number(fila.ultima_compra_total),
     ultimaCompraMedida: fila.ultima_compra_medida ? (fila.ultima_compra_medida as Insumo['unidad']) : undefined,
+    actualizadoEn: (fila.updated_at as string | null) ?? undefined,
   }
 }
 
@@ -239,6 +240,12 @@ interface AppContextValue {
   cfg: ConfigNegocio
   modoCalculo: 'simple' | 'real'
   moneda: Moneda
+  /** 'gratis': hasta 3 recetas activas, sin escaneo de factura, cotizaciones sin logo.
+   * 'pro': todo ilimitado + escaneo de factura (30/mes) + logo en cotizaciones. Hoy TODA cuenta
+   * nueva empieza en 'gratis' — solo pasa a 'pro' cuando el webhook de Hotmart confirme una
+   * compra real (pendiente, ver ESTADO.md). */
+  plan: 'gratis' | 'pro'
+  cargandoPlan: boolean
   /** Últimos meses con cifras 100% reales (ingreso de cotizaciones vendidas, gasto de compras
    * de insumo) — un cliente nuevo ve todo en $0, nunca un mes de ejemplo con datos de otro. */
   mesesReales: MesReal[]
@@ -318,6 +325,8 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [lineaAtencion, setLineaAtencionState] = useState<string>('')
   const [cargandoConfig, setCargandoConfig] = useState(true)
   const [comprasTodas, setComprasTodas] = useState<{ total: number; createdAt: string }[]>([])
+  const [plan, setPlan] = useState<'gratis' | 'pro'>('gratis')
+  const [cargandoPlan, setCargandoPlan] = useState(true)
 
   useEffect(() => {
     let activo = true
@@ -374,6 +383,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       }
       setCargandoConfig(false)
     }
+    async function cargarPlan() {
+      const { data: userData } = await supabase.auth.getUser()
+      const usuario = userData.user
+      if (!usuario) { setCargandoPlan(false); return }
+      const { data } = await supabase.from('profiles').select('plan').eq('id', usuario.id).maybeSingle()
+      if (!activo) return
+      if (data?.plan === 'pro' || data?.plan === 'gratis') setPlan(data.plan)
+      setCargandoPlan(false)
+    }
     async function cargarCompras() {
       const hoy = new Date()
       const desde = new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1)
@@ -385,9 +403,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cargarRecetas()
     cargarCotizaciones()
     cargarConfig()
+    cargarPlan()
     cargarCompras()
     const { data: listener } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') { cargarInsumos(); cargarRecetas(); cargarCotizaciones(); cargarConfig(); cargarCompras() }
+      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') { cargarInsumos(); cargarRecetas(); cargarCotizaciones(); cargarConfig(); cargarPlan(); cargarCompras() }
     })
     return () => { activo = false; listener.subscription.unsubscribe() }
   }, [])
@@ -693,6 +712,8 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cfg,
     modoCalculo,
     moneda,
+    plan,
+    cargandoPlan,
     mesesReales: construirMesesReales(cotizaciones, comprasTodas),
     mesActualIdx, setMesActualIdx,
     gastoMesActual: comprasTodas
@@ -718,7 +739,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cargandoConfig,
     guardarConfigNegocio,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [insumos, recetas, cargandoRecetas, cotizaciones, cargandoCotizaciones, cfg, modoCalculo, moneda, mesActualIdx, cargandoInsumos, logoNegocio, nombreNegocio, lineaAtencion, cargandoConfig, comprasTodas])
+  }), [insumos, recetas, cargandoRecetas, cotizaciones, cargandoCotizaciones, cfg, modoCalculo, moneda, plan, cargandoPlan, mesActualIdx, cargandoInsumos, logoNegocio, nombreNegocio, lineaAtencion, cargandoConfig, comprasTodas])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

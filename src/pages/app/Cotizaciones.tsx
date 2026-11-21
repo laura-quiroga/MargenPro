@@ -79,7 +79,7 @@ interface FilaCotizacion {
 }
 
 export default function Cotizaciones() {
-  const { recetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion } = useAppStore()
+  const { recetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion, plan } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
@@ -178,7 +178,8 @@ export default function Cotizaciones() {
     const ventanaWa = window.open('', '_blank')
 
     const blob = await generarImagenCotizacion({
-      logo: logoNegocio,
+      // El logo de marca es de los planes pagos — en el plan gratis la cotización sale sin logo.
+      logo: plan === 'pro' ? logoNegocio : null,
       nombreNegocio: negocioFinal,
       cliente: clienteFinal,
       items: preview.items.map((it) => ({ etiqueta: it.cantidad > 1 ? `${it.producto} x${it.cantidad}` : it.producto, montoTexto: money(it.monto) })),

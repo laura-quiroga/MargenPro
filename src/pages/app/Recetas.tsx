@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
 import { convertirAGramos, GRAMOS_POR_LIBRA } from '../../lib/costeo'
 import { logEvent } from '../../lib/eventos'
@@ -66,7 +66,10 @@ const IconoReceta = () => (
 )
 
 export default function Recetas() {
-  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, eliminarReceta, cfg, modoCalculo, money, costear } = useAppStore()
+  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, eliminarReceta, cfg, modoCalculo, money, costear, plan } = useAppStore()
+  const navigate = useNavigate()
+  const TOPE_RECETAS_GRATIS = 3
+  const limiteRecetasAlcanzado = plan === 'gratis' && recetas.length >= TOPE_RECETAS_GRATIS
   const { toast, mostrarToast } = useToast()
   const location = useLocation()
   const [vista, setVista] = useState<'lista' | 'constructor'>('lista')
@@ -84,6 +87,10 @@ export default function Recetas() {
   const [filaAbierta, setFilaAbierta] = useState<number | null>(null)
 
   function abrirConstructor() {
+    if (limiteRecetasAlcanzado) {
+      mostrarToast(<IconoAviso />, `El plan gratis permite hasta ${TOPE_RECETAS_GRATIS} recetas activas. Pásate a Pro para agregar recetas ilimitadas.`)
+      return
+    }
     setEditId(null)
     setNombre('')
     setUnidades('1')
@@ -328,6 +335,15 @@ export default function Recetas() {
     <>
       <h2 className="titulo-seccion">Tus recetas</h2>
       <p className="sub-seccion">Cada una con su costo real y el precio sugerido.</p>
+      {limiteRecetasAlcanzado && (
+        <div className="aviso-precio" style={{ marginBottom: 14 }}>
+          <IconoAviso />
+          <div>
+            <p><strong>Llegaste a tus {TOPE_RECETAS_GRATIS} recetas gratis.</strong> Pásate a Pro para costear recetas ilimitadas.</p>
+            <button className="btn-texto" style={{ marginTop: 4, padding: 0 }} onClick={() => navigate('/paywall')}>Ver planes</button>
+          </div>
+        </div>
+      )}
       <button className="btn-cta" style={{ marginBottom: 14 }} onClick={abrirConstructor}>+ Costear receta nueva</button>
       {cargandoRecetas ? (
         <div className="vacio"><p>Cargando tus recetas…</p></div>

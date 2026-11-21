@@ -18,6 +18,7 @@ interface FilaUsuario {
   name: string | null
   role: 'user' | 'admin'
   access_status: 'active' | 'disabled'
+  plan: 'gratis' | 'pro'
   created_at: string
   insumos_count: number
   recetas_count: number
@@ -101,6 +102,15 @@ export default function AdminUsuarios() {
     setFilas((prev) => prev?.map((f) => (f.user_id === userId ? { ...f, role: nuevo } : f)) ?? null)
   }
 
+  // Mientras no esté conectado el webhook de Hotmart, así es como una venta real se refleja en
+  // la app: el dueño confirma el pago a mano y marca aquí al usuario como "Pro". Cuando el
+  // webhook exista, esto pasa a ser automático y este botón queda como respaldo manual.
+  async function cambiarPlan(userId: string, nuevo: 'gratis' | 'pro') {
+    const { error } = await supabase.rpc('admin_actualizar_usuario', { target_user_id: userId, nuevo_plan: nuevo })
+    if (error) { setMensaje('No pudimos cambiar el plan. Intenta de nuevo.'); return }
+    setFilas((prev) => prev?.map((f) => (f.user_id === userId ? { ...f, plan: nuevo } : f)) ?? null)
+  }
+
   const usuariosActivosD7 = filas ? filas.filter((f) => new Date(f.created_at).getTime() >= Date.now() - 7 * 86400000).length : 0
 
   return (
@@ -153,7 +163,7 @@ export default function AdminUsuarios() {
         ) : (
           <table className="admin-tabla">
             <thead>
-              <tr><th>Correo</th><th>Nombre</th><th>Insumos</th><th>Recetas</th><th>Cotizaciones</th><th>Rol</th><th>Estado</th><th></th></tr>
+              <tr><th>Correo</th><th>Nombre</th><th>Insumos</th><th>Recetas</th><th>Cotizaciones</th><th>Rol</th><th>Estado</th><th>Plan<InfoTooltip texto="Hasta que conectemos el pago automático de Hotmart, marca aquí manualmente a quien ya te pagó de verdad." /></th><th></th></tr>
             </thead>
             <tbody>
               {filas.map((f) => (
@@ -165,6 +175,14 @@ export default function AdminUsuarios() {
                   <td>{f.cotizaciones_count}</td>
                   <td><span className={`admin-badge ${f.role === 'admin' ? 'activo' : ''}`}>{f.role === 'admin' ? 'Administrador' : 'Usuario'}</span></td>
                   <td><span className={`admin-badge ${f.access_status === 'active' ? 'activo' : 'disabled'}`}>{f.access_status === 'active' ? 'Activo' : 'Desactivado'}</span></td>
+                  <td>
+                    <span className={`admin-badge ${f.plan === 'pro' ? 'activo' : ''}`}>{f.plan === 'pro' ? 'Pro' : 'Gratis'}</span>{' '}
+                    {f.user_id !== miPropioId && (
+                      <button className="admin-btn admin-btn-secundario" style={{ marginTop: 4 }} onClick={() => cambiarPlan(f.user_id, f.plan === 'pro' ? 'gratis' : 'pro')}>
+                        {f.plan === 'pro' ? 'Pasar a Gratis' : 'Marcar como Pro'}
+                      </button>
+                    )}
+                  </td>
                   <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     {f.access_status === 'active' ? (
                       <button className="admin-btn admin-btn-secundario" onClick={() => cambiarAcceso(f.user_id, 'disabled')}>Desactivar</button>
