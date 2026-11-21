@@ -9,9 +9,20 @@ reales del panel (no del sistema, del proveedor):
   de los 7 días de prueba). Actualizado en `Landing.tsx`, `Paywall.tsx`, `Reembolsos.tsx`,
   `ComoCancelar.tsx`, `docs/copy/landing.md` y `FICHA-MERCADO.md` — ya no debe quedar ningún "14
   días" de cara al cliente.
-- Plan Mensual en construcción: moneda USD (no la real brasileña que trae por defecto), $9.99,
-  periodicidad mensual, forma de pago de contado, cobro hasta que cancele, prueba de 7 días
-  activada. Falta confirmar que se guardó y crear el plan Anual ($83.88, periodicidad anual).
+- **Plan Mensual y Anual ya creados y guardados** en Hotmart: Mensual $9.99 USD/mes, Anual $83.88
+  USD/año, los dos con cobro de contado, "hasta que el cliente cancele" y 7 días de prueba
+  gratuita (tipo "Gratuito", no "con cargo"). Confirmado con capturas reales del panel.
+- Checklist de registro del producto en Hotmart: Información básica, Fijación de precios, Página
+  de Venta, Datos personales y Área de Miembros ya quedaron en verde. Faltaba "Contenido"
+  (obligatoria) — se está creando 1 módulo "Bienvenida(o) a MargenPro" con 1 clase de texto
+  (sin video) a modo de mensaje de bienvenida + acceso, ya que MargenPro es una app web, no un
+  curso. Afiliados y Tributación quedan como opcionales, se dejan pendientes por ahora.
+- ⚠️ **Hallazgo real: la app todavía no está publicada en internet** (solo corre en local para
+  pruebas) — no hay ningún enlace real que poner en el contenido de Hotmart todavía. Se usó un
+  texto temporal ("tu acceso está siendo activado, revisa tu correo") en vez de un link roto,
+  para poder terminar el registro del producto hoy. Cuando se publique la app (Vercel da una
+  dirección gratis al instante, sin necesidad del dominio comprado todavía), hay que volver a
+  esta clase en Hotmart (Contenido → ⋮ → Editar) y poner el enlace real — toma 30 segundos.
 - Decisión tomada con la usuaria: NO activar el "Recuperador de suscripciones" de Hotmart por
   ahora (divide el pago anual en 12 cuotas mensuales, lo que contradice el copy actual de "se
   cobra $83.88/año de una vez") — revisar solo si más adelante hay caídas reales de pago por
@@ -747,6 +758,13 @@ usuarios a mano. Plan aprobado en modo plan y ejecutado completo:
 - [pendiente-viejo-obsoleto] Las menciones a `dev/*.html` (landing/onboarding-paywall-login/app-interna) y al "scaffold en curso" en notas más arriba de este archivo son de sesiones anteriores al port completo a React — ya NO aplican, todo vive en `src/` como código real desde hace varias sesiones. Se dejan sin borrar por ahora para no perder el historial, pero no son accionables.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
+- ⚠️ **MUY IMPORTANTE — comprar el dominio (`margenpro.app` o el que decida) en cuanto tenga el
+  presupuesto (ella dijo que podría ser a partir del día 30).** De este dominio dependen, en
+  cadena: (1) verificar el dominio en Resend para que el enlace de inicio de sesión le llegue a
+  CUALQUIER cliente, no solo a ella (hoy está bloqueado — ver nota de Resend más abajo); (2) tener
+  un correo de soporte de marca (`soporte@margenpro.app`) en vez del `margenpro.soporte@gmail.com`
+  temporal; (3) un enlace real y presentable para poner en Hotmart, redes y publicidad, en vez del
+  gratuito de Vercel. Recordárselo en cada sesión hasta que esté comprado.
 - **Nuevo, para cerrar el panel de administración**: iniciar sesión en `/login` con su correo admin
   (`94marshapril@gmail.com`, ya promovido a `role='admin'`) y avisar cuando esté adentro de `/admin`
   — así se completa el screenshot + veredicto del revisor-visual que falta para declararlo "listo".
