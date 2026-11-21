@@ -1,6 +1,16 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-21 | Sesión actual: 6
 
+## Precio subido — decisión tomada con la usuaria (2026-11-21)
+Tras la auditoría pre-lanzamiento (competencia real $9.99-70/mes, MargenPro era el más barato por
+mucho margen), la usuaria pidió tomar la recomendación: **mensual $7.99→$9.99, anual (equivalente
+mensual) $5.99→$6.99 ($83.88/año)**. Actualizado en `Landing.tsx` y `Paywall.tsx`, incluida la
+frase "menos de $0.20 al día" → "menos de $0.25 al día" (el número real con el nuevo precio anual
+es $0.23/día) y el ahorro anual de "2 meses gratis" → "3 meses gratis" (el ahorro real subió a
+~3.6 meses, se dejó en 3 para no sobreprometer). Build y vista en vivo verificados.
+⚠️ **Pendiente ligado a Hotmart:** cuando se cree el producto en Hotmart, usar estos precios
+nuevos ($9.99/mes y $83.88/año), no los viejos.
+
 ## Plan gratis real implementado (resuelve parte del hallazgo crítico de ayer) — 2026-11-21
 Se definió y se construyó de verdad el plan gratis (decisión tomada con el usuario, "hazlo como
 lo consideres mejor"). Ya no es cierto que cualquiera tenga acceso ilimitado gratis para siempre:

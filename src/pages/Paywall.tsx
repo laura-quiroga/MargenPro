@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import PhoneFrame from '../components/PhoneFrame'
 import './Paywall.css'
 
-const PRECIO_ANUAL_FINAL = 5.99
+const PRECIO_ANUAL_FINAL = 6.99
 
 function PrecioAnualAnimado() {
   const [valor, setValor] = useState(0)
@@ -55,7 +55,7 @@ export default function Paywall() {
             <div className="linea"><span><span className="check-custom">✓</span> Recetas y cotizaciones ilimitadas</span><span>$96</span></div>
             <div className="linea"><span><span className="check-custom">✓</span> Escanea una factura y tus precios se actualizan solos</span><span>$30</span></div>
             <div className="linea"><span><span className="check-custom">✓</span> Manda cotizaciones con tu logo en 30 segundos</span><span>$20</span></div>
-            <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $71.88/año</span></div>
+            <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $83.88/año</span></div>
           </div>
           <p className="nota-moneda entrada">Este precio de MargenPro siempre es en USD, sin importar la moneda en la que anotes tus insumos.</p>
 
@@ -70,8 +70,8 @@ export default function Paywall() {
             <span className="badge">MÁS POPULAR</span>
             <div className="nombre-plan">Anual</div>
             <div className="precio-plan"><PrecioAnualAnimado /> <span>/mes</span></div>
-            <div className="nota-plan">Se cobra $71.88/año</div>
-            <div className="ahorro">2 meses gratis</div>
+            <div className="nota-plan">Se cobra $83.88/año</div>
+            <div className="ahorro">3 meses gratis</div>
           </div></div>
           <div
             className={`plan entrada${planElegido === 'mensual' ? ' seleccionado' : ''}`}
@@ -80,7 +80,7 @@ export default function Paywall() {
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPlanElegido('mensual') }}
           >
             <div className="nombre-plan">Mensual</div>
-            <div className="precio-plan">$7.99 <span>/mes</span></div>
+            <div className="precio-plan">$9.99 <span>/mes</span></div>
             <div className="nota-plan">Se cobra mes a mes</div>
             <div className="ahorro ahorro-neutro">Cancelas cuando quieras</div>
           </div>
@@ -95,7 +95,7 @@ export default function Paywall() {
           <p className="sub entrada" style={{ textAlign: 'center', fontSize: '12.5px', marginTop: 10 }}>No te cobramos nada hoy. Cancela cuando quieras desde tu cuenta, en 1 toque.</p>
         </div>
         <div className="pantalla-footer">
-          <p className="nota-plan-elegido">Vas a empezar con el plan {planElegido === 'anual' ? 'Anual ($5.99/mes)' : 'Mensual ($7.99/mes)'}</p>
+          <p className="nota-plan-elegido">Vas a empezar con el plan {planElegido === 'anual' ? 'Anual ($6.99/mes)' : 'Mensual ($9.99/mes)'}</p>
           <button className="btn-cta" onClick={() => navigate('/login')}>Probar 7 días gratis →</button>
           <p className="nota-garantia">Garantía propia de MargenPro · 14 días</p>
           <button className="btn-texto" onClick={() => navigate('/login')}>Seguir con el plan gratis (3 recetas, sin IA)</button>

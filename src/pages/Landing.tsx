@@ -337,21 +337,21 @@ export default function Landing() {
         <div className="radar-firma" aria-hidden="true"><RadarFirma /></div>
         <div className={`wrap aparece${ofertaScroll.visto ? ' visto' : ''}`} ref={ofertaScroll.ref}>
           <div className="kicker">Precio</div>
-          <h2>Empieza gratis. Sigue por <span className="acento">menos de $0.20 al día</span></h2>
+          <h2>Empieza gratis. Sigue por <span className="acento">menos de $0.25 al día</span></h2>
           <div className="stack-valor">
             <div className="linea"><span>MargenPro completo con el Radar de Ganancia (12 meses)</span><span>$96</span></div>
             <div className="linea"><span>Escaneo de facturas con IA (30 al mes)</span><span>$30</span></div>
             <div className="linea"><span>Cotizaciones profesionales con tu logo por WhatsApp</span><span>$20</span></div>
-            <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $71.88/año</span></div>
+            <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $83.88/año</span></div>
           </div>
           <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-2)', marginBottom: 14 }}>Los dos planes empiezan con 7 días de prueba gratis — no pagas nada hoy, elijas el que elijas.</p>
           <div className="planes">
             <div className="plan recomendado"><div className="inner">
               <span className="badge">MÁS POPULAR</span>
               <div className="nombre-plan">Anual</div>
-              <div className="precio-plan">$5.99 <span>/mes</span></div>
-              <div className="nota-plan">Se cobra $71.88/año</div>
-              <div className="ahorro">2 meses gratis</div>
+              <div className="precio-plan">$6.99 <span>/mes</span></div>
+              <div className="nota-plan">Se cobra $83.88/año</div>
+              <div className="ahorro">3 meses gratis</div>
               <ul className="features-plan">
                 <li><span className="check-custom">✓</span> Recetas e insumos ilimitados</li>
                 <li><span className="check-custom">✓</span> Escaneo de facturas con IA (30/mes)</li>
@@ -362,7 +362,7 @@ export default function Landing() {
             </div></div>
             <div className="plan">
               <div className="nombre-plan">Mensual</div>
-              <div className="precio-plan">$7.99 <span>/mes</span></div>
+              <div className="precio-plan">$9.99 <span>/mes</span></div>
               <div className="nota-plan">Se cobra mes a mes</div>
               <div className="ahorro" style={{ opacity: 0 }}>—</div>
               <ul className="features-plan">
