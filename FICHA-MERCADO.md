@@ -28,9 +28,13 @@
 - Plazos de prueba que admite la pasarela: NO CONFIRMADO con Hotmart todavía — el usuario no ha creado su cuenta de Hotmart en esta sesión
 - Plazos de garantía/reembolso que admite: NO CONFIRMADO con Hotmart todavía
 - **Prueba elegida: 7 días** (decidido en Sesión 1 — el aha de la app es inmediato, en minutos ya ve el precio calculado; ver 02C)
-- **Garantía elegida: 14 días** (política propia de MargenPro, independiente del plazo que configure Hotmart — se puede ofrecer dentro de cualquier configuración estándar de reembolso de la plataforma)
-- Comprobación: garantía 14 > prueba 7 → SÍ, cumple la regla dura
-- ⚠️ PENDIENTE: confirmar en el panel real de Hotmart, al crear la cuenta y el producto, que 14 días de garantía es una opción configurable — si no lo es, ajustar aquí y en el copy de venta antes de publicar (gate de integridad 61)
+- **Garantía elegida: 15 días** (ajustado de 14 a 15 el 2026-11-21: en el panel real de Hotmart,
+  al crear el producto, el desplegable de "Plazo para solicitar el reembolso" solo ofrece 7, 15,
+  21 o 30 días — no existe la opción de 14. Se eligió 15 por ser la más cercana al número
+  original y la primera por encima de los 7 días de prueba)
+- Comprobación: garantía 15 > prueba 7 → SÍ, cumple la regla dura
+- ✅ CONFIRMADO en el panel real de Hotmart (2026-11-21): 15 días de garantía. Copy actualizado en
+  `Landing.tsx`, `Paywall.tsx`, `Reembolsos.tsx`, `ComoCancelar.tsx` y `docs/copy/landing.md`.
 
 ## 5. CONVERSIÓN ESPERABLE
 - NO ENCONTRADO — sin dato propio todavía; se usará como referencia general de apps utilitarias de nicho hasta tener datos propios

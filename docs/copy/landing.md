@@ -49,8 +49,8 @@
 
 ## 7. GARANTÍA
 - nombre: "la Garantía del Primer Precio Real"
-- condiciónMarked: "Si ya pagaste y en tus primeros 14 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. [b]Sin preguntas[/b]."
-- pisoLegal: "Garantía propia de MargenPro · 14 días" — corregido tras veredicto del revisor-visual (2026-11-07): ya no se afirma un plazo de Hotmart sin confirmar (riesgo de claim falso, gate 61). Ahora es una garantía de 14 días, PROPIA de MargenPro (no atribuida a Hotmart), ya formalizada en FICHA-MERCADO.md §4 — cumple la regla dura garantía(14) > prueba(7). Pendiente: confirmar que 14 días es configurable en el panel real de Hotmart cuando se cree la cuenta.
+- condiciónMarked: "Si ya pagaste y en tus primeros 15 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. [b]Sin preguntas[/b]."
+- pisoLegal: "Garantía propia de MargenPro · 15 días" — corregido tras veredicto del revisor-visual (2026-11-07): ya no se afirma un plazo de Hotmart sin confirmar (riesgo de claim falso, gate 61). Ahora es una garantía de 15 días, PROPIA de MargenPro (no atribuida a Hotmart), ya formalizada en FICHA-MERCADO.md §4 — cumple la regla dura garantía(14) > prueba(7). Pendiente: confirmar que 15 días es configurable en el panel real de Hotmart cuando se cree la cuenta.
 
 ## 8. FAQ (fuente: campo Objeciones, literal)
 1. "¿Necesito saber de tecnología o matemáticas para usar esto?" → "No. Escribes el nombre y precio de lo que compras, o le tomas una foto al recibo y la app hace el resto." (Objeción #1)

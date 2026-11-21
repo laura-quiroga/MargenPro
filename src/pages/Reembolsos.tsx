@@ -14,9 +14,9 @@ export default function Reembolsos() {
         se te cobra nada. Si cancelas antes de que termine, nunca se te cobra un solo peso.
       </p>
 
-      <h2>2. Garantía del Primer Precio Real — 14 días</h2>
+      <h2>2. Garantía del Primer Precio Real — 15 días</h2>
       <p>
-        Si ya se te cobró y dentro de tus primeros <strong>14 días</strong> de suscripción pagada no
+        Si ya se te cobró y dentro de tus primeros <strong>15 días</strong> de suscripción pagada no
         tienes clara tu primera receta costeada con el precio justo, escríbenos a
         <strong> margenpro.soporte@gmail.com</strong> contándonos qué pasó, y te devolvemos tu dinero por
         completo. Sin preguntas ni trámites complicados.
@@ -49,7 +49,7 @@ export default function Reembolsos() {
       <p>
         Cancelar tu suscripción (ver <a href="/como-cancelar">Cómo cancelar</a>) detiene la próxima
         renovación, pero no reembolsa automáticamente el período que ya pagaste — para eso aplica la
-        garantía de la sección 2, dentro de sus 14 días.
+        garantía de la sección 2, dentro de sus 15 días.
       </p>
 
       <h2>6. Contacto</h2>

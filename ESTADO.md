@@ -1,6 +1,25 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-21 | Sesión actual: 6
 
+## Conectando Hotmart en vivo, paso a paso con la usuaria (2026-11-21)
+Se está creando el producto real en Hotmart (nombre MargenPro, planes Mensual y Anual). Hallazgos
+reales del panel (no del sistema, del proveedor):
+- **Garantía ajustada de 14 a 15 días**: el desplegable de Hotmart para "Plazo para solicitar el
+  reembolso" solo ofrece 7, 15, 21 o 30 — no existe 14. Se eligió 15 (el más cercano, por encima
+  de los 7 días de prueba). Actualizado en `Landing.tsx`, `Paywall.tsx`, `Reembolsos.tsx`,
+  `ComoCancelar.tsx`, `docs/copy/landing.md` y `FICHA-MERCADO.md` — ya no debe quedar ningún "14
+  días" de cara al cliente.
+- Plan Mensual en construcción: moneda USD (no la real brasileña que trae por defecto), $9.99,
+  periodicidad mensual, forma de pago de contado, cobro hasta que cancele, prueba de 7 días
+  activada. Falta confirmar que se guardó y crear el plan Anual ($83.88, periodicidad anual).
+- Decisión tomada con la usuaria: NO activar el "Recuperador de suscripciones" de Hotmart por
+  ahora (divide el pago anual en 12 cuotas mensuales, lo que contradice el copy actual de "se
+  cobra $83.88/año de una vez") — revisar solo si más adelante hay caídas reales de pago por
+  cupo de tarjeta.
+- ⚠️ Sigue pendiente después de esto: crear el webhook que conecte Hotmart con `profiles.plan`
+  (activar/desactivar acceso solo, sin intervención manual) — es el bloqueo real de acceso que
+  la usuaria pidió resolver "ten super super pendiente".
+
 ## Prueba detallada de la app con la cuenta de prueba (2026-11-21)
 Se probó a fondo con `prueba@margenpro.test`: Panorama, Insumos (alta + aviso de stock negativo —
 **arreglado**, `formatearStock` ahora nunca muestra negativo, se topa en 0), Recetas (alta + tope

@@ -23,7 +23,7 @@ export default function ComoCancelar() {
 
       <h2>¿Pediste un reembolso en vez de cancelar?</h2>
       <p>
-        Revisa nuestra <a href="/reembolsos">Política de Reembolsos</a> — tienes 14 días desde tu
+        Revisa nuestra <a href="/reembolsos">Política de Reembolsos</a> — tienes 15 días desde tu
         primer cobro para pedir que te devolvamos el dinero si tu primer precio costeado todavía no
         te quedó claro.
       </p>

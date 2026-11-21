@@ -384,8 +384,8 @@ export default function Landing() {
             <div className="escudo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--on-accent)" strokeWidth="2"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" /><path d="M9 12l2 2 4-4" /></svg></div>
             <div>
               <h3>La Garantía del Primer Precio Real</h3>
-              <p>Si ya pagaste y en tus primeros 14 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. <strong>Sin preguntas.</strong></p>
-              <div className="piso">Garantía propia de MargenPro · 14 días</div>
+              <p>Si ya pagaste y en tus primeros 15 días no tienes clara tu primera receta costeada con el precio justo, escribes un correo y te devolvemos todo. <strong>Sin preguntas.</strong></p>
+              <div className="piso">Garantía propia de MargenPro · 15 días</div>
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: 26 }}><Link className="btn-cta" to="/onboarding">Calcular mi primer precio gratis →</Link></div>
