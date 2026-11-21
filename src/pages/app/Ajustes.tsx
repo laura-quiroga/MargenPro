@@ -131,12 +131,21 @@ export default function Ajustes() {
           <img src={logoLocal || '/isotipo.svg'} alt="Logo de tu negocio" style={logoLocal ? { width: '100%', height: '100%', objectFit: 'cover' } : { width: 28, height: 28 }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-          <label className="btn-secundario" style={{ margin: 0, cursor: 'pointer' }}>
-            {logoLocal ? 'Cambiar logo' : 'Subir mi logo'}
-            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={manejarSubidaLogo} />
-          </label>
-          {logoLocal && (
-            <button onClick={() => setLogoLocal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
+          {store.plan === 'pro' ? (
+            <>
+              <label className="btn-secundario" style={{ margin: 0, cursor: 'pointer' }}>
+                {logoLocal ? 'Cambiar logo' : 'Subir mi logo'}
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={manejarSubidaLogo} />
+              </label>
+              {logoLocal && (
+                <button onClick={() => setLogoLocal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-2)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Quitar logo</button>
+              )}
+            </>
+          ) : (
+            <>
+              <button className="btn-secundario" style={{ margin: 0 }} onClick={() => mostrarToast(<IconoAviso />, 'El logo en tus cotizaciones es de los planes pagos.')}>🔒 Subir mi logo</button>
+              <button onClick={() => navigate('/paywall')} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 12.5, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0, alignSelf: 'flex-start' }}>Ver planes</button>
+            </>
           )}
         </div>
       </div>

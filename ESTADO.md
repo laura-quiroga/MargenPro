@@ -12,11 +12,13 @@ de 3 gratis funcionando), Cotizaciones (nueva cotización) y Ajustes.
   "Incluir mis costos fijos y variables" (en `Cotizaciones.tsx`), que por diseño empieza
   ENCENDIDO sin importar el modo elegido en Ajustes, y ya se explica en la misma pantalla con un
   texto de ayuda. No se tocó — es intencional (proteger el margen por defecto).
-- **Hallazgo menor, no urgente:** en Ajustes, un usuario del plan gratis puede subir un logo
-  aunque no le sirva de nada (Cotizaciones ya lo bloquea correctamente al generar la imagen para
-  el cliente — el logo nunca sale si el plan es gratis). Es solo una confusión cosmética para el
-  usuario gratis que lo intente, no una fuga de valor real. Pendiente de pulir cuando haya tiempo:
-  avisarle en Ajustes que el logo es de los planes pagos, en vez de dejarlo subir en vano.
+- **Arreglado:** en Ajustes, un usuario del plan gratis podía subir un logo aunque no le servía de
+  nada (Cotizaciones ya lo bloqueaba al generar la imagen para el cliente, pero no se avisaba
+  antes). Ahora el botón sale como "🔒 Subir mi logo" con un aviso + enlace "Ver planes" en vez de
+  dejarlo subir en vano.
+- **Cuenta real de la usuaria (94marshapril@gmail.com) también reseteada a cero** (a pedido
+  explícito suyo, tras confirmar que quería borrar sus 2 cotizaciones y la configuración de
+  negocio guardadas): se mantuvo `role='admin'` y `plan='pro'`, solo se borraron sus datos.
 - **Cuenta de prueba reseteada a cero** (a pedido de la usuaria, para que ella haga su propia
   prueba): se borraron todos sus insumos/recetas/cotizaciones/config, se dejó `plan='gratis'` y
   `access_status='active'`, y se le puso una contraseña inútil de nuevo. La cuenta auth.users y su
