@@ -1,6 +1,58 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-21 | Sesión actual: 6
 
+## Prueba detallada de la app con la cuenta de prueba (2026-11-21)
+Se probó a fondo con `prueba@margenpro.test`: Panorama, Insumos (alta + aviso de stock negativo —
+**arreglado**, `formatearStock` ahora nunca muestra negativo, se topa en 0), Recetas (alta + tope
+de 3 gratis funcionando), Cotizaciones (nueva cotización) y Ajustes.
+- **Arreglado:** `formatearStock` en `src/lib/appStore.tsx` mostraba "quedan -310 g" cuando se
+  consumía más de lo registrado — ahora muestra 0.
+- **Revisado y es correcto, no es bug:** en "Nueva cotización" el total puede salir MUY por
+  encima del precio que muestra la pantalla de Recetas para la misma receta. Es el interruptor
+  "Incluir mis costos fijos y variables" (en `Cotizaciones.tsx`), que por diseño empieza
+  ENCENDIDO sin importar el modo elegido en Ajustes, y ya se explica en la misma pantalla con un
+  texto de ayuda. No se tocó — es intencional (proteger el margen por defecto).
+- **Hallazgo menor, no urgente:** en Ajustes, un usuario del plan gratis puede subir un logo
+  aunque no le sirva de nada (Cotizaciones ya lo bloquea correctamente al generar la imagen para
+  el cliente — el logo nunca sale si el plan es gratis). Es solo una confusión cosmética para el
+  usuario gratis que lo intente, no una fuga de valor real. Pendiente de pulir cuando haya tiempo:
+  avisarle en Ajustes que el logo es de los planes pagos, en vez de dejarlo subir en vano.
+- **Cuenta de prueba reseteada a cero** (a pedido de la usuaria, para que ella haga su propia
+  prueba): se borraron todos sus insumos/recetas/cotizaciones/config, se dejó `plan='gratis'` y
+  `access_status='active'`, y se le puso una contraseña inútil de nuevo. La cuenta auth.users y su
+  fila en `profiles` SIGUEN existiendo — por diseño, no se eliminó la cuenta esta vez.
+  Cuando en algún momento SÍ se elimine de verdad (con el flujo real de "Eliminar mi cuenta"), no
+  queda ningún rastro en el panel de admin — ya se probó esto antes con otra cuenta descartable:
+  el cascade de borrado la quita de `auth.users` y de `profiles` al mismo tiempo, y el panel de
+  Usuarios lee justamente de `profiles`.
+
+## Leaked Password Protection — reevaluado, YA NO es prioridad (2026-11-21)
+La usuaria llegó hasta el toggle en Supabase (Authentication → Attack Protection → Email →
+"Prevent use of leaked passwords") y descubrió que **solo está disponible en el plan Pro de
+Supabase (de pago)**, no en el plan gratis. Al revisarlo: el login real de MargenPro es SIEMPRE
+sin contraseña (enlace mágico/OTP o Google) — ningún usuario real crea nunca una contraseña, así
+que esta protección no aplica a un riesgo real de la app. **Decisión: dejarlo desactivado, no
+pagar el plan Pro de Supabase solo por esto.** Se corrige así la recomendación anterior (se había
+marcado como pendiente sin saber que tenía costo).
+
+## ⚠️ BLOQUEO REAL ENCONTRADO: el login por correo no le llega a nadie más que a la dueña (2026-11-21)
+Resend ya está conectado como SMTP personalizado de Supabase Auth (se configuró en una sesión
+anterior, no documentado hasta ahora). Mientras no haya un dominio verificado en
+resend.com/domains, Resend está en modo de prueba y **rechaza enviar el enlace mágico a
+CUALQUIER correo que no sea el de la propia cuenta de Resend (94marshapril@gmail.com)** — error
+visto en los logs: `You can only send testing emails to your own email address`. Confirmado
+probando con un correo real de la usuaria (no es un bug del código, es la política de Resend).
+- **Impacto real:** ningún cliente nuevo podría recibir su enlace de acceso por correo hasta que
+  se verifique un dominio en Resend — esto bloquea el login por correo tanto como la falta de
+  Hotmart bloquea el cobro. "Continuar con Google" SÍ funciona igual (no depende de Resend).
+- **Para seguir probando mientras tanto:** solo el correo 94marshapril@gmail.com recibe el enlace.
+- **Arreglo definitivo:** verificar el dominio en Resend en cuanto se compre `margenpro.app` (o el
+  que se use).
+- **Parche temporal ofrecido (pendiente de que la usuaria decida):** desactivar el SMTP
+  personalizado en Supabase (Authentication → Emails) para volver al correo por defecto de
+  Supabase, que sí le llega a cualquiera (rate-limited y con remitente genérico, no de marca) —
+  solo como solución de emergencia mientras se consigue el dominio.
+
 ## Precio subido — decisión tomada con la usuaria (2026-11-21)
 Tras la auditoría pre-lanzamiento (competencia real $9.99-70/mes, MargenPro era el más barato por
 mucho margen), la usuaria pidió tomar la recomendación: **mensual $7.99→$9.99, anual (equivalente

@@ -141,16 +141,19 @@ export function nombreCantidadUnidad(unidad: UnidadInsumo): string {
 export function formatearStock(ins: Insumo, moneda: Moneda = 'COP'): string | null {
   if (typeof ins.stockDisponible !== 'number') return null
   const locale = LOCALE_MONEDA[moneda]
+  // Si se consumió más de lo que había registrado, el stock puede quedar en negativo
+  // internamente — nunca se le muestra eso al usuario, se le enseña en 0.
+  const stock = Math.max(0, ins.stockDisponible)
   if (ins.unidad === 'kg' || ins.unidad === 'L') {
-    return (ins.stockDisponible / 1000).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
+    return (stock / 1000).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ' + etiquetaUnidad(ins.unidad)
   }
   if (ins.unidad === 'g' || ins.unidad === 'ml') {
-    return Math.round(ins.stockDisponible) + ' ' + etiquetaUnidad(ins.unidad)
+    return Math.round(stock) + ' ' + etiquetaUnidad(ins.unidad)
   }
   if (ins.unidad === 'libra') {
-    return ins.stockDisponible.toLocaleString(locale, { maximumFractionDigits: 2 }) + ' lb'
+    return stock.toLocaleString(locale, { maximumFractionDigits: 2 }) + ' lb'
   }
-  return Math.round(ins.stockDisponible) + ' piezas'
+  return Math.round(stock) + ' piezas'
 }
 
 export interface MesReal {
