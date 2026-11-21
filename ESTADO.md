@@ -16,6 +16,20 @@ de 3 gratis funcionando), Cotizaciones (nueva cotización) y Ajustes.
   nada (Cotizaciones ya lo bloqueaba al generar la imagen para el cliente, pero no se avisaba
   antes). Ahora el botón sale como "🔒 Subir mi logo" con un aviso + enlace "Ver planes" en vez de
   dejarlo subir en vano.
+- **Revisado, no era un bug de la app:** la usuaria vio su propio número de teléfono aparecer
+  solo en SU PROPIA pestaña del navegador, ya abierta desde antes de que se le resetearan los
+  datos — era el estado viejo de React que quedó en memoria de esa pestaña, no un valor que
+  cualquier cuenta nueva reciba. Confirmado con una cuenta recién reseteada (`cargarConfig` en
+  `src/lib/appStore.tsx`, rama `else` cuando no hay fila en `config_negocio`): nombre del negocio
+  siempre arranca en "MargenPro" (genérico, no identifica a nadie) y línea de atención siempre
+  arranca vacía — nunca con un teléfono real. Solución: recargar la página después de cualquier
+  cambio de datos hecho por fuera de la app (como un reseteo manual) sincroniza la pantalla.
+- **Mejora real aplicada (pedido de la usuaria):** una cuenta nueva ya no arranca siempre en pesos
+  colombianos — ahora adivina la moneda por el idioma/región del navegador de quien se registra
+  (`monedaPorRegionDelNavegador` en `appStore.tsx`: es-MX→MXN, es-PE→PEN, es-CO→COP, en-*→USD,
+  cualquier otro caso→COP) como punto de partida; el usuario siempre puede cambiarla en Ajustes.
+  No es geolocalización por IP (más preciso pero requeriría un servicio externo) — es una
+  aproximación razonable y gratis a partir de lo que el navegador ya reporta.
 - **Cuenta real de la usuaria (94marshapril@gmail.com) también reseteada a cero** (a pedido
   explícito suyo, tras confirmar que quería borrar sus 2 cotizaciones y la configuración de
   negocio guardadas): se mantuvo `role='admin'` y `plan='pro'`, solo se borraron sus datos.

@@ -6,6 +6,18 @@ import { supabase } from './supabaseClient'
 
 export interface UltimaCompra { cantidad: number; total: number; medida: UnidadInsumo }
 
+/** Adivina la moneda de insumos por la región del navegador (ej. "es-MX" -> MXN) — solo se usa
+ * como punto de partida para una cuenta que AÚN no guardó ninguna configuración; el usuario
+ * siempre puede cambiarla en Ajustes. Mejor que asumir siempre pesos colombianos. */
+function monedaPorRegionDelNavegador(): Moneda {
+  const region = (typeof navigator !== 'undefined' ? navigator.language : '') || ''
+  if (/-MX$/i.test(region)) return 'MXN'
+  if (/-PE$/i.test(region)) return 'PEN'
+  if (/-CO$/i.test(region)) return 'COP'
+  if (/^en/i.test(region)) return 'USD'
+  return 'COP'
+}
+
 function filaAInsumo(fila: Record<string, unknown>): Insumo {
   return {
     id: fila.id as string,
@@ -383,6 +395,11 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         setNombreNegocioState(data.nombre_negocio as string)
         setLineaAtencionState((data.linea_atencion as string) ?? '')
         setLogoNegocioState((data.logo_negocio_url as string) ?? null)
+      } else {
+        // Cuenta nueva, sin fila todavía: arranca con la moneda que corresponde a su región
+        // en vez de asumir siempre pesos colombianos — se guarda recién cuando el usuario toque
+        // "Guardar cambios" en Ajustes (o elija otra ella misma).
+        setMoneda(monedaPorRegionDelNavegador())
       }
       setCargandoConfig(false)
     }
