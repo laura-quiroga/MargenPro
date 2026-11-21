@@ -18,7 +18,7 @@ export default function Reembolsos() {
       <p>
         Si ya se te cobró y dentro de tus primeros <strong>14 días</strong> de suscripción pagada no
         tienes clara tu primera receta costeada con el precio justo, escríbenos a
-        <strong> soporte@margenpro.app</strong> contándonos qué pasó, y te devolvemos tu dinero por
+        <strong> margenpro.soporte@gmail.com</strong> contándonos qué pasó, y te devolvemos tu dinero por
         completo. Sin preguntas ni trámites complicados.
       </p>
 
@@ -53,7 +53,7 @@ export default function Reembolsos() {
       </p>
 
       <h2>6. Contacto</h2>
-      <p>¿Quieres pedir un reembolso o tienes dudas? Escríbenos a <strong>soporte@margenpro.app</strong>.</p>
+      <p>¿Quieres pedir un reembolso o tienes dudas? Escríbenos a <strong>margenpro.soporte@gmail.com</strong>.</p>
     </PaginaLegal>
   )
 }

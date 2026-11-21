@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     return await manejar(req)
   } catch (e) {
     console.error('eliminar-mi-cuenta error:', e)
-    return json({ error: 'Algo salió mal eliminando tu cuenta. Intenta de nuevo o escríbenos a soporte@margenpro.app.', detalle: String(e) }, 500)
+    return json({ error: 'Algo salió mal eliminando tu cuenta. Intenta de nuevo o escríbenos a margenpro.soporte@gmail.com.', detalle: String(e) }, 500)
   }
 })
 
@@ -57,7 +57,7 @@ async function manejar(req: Request): Promise<Response> {
   // Borra al usuario de auth — profiles/insumos/recetas/cotizaciones/ai_calls/event_log se van
   // solos por "on delete cascade"; error_log solo pierde la referencia (queda anónimo).
   const { error: errorBorrar } = await supabaseAdmin.auth.admin.deleteUser(userId)
-  if (errorBorrar) return json({ error: 'No pudimos eliminar tu cuenta. Intenta de nuevo o escríbenos a soporte@margenpro.app.' }, 500)
+  if (errorBorrar) return json({ error: 'No pudimos eliminar tu cuenta. Intenta de nuevo o escríbenos a margenpro.soporte@gmail.com.' }, 500)
 
   return json({ ok: true })
 }

@@ -60,7 +60,7 @@ export default function Ajustes() {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     })
     setBorrando(false)
-    if (error || !data?.ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar tu cuenta. Intenta de nuevo o escríbenos a soporte@margenpro.app.'); return }
+    if (error || !data?.ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar tu cuenta. Intenta de nuevo o escríbenos a margenpro.soporte@gmail.com.'); return }
     await supabase.auth.signOut()
     navigate('/')
   }

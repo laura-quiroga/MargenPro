@@ -1,5 +1,29 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-20 | Sesión actual: 6
+Última actualización: 2026-11-21 | Sesión actual: 6
+
+## ⚠️ Pendiente: validar la capa legal país por país (México y Perú) — 2026-11-21
+La app vende en Colombia (base, ya validada contra Ley 1581), México y Perú (monedas MXN/PEN
+soportadas) y en USD para cualquier otro país. La auditoría del 2026-11-20 siguió la doctrina del
+SO y cubre los principios comunes (consentimiento, derechos del titular, borrado funcional,
+transferencia a IA declarada) pero **NO fue verificada línea por línea contra la ley específica de
+México (LFPDPPP) ni de Perú (Ley N° 29733, su propia autoridad)** — esta última ni siquiera estaba
+en la tabla de países de `47-LEGAL-FISCAL-Y-PRIVACIDAD.md`. Tampoco existe todavía el aviso
+automático de renovación anual que exige EE. UU. (California ARL) si llega a vender ahí, porque
+depende de Hotmart + el envío de correos (Resend), que no están conectados. Recomendado:
+cuando haya ventas reales en México/Perú, que un abogado local (o Iubenda/Termly como contraste)
+revise específicamente esos dos países — no se puede certificar "cumple en todos los países" sin
+esa revisión local.
+
+## Correo de soporte real (temporal, hasta comprar el dominio) — 2026-11-21
+- El usuario todavía NO tiene el dominio `margenpro.app` comprado (sin presupuesto por ahora) —
+  `soporte@margenpro.app`, usado en toda la capa legal, era un correo que no existe.
+- Se reemplazó en TODO el proyecto (13 apariciones en 8 archivos: las 5 páginas legales, Ajustes,
+  el footer de Landing, y la Edge Function `eliminar-mi-cuenta`, redeployada) por
+  **margenpro.soporte@gmail.com** — un Gmail gratuito real que el usuario ya creó.
+- ⚠️ **Pendiente para cuando compre el dominio `margenpro.app`**: volver a reemplazar
+  `margenpro.soporte@gmail.com` por `soporte@margenpro.app` en los mismos 8 archivos (buscar
+  "margenpro.soporte@gmail.com" en el proyecto), y confirmar que ese nuevo correo quede
+  funcionando de verdad (reenvío o buzón real) antes de hacer el cambio.
 
 ## Auditoría legal completa (47-LEGAL-FISCAL-Y-PRIVACIDAD.md) — 2026-11-20
 - **Hallazgo crítico antes de empezar:** NINGUNA de las 6 páginas legales existía — el footer de

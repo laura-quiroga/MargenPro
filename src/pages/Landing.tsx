@@ -424,7 +424,7 @@ export default function Landing() {
             <Link to="/aviso-ia">Aviso de uso de IA</Link>
             <Link to="/como-cancelar">Cómo cancelar</Link>
           </div>
-          <div className="footer-meta">MargenPro · soporte@margenpro.app</div>
+          <div className="footer-meta">MargenPro · margenpro.soporte@gmail.com</div>
         </div>
       </footer>
 

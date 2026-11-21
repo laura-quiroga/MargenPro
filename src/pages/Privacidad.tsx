@@ -7,7 +7,7 @@ export default function Privacidad() {
         Esta página explica, en español simple, qué datos recopila <strong>MargenPro</strong>,
         para qué los usamos, con quién los compartimos y cómo puedes eliminarlos. MargenPro es
         operado como persona natural desde Colombia. Para cualquier solicitud sobre tus datos,
-        escribe a <strong>soporte@margenpro.app</strong> — si necesitas la identidad legal completa
+        escribe a <strong>margenpro.soporte@gmail.com</strong> — si necesitas la identidad legal completa
         del responsable para un trámite formal, también puedes pedirla a ese mismo correo.
       </p>
 
@@ -83,7 +83,7 @@ export default function Privacidad() {
         <li><strong>Eliminar</strong> tu cuenta y todos tus datos (ver sección 7).</li>
         <li><strong>Oponerte</strong> al uso de tus datos, u objetar cómo los usamos.</li>
       </ul>
-      <p>Para ejercer cualquiera de estos derechos, escribe a <strong>soporte@margenpro.app</strong>.</p>
+      <p>Para ejercer cualquiera de estos derechos, escribe a <strong>margenpro.soporte@gmail.com</strong>.</p>
 
       <h2>7. Cómo eliminar tu cuenta y tus datos</h2>
       <p>
@@ -116,7 +116,7 @@ export default function Privacidad() {
       </p>
 
       <h2>11. Contacto</h2>
-      <p>¿Preguntas sobre tus datos o esta política? Escríbenos a <strong>soporte@margenpro.app</strong>.</p>
+      <p>¿Preguntas sobre tus datos o esta política? Escríbenos a <strong>margenpro.soporte@gmail.com</strong>.</p>
     </PaginaLegal>
   )
 }

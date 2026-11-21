@@ -30,7 +30,7 @@ export default function ComoCancelar() {
 
       <h2>¿Algo no te deja cancelar?</h2>
       <p>
-        Escríbenos a <strong>soporte@margenpro.app</strong> contándonos qué pasó y te ayudamos
+        Escríbenos a <strong>margenpro.soporte@gmail.com</strong> contándonos qué pasó y te ayudamos
         directamente.
       </p>
     </PaginaLegal>

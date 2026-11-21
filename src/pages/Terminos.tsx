@@ -29,7 +29,7 @@ export default function Terminos() {
         Eres responsable de la información que registras en tu cuenta y de mantener el acceso a tu
         correo (nuestro inicio de sesión funciona por enlace mágico o con tu cuenta de Google, sin
         contraseña). Si crees que alguien más entró a tu cuenta sin tu permiso, avísanos de inmediato
-        a soporte@margenpro.app.
+        a margenpro.soporte@gmail.com.
       </p>
 
       <h2>4. Uso aceptable</h2>
@@ -138,7 +138,7 @@ export default function Terminos() {
       <p>Si cambiamos algo importante de estos términos, te avisaremos por correo antes de que entre en vigencia.</p>
 
       <h2>16. Contacto</h2>
-      <p>¿Dudas sobre estos términos? Escríbenos a <strong>soporte@margenpro.app</strong>.</p>
+      <p>¿Dudas sobre estos términos? Escríbenos a <strong>margenpro.soporte@gmail.com</strong>.</p>
     </PaginaLegal>
   )
 }

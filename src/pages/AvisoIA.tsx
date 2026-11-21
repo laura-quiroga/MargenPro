@@ -41,7 +41,7 @@ export default function AvisoIA() {
       </p>
 
       <h2>5. Contacto</h2>
-      <p>¿Preguntas sobre cómo usamos la IA? Escríbenos a <strong>soporte@margenpro.app</strong>.</p>
+      <p>¿Preguntas sobre cómo usamos la IA? Escríbenos a <strong>margenpro.soporte@gmail.com</strong>.</p>
     </PaginaLegal>
   )
 }
