@@ -17,6 +17,10 @@ reales del panel (no del sistema, del proveedor):
   (obligatoria) — se está creando 1 módulo "Bienvenida(o) a MargenPro" con 1 clase de texto
   (sin video) a modo de mensaje de bienvenida + acceso, ya que MargenPro es una app web, no un
   curso. Afiliados y Tributación quedan como opcionales, se dejan pendientes por ahora.
+- **Producto MargenPro enviado a aprobación en Hotmart** (2026-11-21, ID 9037615) — todos los
+  pasos obligatorios quedaron en verde (Información básica, Precios, Página de Venta, Datos
+  personales, Área de Miembros, Contenido). Afiliados y Tributación quedaron sin configurar
+  (opcionales, no bloquean la aprobación). Hotmart dijo que la revisión toma hasta 15 minutos.
 - ⚠️ **Hallazgo real: la app todavía no está publicada en internet** (solo corre en local para
   pruebas) — no hay ningún enlace real que poner en el contenido de Hotmart todavía. Se usó un
   texto temporal ("tu acceso está siendo activado, revisa tu correo") en vez de un link roto,
