@@ -1,6 +1,15 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## Idea pendiente, aprobada en principio: recetas compuestas por otras recetas (combos)
+La usuaria propuso poder armar una receta a partir de otras recetas ya costeadas (ej.: "Combo
+hamburguesa" = receta "Hamburguesa" + receta "Papa" + receta "Jugo"), en vez de repetir insumos.
+Mi opinión, ya compartida con ella: es una buena idea, muy común en el nicho (comida rápida,
+catering, combos) — pero es un cambio de fondo del modelo de datos (hoy una receta solo referencia
+insumos, nunca otras recetas), no un ajuste de pantalla. Pendiente de diseñarlo bien (evitar
+referencias circulares, cómo se ve el costo compuesto, qué pasa si se edita la subreceta después)
+en una sesión aparte, después de Hotmart y de arrancar marketing — NO se empezó a construir.
+
 ## Rediseño del motor de costeo (modo sencillo y avanzado) — aprobado y construido (2026-11-23)
 La usuaria sentía "ruido" en el modo avanzado y pidió revisar la lógica de los dos modos antes de
 tocar código — se le presentó una propuesta completa (fórmulas, ejemplos, tabla de cómo se dispara
