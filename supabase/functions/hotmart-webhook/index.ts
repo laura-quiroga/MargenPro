@@ -1,18 +1,18 @@
 // Edge Function: hotmart-webhook
 // Recibe los avisos automáticos de Hotmart (compra aprobada, cancelación, reembolso,
-// contracargo) y activa/desactiva el plan pago de ese comprador en MargenPro — sin que nadie
-// tenga que hacerlo a mano. Verifica que el aviso venga REALMENTE de Hotmart comparando el
-// "hottok" que manda en el cuerpo contra el secreto guardado en este servidor (nunca en el
-// código ni en el frontend) — si no coincide, se rechaza sin tocar nada.
+// contracargo, vencimiento) y activa/desactiva el plan pago de ese comprador en MargenPro, sin
+// que nadie tenga que hacerlo a mano. Verifica que el aviso venga REALMENTE de Hotmart
+// comparando la cabecera "x-hotmart-hottok" contra el secreto guardado en este servidor (nunca
+// en el código ni en el frontend, variable de entorno HOTTOK_SECRETO) — si no coincide, se
+// rechaza sin tocar nada.
 //
 // Eventos que ACTIVAN el plan pago ("pro"): PURCHASE_APPROVED, PURCHASE_COMPLETE.
 // Eventos que LO QUITAN (vuelve a "gratis"): PURCHASE_CANCELED, PURCHASE_REFUNDED,
 // PURCHASE_CHARGEBACK, PURCHASE_EXPIRED, SUBSCRIPTION_CANCELLATION.
-// Cualquier otro evento (ej. boleto impreso, factura generada) se ignora — no es ni una compra
-// confirmada ni una cancelación.
+// Cualquier otro evento se ignora.
 //
 // Siempre responde 200 si el hottok es válido (incluso si el evento no aplicaba a nada), porque
-// si Hotmart recibe un error reintenta el mismo aviso sin parar.
+// si Hotmart recibe un error distinto de 200 reintenta el mismo aviso sin parar.
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
@@ -42,9 +42,6 @@ Deno.serve(async (req) => {
     return await manejar(req)
   } catch (e) {
     console.error('hotmart-webhook error:', e)
-    // 200 igual: un error nuestro no debe hacer que Hotmart reintente para siempre un aviso
-    // que de todas formas no vamos a poder procesar distinto la próxima vez. Queda en los logs
-    // del servidor para revisión.
     return json({ ok: false }, 200)
   }
 })
@@ -55,14 +52,16 @@ async function manejar(req: Request): Promise<Response> {
     return json({ ok: false }, 200)
   }
 
-  const body = await req.json().catch(() => null) as Record<string, unknown> | null
-  if (!body) return json({ ok: false }, 200)
-
-  const hottokRecibido = body.hottok as string | undefined
+  // Hotmart manda el hottok en la cabecera x-hotmart-hottok (confirmado con una prueba real de
+  // Hotmart) — se compara contra el secreto guardado en este servidor antes de leer nada más.
+  const hottokRecibido = req.headers.get('x-hotmart-hottok')
   if (!hottokRecibido || hottokRecibido !== HOTTOK_SECRETO) {
     console.error('hotmart-webhook: hottok inválido — aviso rechazado, no viene de Hotmart.')
     return json({ ok: false, error: 'hottok inválido' }, 401)
   }
+
+  const body = await req.json().catch(() => null) as Record<string, unknown> | null
+  if (!body) return json({ ok: false }, 200)
 
   const evento = body.event as string | undefined
   const data = body.data as Record<string, unknown> | undefined
