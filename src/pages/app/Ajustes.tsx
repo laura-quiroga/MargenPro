@@ -94,10 +94,10 @@ export default function Ajustes() {
         <div style={{ paddingTop: 14 }}>
           <div className="tarjeta" style={{ marginBottom: 18 }}>
             <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>¿No sabes qué porcentaje poner? Un ejemplo con números:</p>
-            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>El mes pasado vendiste <strong>$5.000.000</strong> y pagaste <strong>$1.000.000</strong> de arriendo, sueldo y servicios.</p>
-            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 10 }}>La cuenta: divides lo que pagaste entre lo que vendiste — <strong>$1.000.000 ÷ $5.000.000 = 0,20</strong>, o sea <strong>20%</strong>. Pon la primera barra ahí.</p>
-            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>Y en todo lo demás (envíos, comisiones, publicidad) pagaste <strong>$2.000.000</strong>.</p>
-            <p style={{ fontSize: 12.5, color: 'var(--text-2)' }}>Misma cuenta: <strong>$2.000.000 ÷ $5.000.000 = 0,40</strong>, o sea <strong>40%</strong>. Pon la segunda barra ahí.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>El mes pasado vendiste <strong>$5.000.000</strong> y pagaste <strong>$1.000.000</strong> de <strong>costo fijo</strong> — arriendo, tu sueldo fijo y servicios (luz, agua, internet): lo que pagas siempre, vendas mucho o poco.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 10 }}>La cuenta: divides lo que pagaste entre lo que vendiste — <strong>$1.000.000 ÷ $5.000.000 = 0,20</strong>, o sea <strong>20%</strong>. Pon la primera barra (costo fijo) ahí.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>Y en <strong>costo variable</strong> — domicilios, comisiones de pago, publicidad: lo que sube o baja según cuánto vendas — pagaste <strong>$2.000.000</strong>.</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)' }}>Misma cuenta: <strong>$2.000.000 ÷ $5.000.000 = 0,40</strong>, o sea <strong>40%</strong>. Pon la segunda barra (costo variable) ahí.</p>
           </div>
 
           <div className="slider-wrap">
