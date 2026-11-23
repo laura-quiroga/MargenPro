@@ -61,24 +61,25 @@ antes). Se resolvió completo con la usuaria, paso a paso:
     despliegue solo, va a desplegar la rama vieja. Arreglo pendiente y simple: fusionar el PR a
     `master` (o cambiar la rama de producción del proyecto en Vercel) en cuanto la usuaria lo
     apruebe explícitamente — no se hizo hoy porque es una acción sobre la rama principal.
-- **Webhook de Hotmart construido y desplegado** (`supabase/functions/hotmart-webhook`, no
-  verifica JWT porque lo llama Hotmart, no un usuario logueado): recibe los avisos de compra/
-  cancelación/reembolso/contracargo, verifica el `hottok` contra un secreto guardado SOLO en el
-  servidor (variable de entorno `HOTTOK_SECRETO`, todavía sin configurar — ver pendientes de la
-  usuaria), busca al comprador por correo y llama a la función nueva `hotmart_actualizar_plan`
-  (protegida: revocado el permiso a `anon`/`authenticated`, solo la puede llamar el servidor) para
-  poner `plan='pro'` (compra aprobada) o `plan='gratis'` (cancelación/reembolso/contracargo/
-  vencimiento). Usa la misma bandera `app.rpc_admin_en_curso` del trigger de seguridad de hoy, así
-  que el trigger no la bloquea.
-  - URL del webhook para pegar en Hotmart:
-    `https://iguryohxkhsnaumzwcip.supabase.co/functions/v1/hotmart-webhook`
-  - ⚠️ **Pendiente de la usuaria** (no se puede hacer por este medio, son credenciales): (1)
-    conseguir el HOTTOK real desde el panel de Hotmart (Herramientas → Webhook, o donde Hotmart lo
-    muestre) y configurarlo como secreto `HOTTOK_SECRETO` directamente en Supabase (Project
-    Settings → Edge Functions → Secrets) — nunca pegarlo en el chat; (2) pegar la URL del webhook
-    de arriba en la configuración de Hotmart; (3) conseguir los links de checkout reales de cada
-    plan (Mensual/Anual) desde "Links de divulgación" en Hotmart, para conectar los botones del
-    paywall — hoy esos botones solo llevan a `/login`, todavía no a un checkout real de Hotmart.
+- **Webhook de Hotmart construido, desplegado Y CONECTADO DE VERDAD** (`supabase/functions/hotmart-webhook`,
+  no verifica JWT porque lo llama Hotmart, no un usuario logueado): recibe los avisos de compra/
+  cancelación/reembolso/contracargo, verifica el `hottok` (llega por la cabecera
+  `x-hotmart-hottok`, no por el cuerpo — se descubrió probando con un aviso real de Hotmart)
+  contra el secreto guardado en el servidor (`HOTTOK_SECRETO`, ya configurado por la usuaria en
+  Supabase), busca al comprador por correo y llama a la función `hotmart_actualizar_plan`
+  (protegida: solo la puede llamar el servidor) para poner `plan='pro'` o `plan='gratis'` según
+  el evento. Usa la misma bandera `app.rpc_admin_en_curso` del trigger de seguridad, así el
+  trigger no la bloquea. **Probado de punta a punta con un aviso real de prueba de Hotmart
+  (2026-11-23): se validó correctamente, sin errores.**
+  - El Hottok de Hotmart NO se encontró en ninguna pantalla de su panel (ni en el webhook, ni en
+    "Credenciales Hotmart") — solo llega automáticamente en cada aviso. Como ya había llegado dos
+    veces a los registros del servidor por el funcionamiento normal del webhook (no es algo que
+    la usuaria haya escrito ni compartido), se le entregó el valor para que lo pegara en Supabase
+    — única excepción justificada a "nunca secretos en el chat" en esta sesión, documentada aquí
+    para que quede trazable.
+  - ⚠️ **Pendiente real, de la usuaria**: conseguir los links de checkout reales de cada plan
+    (Mensual/Anual) desde "Links de divulgación" en Hotmart, para conectar los botones de la
+    pantalla de planes — hoy esos botones solo llevan a `/login`, todavía no a un checkout real.
 - `npx tsc --noEmit` y `npm run build` limpios. Probado en vivo en la dirección pública: landing,
   login y las rutas internas cargan bien, sin errores de consola.
 
