@@ -1,6 +1,26 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## Login con Google activado de verdad (2026-11-23)
+Se encontró un bug real al probar el botón "Continuar con Google": el proveedor de Google nunca
+había estado activado en Supabase (no era algo que se rompió al publicar, ya estaba así desde
+antes). Se resolvió completo con la usuaria, paso a paso:
+- Se creó el proyecto "MargenPro" en Google Cloud (console.cloud.google.com) + pantalla de
+  consentimiento OAuth (externa) + un cliente OAuth tipo "Aplicación web".
+- Orígenes de JavaScript autorizados: `https://margenpro-ochre.vercel.app` y
+  `https://iguryohxkhsnaumzwcip.supabase.co`. URI de redirección autorizada:
+  `https://iguryohxkhsnaumzwcip.supabase.co/auth/v1/callback`.
+- El ID de cliente y el secreto los copió y pegó la usuaria directamente en Supabase
+  (Authentication → Providers → Google) — nunca pasaron por el chat.
+- Se completó "Información de marca" (página principal, política de privacidad, términos) y se
+  cambió el estado de publicación de "Prueba" a "Producción" — sin este paso, Google solo dejaba
+  entrar a correos agregados a mano como "usuarios de prueba", bloqueando a cualquier cliente real.
+- Verificado en vivo en producción: el botón ya redirige de verdad a la pantalla de Google (antes
+  daba `"Unsupported provider: provider is not enabled"`).
+- ⚠️ **Pendiente para cuando se compre el dominio real**: agregar el dominio nuevo en "Orígenes
+  autorizados de JavaScript" de este mismo cliente OAuth (Google Cloud), si no el botón dejaría
+  de funcionar desde esa dirección.
+
 ## App publicada en internet + webhook de Hotmart conectado (2026-11-23)
 - **MargenPro ya está publicada de verdad**: https://margenpro-ochre.vercel.app (dirección
   gratuita de Vercel, mientras se compra el dominio real). Proyecto creado en Vercel
