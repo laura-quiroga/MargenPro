@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PhoneFrame from '../components/PhoneFrame'
 import { Toast, useToast } from '../components/Toast'
 import { supabase } from '../lib/supabaseClient'
+import { borrarIntentoDeCompra, enlacePagoPara, leerIntentoDeCompra } from '../lib/hotmart'
 import './Login.css'
 
 const IconoAviso = () => (
@@ -16,21 +17,44 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const { toast, mostrarToast } = useToast()
-  const [etapa, setEtapa] = useState<'correo' | 'codigo'>('correo')
+  const [etapa, setEtapa] = useState<'correo' | 'codigo' | 'pagar'>('correo')
   const [email, setEmail] = useState('')
   const [codigo, setCodigo] = useState('')
   const [cargando, setCargando] = useState(false)
   const [aceptaTerminos, setAceptaTerminos] = useState(false)
+  const [correoParaPagar, setCorreoParaPagar] = useState('')
+  const [enlacePago, setEnlacePago] = useState('')
+  // React StrictMode (solo en desarrollo) vuelve a correr este efecto una segunda vez al montar
+  // — sin esta bandera, la segunda pasada encontraría la intención de compra ya borrada por la
+  // primera y mandaría a la persona a /app en vez de a pagar. Con la bandera, solo la primera
+  // pasada decide a dónde ir.
+  const yaDecidioARonda = useRef(false)
 
   useEffect(() => {
     if ((location.state as { desactivado?: boolean } | null)?.desactivado) {
       mostrarToast(<IconoAviso />, 'Tu acceso fue desactivado. Si crees que es un error, contáctanos.')
     }
+    // Si venía con la intención de pagar un plan (vino del Paywall, no de "seguir gratis"),
+    // en vez de entrar directo a la app la mandamos a pagar en Hotmart con el MISMO correo —
+    // así el webhook de Hotmart la puede encontrar en cuanto confirme el pago.
+    function manejarSesionActiva(correoSesion?: string) {
+      if (yaDecidioARonda.current) return
+      yaDecidioARonda.current = true
+      const intento = leerIntentoDeCompra()
+      if (intento && correoSesion) {
+        borrarIntentoDeCompra()
+        setCorreoParaPagar(correoSesion)
+        setEnlacePago(enlacePagoPara(intento))
+        setEtapa('pagar')
+        return
+      }
+      navigate('/app')
+    }
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate('/app')
+      if (data.session) manejarSesionActiva(data.session.user.email)
     })
-    const { data: listener } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === 'SIGNED_IN') navigate('/app')
+    const { data: listener } = supabase.auth.onAuthStateChange((evento, session) => {
+      if (evento === 'SIGNED_IN') manejarSesionActiva(session?.user.email)
     })
     return () => listener.subscription.unsubscribe()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +80,8 @@ export default function Login() {
     const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: codigo.trim(), type: 'email' })
     setCargando(false)
     if (error) { mostrarToast(<IconoAviso />, 'El código no es válido o venció — pide uno nuevo.'); return }
-    navigate('/app')
+    // No navega aquí — el oyente de onAuthStateChange (más arriba) ya detecta el inicio de
+    // sesión y decide si va a /app o a pagar en Hotmart, según si venía con esa intención.
   }
 
   async function continuarConGoogle() {
@@ -66,6 +91,31 @@ export default function Login() {
       options: { redirectTo: `${window.location.origin}/app` },
     })
     if (error) mostrarToast(<IconoAviso />, 'No pudimos conectar con Google. Intenta de nuevo.')
+  }
+
+  if (etapa === 'pagar') {
+    return (
+      <PhoneFrame>
+        <div className="login">
+          <div className="pantalla-contenido entrada" style={{ justifyContent: 'center', gap: 18 }}>
+            <div className="chip-icono grande" style={{ margin: '0 auto' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M3 10h18M7 15h4" /><rect x="3" y="5" width="18" height="14" rx="2" /></svg>
+            </div>
+            <h2 style={{ fontSize: 21, textAlign: 'center', margin: '14px 0 4px' }}>¡Ya tienes tu cuenta!</h2>
+            <p className="sub" style={{ textAlign: 'center', fontSize: '13.5px', marginBottom: 6 }}>
+              Ahora vamos a activar tu prueba gratis en la página de pago de Hotmart.
+            </p>
+            <p className="sub" style={{ textAlign: 'center', fontSize: '13.5px', fontWeight: 700, marginBottom: 18 }}>
+              Importante: usa este mismo correo ahí → {correoParaPagar}
+            </p>
+            <a className="btn-cta" style={{ textAlign: 'center', textDecoration: 'none' }} href={enlacePago} target="_blank" rel="noopener noreferrer" onClick={() => navigate('/app')}>
+              Continuar a pagar →
+            </a>
+            <button className="btn-texto" onClick={() => navigate('/app')}>Prefiero hacerlo después, llévame a la app</button>
+          </div>
+        </div>
+      </PhoneFrame>
+    )
   }
 
   if (etapa === 'codigo') {

@@ -1,6 +1,27 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## Paywall conectado a los enlaces de pago reales de Hotmart (2026-11-23)
+Se consiguieron los dos enlaces reales (no sirve uno solo por plan — cada "oferta" de Hotmart
+tiene su propio enlace, no hay un selector Mensual/Anual dentro de Hotmart; la elección ya la
+hace el usuario en nuestro propio Paywall):
+- Mensual: `https://pay.hotmart.com/W108606053T?off=xya1906q`
+- Anual: `https://pay.hotmart.com/W108606053T?off=qmle1zp9`
+Guardados en `src/lib/hotmart.ts`. Flujo conectado: al tocar "Probar 7 días gratis" en el Paywall
+se guarda la intención del plan elegido (localStorage); después de que el Login confirma la
+sesión (por enlace mágico o Google), si había esa intención, en vez de ir directo a `/app` se
+muestra una pantalla breve ("¡Ya tienes tu cuenta!") con un botón que abre el enlace de pago
+correcto en una pestaña nueva, recordándole usar el MISMO correo — así el webhook de Hotmart (ya
+conectado) encuentra la cuenta cuando confirme el pago. El botón "Seguir con el plan gratis" NO
+guarda ninguna intención, sigue yendo directo a la app.
+- ⚠️ Bug real encontrado y arreglado en el camino: en modo desarrollo (React StrictMode) el efecto
+  de Login.tsx corría dos veces al montar, y la segunda pasada encontraba la intención ya borrada
+  por la primera y mandaba a la persona a `/app` en vez de a pagar. Se protegió con una bandera
+  (`useRef`) para que solo la primera pasada decida a dónde ir.
+- Probado en vivo end-to-end (con una cuenta de prueba ya logueada): la pantalla de pago aparece
+  con el correo correcto y el botón apunta exactamente al enlace del plan elegido (Anual).
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Idea pendiente, aprobada en principio: recetas compuestas por otras recetas (combos)
 La usuaria propuso poder armar una receta a partir de otras recetas ya costeadas (ej.: "Combo
 hamburguesa" = receta "Hamburguesa" + receta "Papa" + receta "Jugo"), en vez de repetir insumos.

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PhoneFrame from '../components/PhoneFrame'
+import { guardarIntentoDeCompra } from '../lib/hotmart'
 import './Paywall.css'
 
 const PRECIO_ANUAL_FINAL = 6.99
@@ -96,7 +97,7 @@ export default function Paywall() {
         </div>
         <div className="pantalla-footer">
           <p className="nota-plan-elegido">Vas a empezar con el plan {planElegido === 'anual' ? 'Anual ($6.99/mes)' : 'Mensual ($9.99/mes)'}</p>
-          <button className="btn-cta" onClick={() => navigate('/login')}>Probar 7 días gratis →</button>
+          <button className="btn-cta" onClick={() => { guardarIntentoDeCompra(planElegido); navigate('/login') }}>Probar 7 días gratis →</button>
           <p className="nota-garantia">Garantía propia de MargenPro · 15 días</p>
           <button className="btn-texto" onClick={() => navigate('/login')}>Seguir con el plan gratis (3 recetas, sin IA)</button>
         </div>
