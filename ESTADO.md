@@ -1,5 +1,47 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-21 | Sesión actual: 6
+Última actualización: 2026-11-23 | Sesión actual: 6
+
+## Auditoría de seguridad completa + arreglo del hallazgo crítico (2026-11-23)
+A pedido de la usuaria (prompt estructurado de auditoría), se revisaron 10 puntos de seguridad
+de punta a punta. Resultado completo entregado en el chat. Resumen de lo encontrado y lo hecho:
+
+- 🔴 **CRÍTICO, YA ARREGLADO Y VERIFICADO**: cualquier usuario autenticado podía cambiar su propia
+  fila en `profiles` (`role`, `plan`, `access_status`) con un PATCH directo a la API — RLS
+  `update_own` permite editar la FILA propia pero no restringía QUÉ columnas. Probado de forma
+  controlada en la cuenta de prueba (se logró auto-promover a admin+pro), confirmado el hueco,
+  revertido al instante. **Causa real**: los `REVOKE UPDATE (columna) ... FROM authenticated`
+  aplicados en sesiones anteriores NO se sostienen — algo en la gestión de Supabase (probablemente
+  privilegios por defecto que se reafirman en cada migración/`CREATE OR REPLACE FUNCTION`) se los
+  vuelve a dar. Confirmado de nuevo hoy: revocarlos otra vez NO se mantuvo.
+  **Arreglo real (sí se sostiene)**: un trigger `BEFORE UPDATE` en `profiles`
+  (`private.bloquea_autoescalada_de_perfil`, migración `trigger_blinda_role_plan_access_status`)
+  que bloquea cualquier cambio a esas 3 columnas salvo que la transacción tenga la bandera local
+  `app.rpc_admin_en_curso = true` — bandera que SOLO levanta `admin_actualizar_usuario` (la función
+  del panel) justo antes de escribir, y que nunca sale de esa transacción. Re-probado el mismo
+  ataque después del arreglo: ahora falla con "No puedes cambiar tu rol, tu plan o tu estado de
+  acceso directamente." Se probó también que el camino legítimo (la bandera puesta) sigue
+  funcionando. ⚠️ **Lección para el futuro**: en este proyecto, NO confiar en `REVOKE` como única
+  defensa para columnas sensibles — usar un trigger como este patrón.
+- Limpieza: se borró la versión vieja y duplicada de `admin_actualizar_usuario` (3 argumentos, de
+  antes de que existiera "plan"). Se intentó revocar el `EXECUTE` de `anon` sobre la función —
+  tampoco se sostuvo (mismo fenómeno), pero no es explotable: la función se protege sola por dentro
+  con `private.is_admin()` (verificado leyendo su código).
+- 🟠 Arreglado: límite real de tamaño/tipo en las 2 subidas de imagen de la app — a nivel de
+  Storage de Supabase (`file_size_limit` + `allowed_mime_types`, la defensa que de verdad cuenta
+  porque no depende del navegador): `facturas-temporales` 8 MB, `logos-negocio` 2 MB, solo
+  imágenes. Además, aviso amable en el frontend ANTES de subir (`Ajustes.tsx`,
+  `EscanearFactura.tsx`) para no hacer esperar al usuario para enterarse.
+- 🟠 Pendiente (es la tarea grande que sigue): conectar el webhook real de Hotmart con
+  `profiles.plan` — hoy nada activa/desactiva el plan pago automáticamente.
+- 🟠 Pendiente, bloqueado hasta tener dominio/dirección pública: restringir el CORS (`*`) de las
+  4 Edge Functions al dominio real — no se puede acotar a algo que todavía no existe. Bajo riesgo
+  mientras tanto porque todas exigen el token de sesión, no cookies.
+- 🟡 Revisado y descartado (no aplica): activar la protección de Supabase contra contraseñas
+  filtradas — MargenPro nunca usa contraseñas en su login real (ver nota de días anteriores).
+- 🟡 Sin verificar (vive en el panel de Supabase, no en el código): el límite de cuántos enlaces
+  mágicos se pueden pedir por minuto, y cuánto dura la sesión. Pendiente de que la usuaria lo
+  revise ella misma en Authentication → Rate Limits / Sessions.
+- `npx tsc --noEmit` y `npm run build` limpios después de los cambios de código.
 
 ## Conectando Hotmart en vivo, paso a paso con la usuaria (2026-11-21)
 Se está creando el producto real en Hotmart (nombre MargenPro, planes Mensual y Anual). Hallazgos

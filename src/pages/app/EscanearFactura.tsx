@@ -58,6 +58,8 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
 
   async function alElegirArchivo(archivo: File | undefined) {
     if (!archivo) return
+    if (!archivo.type.startsWith('image/')) { mostrarToast(<IconoAviso />, 'Ese archivo no es una imagen.'); return }
+    if (archivo.size > 8 * 1024 * 1024) { mostrarToast(<IconoAviso />, 'La foto pesa mucho — toma una nueva o usa una de menos de 8 MB.'); return }
     setPaso('procesando')
     const { data: userData } = await supabase.auth.getUser()
     const usuario = userData.user

@@ -46,7 +46,10 @@ export default function Ajustes() {
 
   function manejarSubidaLogo(e: React.ChangeEvent<HTMLInputElement>) {
     const archivo = e.target.files?.[0]
+    e.target.value = ''
     if (!archivo) return
+    if (!archivo.type.startsWith('image/')) { mostrarToast(<IconoAviso />, 'Ese archivo no es una imagen.'); return }
+    if (archivo.size > 2 * 1024 * 1024) { mostrarToast(<IconoAviso />, 'La imagen pesa mucho — usa una de menos de 2 MB.'); return }
     const lector = new FileReader()
     lector.onload = () => setLogoLocal(typeof lector.result === 'string' ? lector.result : null)
     lector.readAsDataURL(archivo)
