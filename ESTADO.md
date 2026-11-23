@@ -1,6 +1,29 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## Rediseño del motor de costeo (modo sencillo y avanzado) — aprobado y construido (2026-11-23)
+La usuaria sentía "ruido" en el modo avanzado y pidió revisar la lógica de los dos modos antes de
+tocar código — se le presentó una propuesta completa (fórmulas, ejemplos, tabla de cómo se dispara
+el precio) y la aprobó. Cambios reales en `src/lib/costeo.ts`, `appStore.tsx`, `Recetas.tsx` y
+`Ajustes.tsx`:
+- **Arreglado un defecto real del "modo sencillo"**: usaba un multiplicador fijo escondido
+  (×1,35 sobre los insumos) que ignoraba el control de margen de la receta y nunca contaba la
+  mano de obra. Ahora el costo base es solo insumos (+ mano de obra si el usuario prende el
+  interruptor opcional) y el margen de la receta SÍ decide el precio, en los dos modos.
+- **Interruptor nuevo en modo sencillo** ("Incluir mi tiempo en este cálculo"), apagado por
+  defecto — solo visible cuando el modo global es "simple". Verificado en vivo: con 2 horas a
+  $8.000, el costo sube exactamente $16.000 y se explica en pantalla.
+- **Alerta nueva en modo avanzado**: cuando gastos fijos + variables + margen llegan a 70% o más
+  (antes del límite duro de 97% que ya existía), se muestra un aviso amarillo explicando que el
+  precio se puede alejar mucho de la competencia. Verificado en vivo con 30%+15%+50%=95%.
+- **Topes bajados en Ajustes** para que sea más difícil llegar a una suma disparada sin querer:
+  gastos fijos máximo 40% (antes 80%), otros gastos variables máximo 20% (antes 80%). Se agregó
+  una tarjeta permanente explicando por qué conviene que la suma total no pase de 60-65%.
+- A propósito, por pedido explícito de la usuaria, NO se agregó ningún texto para "cliente nuevo
+  sin historial" — se mantuvo solo el ejemplo con historial real que ya existía.
+- `npx tsc --noEmit` y `npm run build` limpios. Probado en vivo con datos reales (no solo
+  revisado el código): los dos modos, el interruptor y la alerta funcionan como se diseñaron.
+
 ## "Deshacer factura" no revertía de verdad (bug real reportado por la usuaria, 2026-11-23)
 `deshacerFactura` solo devolvía el precio anterior del insumo — el stock que el escaneo había
 sumado y el gasto que quedó contando para "este mes" en Panorama se quedaban aplicados, aunque

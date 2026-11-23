@@ -68,6 +68,9 @@ export interface ResultadoCosteo {
   costoPorUnidad: number
   precioPorUnidad: number
   pctImposible: boolean
+  /** true cuando gastos fijos + variables + margen ya suman 70% o más del precio — no es un
+   * error (no se bloquea nada), es el aviso de "tu precio se está alejando del mercado". */
+  pctAlto: boolean
 }
 
 /**
@@ -75,6 +78,10 @@ export interface ResultadoCosteo {
  * reales", costos fijos y variables son % de PRECIO (sacados por el usuario de un mes real
  * suyo en Configuración), no pesos repartidos por un volumen mensual estimado — eso fue una
  * fuente de confusión ya corregida. precio = costoDirecto / (1 − %fijos − %variables − %margen).
+ *
+ * En "modo sencillo", el costo base es SOLO los insumos (y la mano de obra si el usuario prende
+ * el interruptor opcional) — ya NO se usa un multiplicador fijo escondido (antes ×1,35): el
+ * control de margen de la receta es el que de verdad decide el precio, en los dos modos.
  */
 export function calcularCostoReceta(
   insumos: Insumo[],
@@ -84,6 +91,7 @@ export function calcularCostoReceta(
   unidades: number,
   modoReal: boolean,
   cfg: ConfigNegocio,
+  incluirManoDeObraEnSencillo = false,
 ): ResultadoCosteo {
   const unidadesSeguras = unidades || 1
   let costoInsumos = 0
@@ -93,16 +101,18 @@ export function calcularCostoReceta(
     costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas
   })
   const costoManoDeObra = (horas || 0) * cfg.valorHora
-  const costoDirecto = costoInsumos + costoManoDeObra
 
   let precioSugerido: number
   let costoFijoAsignado = 0
   let costoVariableAsignado = 0
   let costoBase: number
   let pctImposible = false
+  let pctAlto = false
 
   if (modoReal) {
+    const costoDirecto = costoInsumos + costoManoDeObra
     let pctOcupado = (cfg.fijoPct + cfg.variablePct + margen) / 100
+    pctAlto = pctOcupado >= 0.7
     if (pctOcupado >= 0.97) {
       pctImposible = true
       pctOcupado = 0.97
@@ -112,7 +122,7 @@ export function calcularCostoReceta(
     costoVariableAsignado = Math.round((precioSugerido * cfg.variablePct) / 100)
     costoBase = costoDirecto + costoFijoAsignado + costoVariableAsignado
   } else {
-    costoBase = Math.round(costoInsumos * 1.35)
+    costoBase = costoInsumos + (incluirManoDeObraEnSencillo ? costoManoDeObra : 0)
     precioSugerido = Math.round(costoBase / (1 - margen / 100))
   }
 
@@ -129,5 +139,6 @@ export function calcularCostoReceta(
     costoPorUnidad: Math.round(costoBase / unidadesSeguras),
     precioPorUnidad,
     pctImposible,
+    pctAlto,
   }
 }

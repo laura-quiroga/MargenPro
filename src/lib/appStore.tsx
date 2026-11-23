@@ -270,13 +270,13 @@ interface AppContextValue {
    * manuales y por factura) — reemplaza el número fijo que había antes en Panorama. */
   gastoMesActual: number
   money: (n: number) => string
-  costear: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
+  costear: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean) => ReturnType<typeof calcularCostoReceta>
   /** Para cotizaciones cuando el usuario SÍ quiere incluir sus gastos fijos/variables —
    * sin importar el modo elegido en Ajustes, para poder comparar a propósito con/sin ellos. */
   costearReal: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
   /** Lo mismo pero forzando el cálculo SIMPLE — para cuando el usuario elige cotizar sin sus
    * gastos fijos/variables, sin importar el modo elegido en Ajustes. */
-  costearSimple: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
+  costearSimple: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean) => ReturnType<typeof calcularCostoReceta>
   /** Descuenta (signo -1) o devuelve (signo +1) del inventario los insumos de TODOS los
    * productos de la cotización vendida/corregida — una cotización puede tener varios. */
   ajustarInventarioPorVenta: (items: ItemCotizacion[], signo: 1 | -1) => string[]
@@ -676,14 +676,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString(LOCALE_MONEDA[moneda] || 'es-CO')}`
 
-  const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades) =>
-    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg)
+  const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg, incluirManoDeObraEnSencillo)
 
   const costearReal: AppContextValue['costearReal'] = (insumosUsados, margen, horas, unidades) =>
     calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, true, cfg)
 
-  const costearSimple: AppContextValue['costearSimple'] = (insumosUsados, margen, horas, unidades) =>
-    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, false, cfg)
+  const costearSimple: AppContextValue['costearSimple'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, false, cfg, incluirManoDeObraEnSencillo)
 
   /** Guarda TODA la configuración del negocio de una vez — reemplaza lo que había antes en
    * localStorage, así no se pierde al cambiar de aparato o borrar datos del navegador. */

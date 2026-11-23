@@ -83,6 +83,7 @@ export default function Recetas() {
   const [filas, setFilas] = useState<FilaInsumo[]>([])
   const [margen, setMargen] = useState(50)
   const [horas, setHoras] = useState('')
+  const [incluirManoDeObraSimple, setIncluirManoDeObraSimple] = useState(false)
   const [resultado, setResultado] = useState<{ calc: ReturnType<typeof costear>; insumosUsados: InsumoUsado[]; margen: number; horas: number; unidades: number } | null>(null)
   const [filaAbierta, setFilaAbierta] = useState<number | null>(null)
 
@@ -97,6 +98,7 @@ export default function Recetas() {
     setFilas(insumos.length ? [{ insumoId: insumos[0].id, textoBusqueda: insumos[0].nombre, cantidad: '100', medida: medidaInicialPara(insumos[0]), equivalencia: '' }] : [])
     setMargen(50)
     setHoras('')
+    setIncluirManoDeObraSimple(false)
     setResultado(null)
     setConfirmandoEliminar(false)
     setVista('constructor')
@@ -114,7 +116,8 @@ export default function Recetas() {
     }))
     setMargen(r.margen)
     setHoras(r.horas ? String(r.horas) : '')
-    setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades), insumosUsados: r.insumosUsados, margen: r.margen, horas: r.horas, unidades: r.unidades })
+    setIncluirManoDeObraSimple(false)
+    setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades, false), insumosUsados: r.insumosUsados, margen: r.margen, horas: r.horas, unidades: r.unidades })
     setConfirmandoEliminar(false)
     setVista('constructor')
   }
@@ -174,7 +177,7 @@ export default function Recetas() {
       }
       return { insumoId: f.insumoId, cantidadGramosOPiezas: cantidadBase }
     })
-    const calc = costear(insumosUsados, margenNum, horasNum, unidadesNum)
+    const calc = costear(insumosUsados, margenNum, horasNum, unidadesNum, incluirManoDeObraSimple)
     setResultado({ calc, insumosUsados, margen: margenNum, horas: horasNum, unidades: unidadesNum })
   }
 
@@ -274,10 +277,17 @@ export default function Recetas() {
         </div>
 
         <div className="fila-config" style={{ border: 'none', padding: '0 0 14px' }}>
-          <div className="txt"><div className="n">¿Cuántas horas te toma hacerla?</div><div className="d">Solo si activaste "gastos reales" en Configuración</div></div>
+          <div className="txt"><div className="n">¿Cuántas horas te toma hacerla?</div><div className="d">{modoCalculo === 'real' ? 'Se cuenta siempre, porque activaste "gastos reales" en Configuración' : 'Solo se cuenta si prendes la opción de abajo'}</div></div>
         </div>
         <input type="number" value={horas} onChange={(e) => setHoras(e.target.value)} placeholder="Ej: 2"
-          style={{ width: '100%', padding: '13px 15px', borderRadius: 12, border: '1.5px solid var(--sunken)', background: 'var(--surface)', color: 'var(--text-1)', fontSize: 14.5, marginBottom: 16 }} />
+          style={{ width: '100%', padding: '13px 15px', borderRadius: 12, border: '1.5px solid var(--sunken)', background: 'var(--surface)', color: 'var(--text-1)', fontSize: 14.5, marginBottom: modoCalculo === 'real' ? 16 : 10 }} />
+
+        {modoCalculo === 'simple' && (
+          <div className="fila-config" style={{ marginBottom: 16 }}>
+            <div className="txt"><div className="n">Incluir mi tiempo en este cálculo</div><div className="d">Apagado por defecto, para que el modo rápido siga siendo rápido</div></div>
+            <button className={`toggle-switch${incluirManoDeObraSimple ? ' on' : ''}`} onClick={() => setIncluirManoDeObraSimple((v) => !v)} aria-label="Incluir mi tiempo en este cálculo"><span /></button>
+          </div>
+        )}
 
         <button className="btn-cta" onClick={calcularReceta}>Calcular precio →</button>
 
@@ -300,10 +310,15 @@ export default function Recetas() {
                 )}
                 <div className="fila total"><span>Costo real de esta receta ({resultado.unidades} {resultado.unidades > 1 ? 'unidades' : 'unidad'})</span><span>{money(resultado.calc.costoBase)}</span></div>
                 <p className="formula-ganancia">Tu arriendo y tus otros gastos se cobran como % de tu precio (lo configuras en Ajustes) — no según cuánto vendas al mes, así el precio no cambia de una tanda a otra.</p>
-                {resultado.calc.pctImposible && (
+                {resultado.calc.pctImposible ? (
                   <p className="formula-ganancia" style={{ color: 'var(--error)', fontWeight: 700 }}>Tus porcentajes configurados no caben en un precio real — este número está forzado para no romperse. Baja el % de gastos fijos, el de otros gastos, o el margen.</p>
+                ) : resultado.calc.pctAlto && (
+                  <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>⚠️ Tus gastos fijos + otros gastos + tu margen ya son el {Math.round((cfg.fijoPct + cfg.variablePct + resultado.margen))}% del precio — de cada $100 que cobras, menos de $30 cubren tus insumos y tu trabajo. Este precio puede alejarse mucho de lo que cobra la competencia. Revisa tus porcentajes en Ajustes.</p>
                 )}
               </div>
+            )}
+            {modoCalculo === 'simple' && incluirManoDeObraSimple && resultado.calc.costoManoDeObra > 0 && (
+              <p className="formula-ganancia" style={{ marginTop: 10 }}>Incluye tu tiempo: {money(resultado.calc.costoManoDeObra)} de las {resultado.horas} horas que dijiste.</p>
             )}
           </div>
         )}

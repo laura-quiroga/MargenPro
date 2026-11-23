@@ -103,15 +103,20 @@ export default function Ajustes() {
           <div className="slider-wrap">
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas que se va en arriendo, sueldo y servicios <span style={{ color: 'var(--text-2)', fontWeight: 400 }}>(costo fijo)</span></label>
             <div className="slider-valor">{cfgLocal.fijoPct}%</div>
-            <input type="range" min={0} max={80} value={cfgLocal.fijoPct} onChange={(e) => setCfgLocal((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
+            <input type="range" min={0} max={40} value={cfgLocal.fijoPct} onChange={(e) => setCfgLocal((c) => ({ ...c, fijoPct: parseInt(e.target.value, 10) }))} />
             <p className="ayuda-campo" style={{ marginTop: 6 }}>Costo fijo: lo que pagas siempre, vendas mucho o poco (arriendo, sueldo fijo, servicios).</p>
           </div>
 
           <div className="slider-wrap">
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-2)' }}>% de tus ventas en otros gastos (no insumos) <span style={{ color: 'var(--text-2)', fontWeight: 400 }}>(costo variable)</span></label>
             <div className="slider-valor">{cfgLocal.variablePct}%</div>
-            <input type="range" min={0} max={80} value={cfgLocal.variablePct} onChange={(e) => setCfgLocal((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
+            <input type="range" min={0} max={20} value={cfgLocal.variablePct} onChange={(e) => setCfgLocal((c) => ({ ...c, variablePct: parseInt(e.target.value, 10) }))} />
             <p className="ayuda-campo" style={{ marginTop: 6 }}>Costo variable: sube o baja según cuánto vendas (comisiones de pago, domicilios, publicidad).</p>
+          </div>
+
+          <div className="tarjeta" style={{ marginBottom: 18 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>⚠️ Para que tu precio no se aleje de la competencia</p>
+            <p style={{ fontSize: 12.5, color: 'var(--text-2)' }}>Suma tu costo fijo + tus otros gastos + el margen que le pongas a cada receta. Entre más cerca estés del 100%, más rápido se dispara tu precio — no en línea recta, sino de golpe. Para quedar en precios normales de mercado, procura que esa suma no pase de <strong>60-65%</strong> en total.</p>
           </div>
 
           <div className="campo">
