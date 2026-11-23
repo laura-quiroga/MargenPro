@@ -313,7 +313,7 @@ export default function Recetas() {
                 {resultado.calc.pctImposible ? (
                   <p className="formula-ganancia" style={{ color: 'var(--error)', fontWeight: 700 }}>Tus porcentajes configurados no caben en un precio real — este número está forzado para no romperse. Baja el % de gastos fijos, el de otros gastos, o el margen.</p>
                 ) : resultado.calc.pctAlto && (
-                  <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>⚠️ Tus gastos fijos + otros gastos + tu margen ya son el {Math.round((cfg.fijoPct + cfg.variablePct + resultado.margen))}% del precio — de cada $100 que cobras, menos de $30 cubren tus insumos y tu trabajo. Este precio puede alejarse mucho de lo que cobra la competencia. Revisa tus porcentajes en Ajustes.</p>
+                  <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>⚠️ Con estos números, el {Math.round((cfg.fijoPct + cfg.variablePct + resultado.margen))}% de tu precio se va en gastos y margen — de cada $100 que cobres, menos de $30 te quedan para cubrir tus insumos y tu trabajo. Baja el margen de esta receta, o el % de gastos fijos/otros gastos en Ajustes, para que tu precio no se dispare por encima del mercado.</p>
                 )}
               </div>
             )}
