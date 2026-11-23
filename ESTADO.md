@@ -1,6 +1,46 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## App publicada en internet + webhook de Hotmart conectado (2026-11-23)
+- **MargenPro ya está publicada de verdad**: https://margenpro-ochre.vercel.app (dirección
+  gratuita de Vercel, mientras se compra el dominio real). Proyecto creado en Vercel
+  (`prj_KlJ1eCu0SNEVgmXyf3TmcDvd2Vct`, equipo `94marshapril-7125`), conectado al repo de GitHub
+  — cada push a la rama de trabajo despliega sola una nueva versión en 1-2 minutos.
+  - Variables de entorno configuradas en Vercel: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+    (son públicas por diseño, protegidas por RLS — no son secretas).
+  - ⚠️ **Arreglado un bug real encontrado al publicar**: faltaba `vercel.json` con el rewrite a
+    `index.html` — sin él, entrar DIRECTO a cualquier ruta interna (`/login`, `/app`, etc., no
+    pasando primero por `/`) daba error 404. Ya está arreglado y verificado en producción.
+  - ⚠️ **Importante para la próxima sesión**: el proyecto de Vercel quedó configurado con rama de
+    producción `master`, pero casi todos los commits de esta sesión se suben a la rama del Pull
+    Request abierto (`ajustes-landing-paywall-panorama`), que va adelante de `master`. Por ahora
+    cada publicación se hace con un despliegue manual indicando esa rama explícitamente
+    (`create_deployment` con `gitSource.ref: "ajustes-landing-paywall-panorama"` y
+    `target: "production"`) — si se empieza a usar únicamente `git push` esperando que Vercel
+    despliegue solo, va a desplegar la rama vieja. Arreglo pendiente y simple: fusionar el PR a
+    `master` (o cambiar la rama de producción del proyecto en Vercel) en cuanto la usuaria lo
+    apruebe explícitamente — no se hizo hoy porque es una acción sobre la rama principal.
+- **Webhook de Hotmart construido y desplegado** (`supabase/functions/hotmart-webhook`, no
+  verifica JWT porque lo llama Hotmart, no un usuario logueado): recibe los avisos de compra/
+  cancelación/reembolso/contracargo, verifica el `hottok` contra un secreto guardado SOLO en el
+  servidor (variable de entorno `HOTTOK_SECRETO`, todavía sin configurar — ver pendientes de la
+  usuaria), busca al comprador por correo y llama a la función nueva `hotmart_actualizar_plan`
+  (protegida: revocado el permiso a `anon`/`authenticated`, solo la puede llamar el servidor) para
+  poner `plan='pro'` (compra aprobada) o `plan='gratis'` (cancelación/reembolso/contracargo/
+  vencimiento). Usa la misma bandera `app.rpc_admin_en_curso` del trigger de seguridad de hoy, así
+  que el trigger no la bloquea.
+  - URL del webhook para pegar en Hotmart:
+    `https://iguryohxkhsnaumzwcip.supabase.co/functions/v1/hotmart-webhook`
+  - ⚠️ **Pendiente de la usuaria** (no se puede hacer por este medio, son credenciales): (1)
+    conseguir el HOTTOK real desde el panel de Hotmart (Herramientas → Webhook, o donde Hotmart lo
+    muestre) y configurarlo como secreto `HOTTOK_SECRETO` directamente en Supabase (Project
+    Settings → Edge Functions → Secrets) — nunca pegarlo en el chat; (2) pegar la URL del webhook
+    de arriba en la configuración de Hotmart; (3) conseguir los links de checkout reales de cada
+    plan (Mensual/Anual) desde "Links de divulgación" en Hotmart, para conectar los botones del
+    paywall — hoy esos botones solo llevan a `/login`, todavía no a un checkout real de Hotmart.
+- `npx tsc --noEmit` y `npm run build` limpios. Probado en vivo en la dirección pública: landing,
+  login y las rutas internas cargan bien, sin errores de consola.
+
 ## Auditoría de seguridad completa + arreglo del hallazgo crítico (2026-11-23)
 A pedido de la usuaria (prompt estructurado de auditoría), se revisaron 10 puntos de seguridad
 de punta a punta. Resultado completo entregado en el chat. Resumen de lo encontrado y lo hecho:
