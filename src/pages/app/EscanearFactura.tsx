@@ -137,7 +137,7 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
           nombre: item.producto.trim(), unidad: item.medida as UnidadInsumo, precio: precioPorUnidad,
           unidadesQueTrae: 1, categoria: item.categoria, stockDisponible: stockSumado,
           ultimaCompraCantidad: item.cantidad, ultimaCompraTotal: item.precio, ultimaCompraMedida: item.medida as UnidadInsumo,
-        }, item.texto_original)
+        }, item.texto_original, facturaId)
       } else if (item.insumoId) {
         await confirmarItemFactura(item.insumoId, item.texto_original, precioPorUnidad, stockSumado, facturaId, { cantidad: item.cantidad, total: item.precio, medida: item.medida as UnidadInsumo })
       }

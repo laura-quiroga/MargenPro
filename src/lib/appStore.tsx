@@ -292,7 +292,7 @@ interface AppContextValue {
    * a propósito (no se puede deshacer una receta rota) — se devuelve un mensaje claro. */
   eliminarInsumo: (id: string) => Promise<{ ok: boolean; error?: string }>
   confirmarItemFactura: (insumoId: string, textoFactura: string, precioNuevo: number, stockSumado: number, facturaId: string, ultimaCompra?: UltimaCompra) => Promise<boolean>
-  crearInsumoDesdeFactura: (datos: Omit<Insumo, 'id'>, textoFactura: string) => Promise<boolean>
+  crearInsumoDesdeFactura: (datos: Omit<Insumo, 'id'>, textoFactura: string, facturaId: string) => Promise<boolean>
   cerrarFacturaEscaneada: (facturaId: string, estado: 'confirmada' | 'descartada', imagenPath: string | null) => Promise<void>
   deshacerFactura: (facturaId: string) => Promise<boolean>
   logoNegocio: string | null
@@ -453,7 +453,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return nuevo
   }
 
-  async function registrarCompraInsumo(id: string, stockSumado: number, precioNuevo?: number, ultimaCompra?: UltimaCompra, origen: 'manual' | 'factura' = 'manual'): Promise<boolean> {
+  async function registrarCompraInsumo(id: string, stockSumado: number, precioNuevo?: number, ultimaCompra?: UltimaCompra, origen: 'manual' | 'factura' = 'manual', facturaId?: string): Promise<boolean> {
     const actual = insumos.find((i) => i.id === id)
     if (!actual) return false
     const nuevoStock = (typeof actual.stockDisponible === 'number' ? actual.stockDisponible : 0) + stockSumado
@@ -467,7 +467,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.from('insumos').update(payload).eq('id', id).select().single()
     if (error || !data) return false
     setInsumos((prev) => prev.map((i) => (i.id === id ? filaAInsumo(data) : i)))
-    if (ultimaCompra) await registrarCompraEnLog(id, ultimaCompra.cantidad, ultimaCompra.total, origen)
+    if (ultimaCompra) await registrarCompraEnLog(id, ultimaCompra.cantidad, ultimaCompra.total, origen, facturaId)
     return true
   }
 
@@ -512,10 +512,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     if (!usuario) return false
     const actual = insumos.find((i) => i.id === insumoId)
     if (!actual) return false
-    const ok = await registrarCompraInsumo(insumoId, stockSumado, precioNuevo, ultimaCompra, 'factura')
+    const ok = await registrarCompraInsumo(insumoId, stockSumado, precioNuevo, ultimaCompra, 'factura', facturaId)
     if (!ok) return false
     await supabase.from('insumo_precio_historial').insert({
-      user_id: usuario.id, insumo_id: insumoId, precio_anterior: actual.precio, precio_nuevo: precioNuevo, origen: 'factura', factura_id: facturaId,
+      user_id: usuario.id, insumo_id: insumoId, precio_anterior: actual.precio, precio_nuevo: precioNuevo, origen: 'factura', factura_id: facturaId, stock_sumado: stockSumado,
     })
     await supabase.from('insumo_alias').upsert(
       { user_id: usuario.id, insumo_id: insumoId, texto_factura: textoFactura },
@@ -524,8 +524,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
-  /** Crea un insumo NUEVO a partir de un ítem de factura que no coincidía con ninguno existente. */
-  async function crearInsumoDesdeFactura(datos: Omit<Insumo, 'id'>, textoFactura: string): Promise<boolean> {
+  /** Crea un insumo NUEVO a partir de un ítem de factura que no coincidía con ninguno existente.
+   * Deja también un rastro en insumo_precio_historial marcado "insumo_creado" — así Deshacer
+   * sabe que debe borrar el insumo entero (no solo devolver un precio), si nadie lo usó todavía. */
+  async function crearInsumoDesdeFactura(datos: Omit<Insumo, 'id'>, textoFactura: string, facturaId: string): Promise<boolean> {
     const nuevo = await agregarInsumo(datos)
     if (!nuevo) return false
     const { data: userData } = await supabase.auth.getUser()
@@ -535,11 +537,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
         { user_id: usuario.id, insumo_id: nuevo.id, texto_factura: textoFactura },
         { onConflict: 'user_id,texto_factura' },
       )
+      await supabase.from('insumo_precio_historial').insert({
+        user_id: usuario.id, insumo_id: nuevo.id, precio_anterior: 0, precio_nuevo: datos.precio,
+        origen: 'factura', factura_id: facturaId, stock_sumado: datos.stockDisponible ?? 0, insumo_creado: true,
+      })
     }
     // Es dinero real que se acaba de gastar (venía de una factura escaneada) — cuenta para
     // "cuánto gastaste en insumos este mes" en Panorama.
     if (datos.ultimaCompraCantidad && datos.ultimaCompraTotal) {
-      await registrarCompraEnLog(nuevo.id, datos.ultimaCompraCantidad, datos.ultimaCompraTotal, 'factura')
+      await registrarCompraEnLog(nuevo.id, datos.ultimaCompraCantidad, datos.ultimaCompraTotal, 'factura', facturaId)
     }
     return true
   }
@@ -551,15 +557,33 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     if (imagenPath) await supabase.storage.from('facturas-temporales').remove([imagenPath])
   }
 
-  /** Deshace los cambios de precio de una factura ya confirmada, usando su historial —
-   * respeta cotizaciones (nunca las toca, ni siquiera al deshacer). */
+  /** Deshace TODO lo que aplicó una factura ya confirmada: el precio, el stock que sumó, el
+   * gasto que quedó registrado en "este mes" y, si creó un insumo nuevo, lo borra por completo
+   * (si nadie lo usó todavía en una receta — si ya lo usaron, se deja pero sin el gasto). Nunca
+   * toca cotizaciones, ni siquiera al deshacer. */
   async function deshacerFactura(facturaId: string): Promise<boolean> {
     const { data: historial, error } = await supabase
       .from('insumo_precio_historial').select('*').eq('factura_id', facturaId)
     if (error || !historial) return false
     for (const fila of historial) {
-      await supabase.from('insumos').update({ precio: fila.precio_anterior }).eq('id', fila.insumo_id)
+      if (fila.insumo_creado) {
+        // Nació de este escaneo — se borra entero. Si ya está en uso en una receta, el borrado
+        // falla por su propia restricción y se deja el insumo tal cual (mejor eso que romper
+        // una receta existente).
+        await supabase.from('insumos').delete().eq('id', fila.insumo_id)
+        continue
+      }
+      const { data: actual } = await supabase.from('insumos').select('stock_disponible').eq('id', fila.insumo_id).maybeSingle()
+      const stockActual = typeof actual?.stock_disponible === 'number' ? actual.stock_disponible : 0
+      const stockRevertido = stockActual - (Number(fila.stock_sumado) || 0)
+      await supabase.from('insumos').update({ precio: fila.precio_anterior, stock_disponible: stockRevertido }).eq('id', fila.insumo_id)
     }
+    // El gasto que esta factura había sumado a "este mes" (Panorama) también se revierte.
+    await supabase.from('compras_insumo').delete().eq('factura_id', facturaId)
+    const hoy = new Date()
+    const desde = new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1)
+    const { data: comprasFrescas } = await supabase.from('compras_insumo').select('total, created_at').gte('created_at', desde.toISOString())
+    if (comprasFrescas) setComprasTodas(comprasFrescas.map((c) => ({ total: Number(c.total), createdAt: c.created_at as string })))
     const { data: insumosFrescos } = await supabase.from('insumos').select('*')
     if (insumosFrescos) setInsumos(insumosFrescos.map(filaAInsumo))
     await supabase.from('facturas_escaneadas').update({ deshecho_en: new Date().toISOString() }).eq('id', facturaId)

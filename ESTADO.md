@@ -1,6 +1,27 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## "Deshacer factura" no revertía de verdad (bug real reportado por la usuaria, 2026-11-23)
+`deshacerFactura` solo devolvía el precio anterior del insumo — el stock que el escaneo había
+sumado y el gasto que quedó contando para "este mes" en Panorama se quedaban aplicados, aunque
+la usuaria hubiera deshecho el escaneo. Arreglado:
+- Nuevas columnas en `insumo_precio_historial`: `stock_sumado` (cuánto stock sumó ese escaneo,
+  para poder restarlo exacto al deshacer) y `insumo_creado` (si el escaneo creó un insumo nuevo
+  en vez de actualizar uno existente).
+- `confirmarItemFactura` y `crearInsumoDesdeFactura` (`appStore.tsx`) ahora guardan esos datos;
+  `registrarCompraInsumo` ahora recibe el `facturaId` para que el gasto quede ligado a esa
+  factura y se pueda borrar al deshacer.
+- `deshacerFactura` reescrito: resta el stock exacto que había sumado, borra las filas de
+  `compras_insumo` de esa factura (el gasto del mes vuelve a su valor real) y, si el escaneo
+  había creado un insumo nuevo, lo borra por completo (a menos que ya esté en uso en una receta,
+  en cuyo caso se deja para no romper esa receta).
+- Verificado matemáticamente con una simulación directa en la base de datos: stock, precio y
+  gasto del mes vuelven exactamente a su valor original después de deshacer.
+- Aclarado con la usuaria: el tope de 30 escaneos al mes cuenta cuántas veces se le pidió a la IA
+  que lea una foto (eso cuesta dinero siempre), no cuántos insumos quedaron guardados — deshacer
+  un escaneo NO devuelve ese cupo, es el comportamiento correcto.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Login con Google activado de verdad (2026-11-23)
 Se encontró un bug real al probar el botón "Continuar con Google": el proveedor de Google nunca
 había estado activado en Supabase (no era algo que se rompió al publicar, ya estaba así desde
