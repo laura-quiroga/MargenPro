@@ -214,31 +214,31 @@ export default function Recetas() {
           const sugerencias = textoBuscado ? insumos.filter((i) => normalizarParaBuscar(i.nombre).includes(textoBuscado)).slice(0, 8) : []
           return (
             <div className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }} key={idx}>
+              <div style={{ position: 'relative' }}>
+                <input style={{ width: '100%', padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }}
+                  placeholder="Escribe para buscar…"
+                  value={f.textoBusqueda}
+                  onFocus={() => setFilaAbierta(idx)}
+                  onBlur={() => setTimeout(() => setFilaAbierta((actual) => (actual === idx ? null : actual)), 150)}
+                  onChange={(e) => { actualizarFila(idx, { textoBusqueda: e.target.value }); setFilaAbierta(idx) }} />
+                {filaAbierta === idx && textoBuscado && (
+                  <div className="lista-sugerencias">
+                    {sugerencias.length ? sugerencias.map((i) => (
+                      <button key={i.id} type="button"
+                        onMouseDown={() => {
+                          actualizarFila(idx, { insumoId: i.id, textoBusqueda: i.nombre, medida: medidaInicialPara(i), equivalencia: '' })
+                          setFilaAbierta(null)
+                        }}>
+                        {i.nombre}
+                      </button>
+                    )) : <div className="sin-resultados">No encontramos ningún insumo con ese nombre — revisa Insumos para ver cómo lo registraste.</div>}
+                  </div>
+                )}
+              </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <div style={{ position: 'relative', flex: 1.4 }}>
-                  <input style={{ width: '100%', padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
-                    placeholder="Escribe para buscar…"
-                    value={f.textoBusqueda}
-                    onFocus={() => setFilaAbierta(idx)}
-                    onBlur={() => setTimeout(() => setFilaAbierta((actual) => (actual === idx ? null : actual)), 150)}
-                    onChange={(e) => { actualizarFila(idx, { textoBusqueda: e.target.value }); setFilaAbierta(idx) }} />
-                  {filaAbierta === idx && textoBuscado && (
-                    <div className="lista-sugerencias">
-                      {sugerencias.length ? sugerencias.map((i) => (
-                        <button key={i.id} type="button"
-                          onMouseDown={() => {
-                            actualizarFila(idx, { insumoId: i.id, textoBusqueda: i.nombre, medida: medidaInicialPara(i), equivalencia: '' })
-                            setFilaAbierta(null)
-                          }}>
-                          {i.nombre}
-                        </button>
-                      )) : <div className="sin-resultados">No encontramos ningún insumo con ese nombre — revisa Insumos para ver cómo lo registraste.</div>}
-                    </div>
-                  )}
-                </div>
                 <input type="number" value={f.cantidad} onChange={(e) => actualizarFila(idx, { cantidad: e.target.value })}
-                  style={{ width: 64, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
-                <select style={{ flex: 1, padding: '9px 6px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
+                  style={{ width: 72, padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }} />
+                <select style={{ flex: 1, padding: '11px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 14 }}
                   value={f.medida} onChange={(e) => actualizarFila(idx, { medida: e.target.value as MedidaFila })}>
                   <option value="g">gramos</option>
                   <option value="ml">mililitros</option>
@@ -248,7 +248,7 @@ export default function Recetas() {
                   <option value="pz">piezas</option>
                   <option value="libra">libras</option>
                 </select>
-                <button onClick={() => quitarFila(idx)} aria-label="Quitar"><IconoQuitar /></button>
+                <button onClick={() => quitarFila(idx)} aria-label="Quitar" style={{ flexShrink: 0 }}><IconoQuitar /></button>
               </div>
               {necesitaEquivalencia && (
                 <div className="campo" style={{ marginTop: 2 }}>
