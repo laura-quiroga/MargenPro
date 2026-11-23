@@ -850,7 +850,10 @@ usuarios a mano. Plan aprobado en modo plan y ejecutado completo:
   CUALQUIER cliente, no solo a ella (hoy está bloqueado — ver nota de Resend más abajo); (2) tener
   un correo de soporte de marca (`soporte@margenpro.app`) en vez del `margenpro.soporte@gmail.com`
   temporal; (3) un enlace real y presentable para poner en Hotmart, redes y publicidad, en vez del
-  gratuito de Vercel. Recordárselo en cada sesión hasta que esté comprado.
+  gratuito de Vercel; (4) agregar el dominio nuevo en "Orígenes autorizados de JavaScript" del
+  cliente OAuth de Google (console.cloud.google.com, proyecto MargenPro) — si no, el botón
+  "Continuar con Google" dejaría de funcionar desde ese dominio. Recordárselo en cada sesión hasta
+  que esté comprado.
 - **Nuevo, para cerrar el panel de administración**: iniciar sesión en `/login` con su correo admin
   (`94marshapril@gmail.com`, ya promovido a `role='admin'`) y avisar cuando esté adentro de `/admin`
   — así se completa el screenshot + veredicto del revisor-visual que falta para declararlo "listo".
