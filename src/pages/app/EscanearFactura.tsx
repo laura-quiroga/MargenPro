@@ -48,6 +48,7 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
   const { insumos, recetas, cotizaciones, cfg, modoCalculo, money, moneda, confirmarItemFactura, crearInsumoDesdeFactura, cerrarFacturaEscaneada, deshacerFactura } = useAppStore()
   const { toast, mostrarToast } = useToast()
   const inputRef = useRef<HTMLInputElement>(null)
+  const inputGaleriaRef = useRef<HTMLInputElement>(null)
 
   const [paso, setPaso] = useState<Paso>('elegir')
   const [facturaId, setFacturaId] = useState<string | null>(null)
@@ -181,9 +182,12 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
           <div className="chip-icono" style={{ width: 48, height: 48, margin: '0 auto 12px' }}><IconoCamara /></div>
           <p>Elige una foto clara, con buena luz, de tu factura o recibo.</p>
         </div>
-        <input ref={inputRef} type="file" accept="image/*" style={{ display: 'none' }}
+        <input ref={inputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }}
           onChange={(e) => alElegirArchivo(e.target.files?.[0])} />
-        <button className="btn-cta" onClick={() => inputRef.current?.click()}>Tomar o elegir foto →</button>
+        <input ref={inputGaleriaRef} type="file" accept="image/*" style={{ display: 'none' }}
+          onChange={(e) => alElegirArchivo(e.target.files?.[0])} />
+        <button className="btn-cta" onClick={() => inputRef.current?.click()} style={{ marginBottom: 10 }}>Tomar foto →</button>
+        <button className="btn-secundario" onClick={() => inputGaleriaRef.current?.click()}>Elegir de la galería</button>
         <Toast toast={toast} />
       </>
     )
