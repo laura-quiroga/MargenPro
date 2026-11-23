@@ -25,6 +25,9 @@ const IconoCamara = () => (
 const IconoQuitar = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
 )
+const IconoDeshacer = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14l-4-4 4-4" /><path d="M5 10h10a5 5 0 0 1 0 10h-1" /></svg>
+)
 
 const CATEGORIAS_FACTURA: { valor: CategoriaInsumo; label: string }[] = [
   { valor: 'ingrediente', label: 'Ingrediente' },
@@ -178,7 +181,7 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
           <div className="chip-icono" style={{ width: 48, height: 48, margin: '0 auto 12px' }}><IconoCamara /></div>
           <p>Elige una foto clara, con buena luz, de tu factura o recibo.</p>
         </div>
-        <input ref={inputRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }}
+        <input ref={inputRef} type="file" accept="image/*" style={{ display: 'none' }}
           onChange={(e) => alElegirArchivo(e.target.files?.[0])} />
         <button className="btn-cta" onClick={() => inputRef.current?.click()}>Tomar o elegir foto →</button>
         <Toast toast={toast} />
@@ -218,12 +221,12 @@ export default function EscanearFactura({ onVolver }: { onVolver: () => void }) 
                     onClick={() => actualizarItem(idx, { categoria: c.valor })}>{c.label}</button>
                 ))}
               </div>
-              <button type="button" aria-label="Quitar este producto" onClick={() => actualizarItem(idx, { omitir: !item.omitir })}
-                style={{ flexShrink: 0, marginLeft: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1.5px solid var(--sunken)', color: item.omitir ? 'var(--text-2)' : 'var(--error)' }}>
-                <IconoQuitar />
+              <button type="button" aria-label={item.omitir ? 'Incluir este producto de nuevo' : 'Quitar este producto'} onClick={() => actualizarItem(idx, { omitir: !item.omitir })}
+                style={{ flexShrink: 0, marginLeft: 8, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, border: '1.5px solid var(--sunken)', color: item.omitir ? 'var(--accent)' : 'var(--error)' }}>
+                {item.omitir ? <IconoDeshacer /> : <IconoQuitar />}
               </button>
             </div>
-            {item.omitir && <p className="sub-seccion" style={{ marginTop: -4, marginBottom: 10 }}>Omitido — no se va a guardar. Toca la X de nuevo para incluirlo.</p>}
+            {item.omitir && <p className="sub-seccion" style={{ marginTop: -4, marginBottom: 10 }}>Omitido — no se va a guardar. Toca el botón de nuevo para incluirlo.</p>}
             <div className="campo-2">
               <div className="campo">
                 <label>Producto</label>
