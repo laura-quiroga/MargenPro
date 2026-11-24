@@ -1,6 +1,26 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Onboarding: preguntas redundantes al comprar por docena/paquete (hallazgo del mismo cliente potencial, 2026-11-24)
+Tras el arreglo anterior (cantidad comprada + total pagado), la usuaria reportó que su cliente
+también notó que, al elegir "Docena" o "Paquete", la app preguntaba dos cosas que se sentían
+repetidas: "¿cuántas unidades trae?" y luego "¿cuántas piezas individuales compraste?" — si ya dijo
+que una docena trae 12, es obvio que comprar "una docena" son 12 piezas; obligarlo a multiplicar
+él mismo rompía la promesa de "sin matemática".
+- **Arreglado** en `src/pages/Onboarding.tsx`: ahora se pregunta directamente por LOTES — "¿Cuántas
+  docenas compraste?" / "¿Cuántos paquetes o cajas compraste?" (no por piezas sueltas) — y debajo
+  aparece de inmediato "= 24 piezas en total" (o el número que corresponda) para que la persona
+  confirme que entendió bien, sin tener que calcularlo. Para "Docena" ya no se pregunta "¿cuántas
+  unidades trae?" (siempre son 12, es un hecho fijo, no una pregunta); para "Paquete" sí se
+  mantiene esa pregunta (el tamaño del paquete sí varía de negocio a negocio).
+- Interna: `precioPorUnidadDesdeCompra` (la misma función que ya usa la pantalla real de Insumos)
+  sigue esperando piezas sueltas — la conversión de lotes a piezas ahora se hace dentro de
+  `agregarInsumo` antes de llamarla, sin tocar esa función compartida.
+- Probado en vivo: "Pan para hamburguesa", 2 docenas por $24.000 → confirma "24 piezas en total",
+  calcula $1.000 por pieza, y el costeo final de la receta salió matemáticamente correcto ($1.350
+  de costo real usando 1 pieza, igual a 1.000 × 1,35).
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Onboarding: faltaba decir cuánto se compró de cada insumo (hallazgo de un cliente potencial, 2026-11-24)
 La usuaria le mostró la app a un cliente potencial, probando el onboarding en vivo. Él notó que al
 agregar sus 3 ingredientes no había forma de decir "compré 2 kilos" — solo se pedía un "precio de

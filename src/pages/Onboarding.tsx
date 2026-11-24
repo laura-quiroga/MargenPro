@@ -87,6 +87,15 @@ const TOUR = [
   { nombre: 'Resumen', label: 'Tu mes, en números claros', Icono: ChartBar },
 ]
 
+/** Qué se le pregunta que compró — en docena/paquete se pregunta por LOTES (2 docenas, 3
+ * paquetes), nunca por piezas sueltas: preguntar las piezas sueltas aparte de "¿cuántas unidades
+ * trae?" es la pregunta redundante y confusa que un cliente real detectó probando la app. */
+function etiquetaCantidadCompraPara(unidad: UnidadInsumo) {
+  if (unidad === 'docena') return 'docenas'
+  if (unidad === 'paquete') return 'paquetes o cajas'
+  return nombreCantidadUnidad(unidad)
+}
+
 function etiquetaCantidadPara(unidad: UnidadInsumo) {
   if (unidad === 'kg' || unidad === 'g') return '¿Cuántos gramos usas'
   if (unidad === 'L' || unidad === 'ml') return '¿Cuántos mililitros usas'
@@ -153,7 +162,12 @@ export default function Onboarding() {
       mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe cuánto compraste y cuánto pagaste en total antes de agregarlo.')
       return
     }
-    const precio = precioPorUnidadDesdeCompra(form, form.cantidadComprada, form.totalPagado)
+    // precioPorUnidadDesdeCompra espera piezas sueltas (no lotes) para docena/paquete — se
+    // pregunta por lotes (más natural: "2 docenas", no "24 piezas") y se convierte aquí.
+    const piezasCompradas = (form.unidad === 'docena' || form.unidad === 'paquete')
+      ? form.cantidadComprada * (form.unidadesQueTrae || 1)
+      : form.cantidadComprada
+    const precio = precioPorUnidadDesdeCompra(form, piezasCompradas, form.totalPagado)
     setInsumos((prev) => [...prev, { ...form, precio }])
     setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda, cantidadComprada: 0, totalPagado: 0 })
     mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>, 'Insumo agregado.')
@@ -317,15 +331,18 @@ export default function Onboarding() {
                       <option value="paquete">Paquete / caja</option>
                     </select>
                   </div>
-                  {(form.unidad === 'docena' || form.unidad === 'paquete') && (
+                  {form.unidad === 'paquete' && (
                     <div className="campo">
-                      <label htmlFor="insumoUnidadesTrae">¿Cuántas unidades trae?</label>
+                      <label htmlFor="insumoUnidadesTrae">¿Cuántas piezas trae cada paquete?</label>
                       <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, unidadesQueTrae: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
                     </div>
                   )}
                   <div className="campo">
-                    <label htmlFor="insumoCantidadComprada">¿Cuántos {nombreCantidadUnidad(form.unidad)} compraste?</label>
+                    <label htmlFor="insumoCantidadComprada">¿Cuántos/as {etiquetaCantidadCompraPara(form.unidad)} compraste?</label>
                     <input id="insumoCantidadComprada" type="number" placeholder="Ej: 2" value={form.cantidadComprada || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, cantidadComprada: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
+                    {(form.unidad === 'docena' || form.unidad === 'paquete') && !!form.cantidadComprada && (
+                      <p className="nota-moneda" style={{ marginTop: -4, marginBottom: 0 }}>= {Math.round(form.cantidadComprada * (form.unidadesQueTrae || 1))} piezas en total</p>
+                    )}
                   </div>
                   <label htmlFor="insumoTotalPagado" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>¿Cuánto pagaste en total por esa compra?</label>
                   <div className="campo-con-moneda">
@@ -346,7 +363,7 @@ export default function Onboarding() {
                 {insumos.map((ins, idx) => (
                   <div className="insumo-chip" key={idx}>
                     <span className="nombre">{ins.nombre}</span>
-                    <span className="precio">{ins.cantidadComprada} {etiquetaUnidad(ins.unidad)} · {SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.totalPagado || 0).toLocaleString(LOCALE_MONEDA[ins.moneda])}</span>
+                    <span className="precio">{ins.cantidadComprada} {ins.unidad === 'docena' || ins.unidad === 'paquete' ? etiquetaCantidadCompraPara(ins.unidad) : etiquetaUnidad(ins.unidad)} · {SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.totalPagado || 0).toLocaleString(LOCALE_MONEDA[ins.moneda])}</span>
                     <button type="button" className="editar-insumo" aria-label="Editar insumo" onClick={() => editarInsumo(idx)}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
                     </button>
