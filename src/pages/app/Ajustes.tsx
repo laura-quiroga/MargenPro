@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
 import { supabase } from '../../lib/supabaseClient'
 import { Toast, useToast } from '../../components/Toast'
+import { NOMBRE_TAMANO, useTamanoTexto } from '../../lib/useTamanoTexto'
 import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
 
@@ -17,6 +18,7 @@ export default function Ajustes() {
   const store = useAppStore()
   const { toast, mostrarToast } = useToast()
   const navigate = useNavigate()
+  const { tamano: tamanoTexto, elegirTamano: elegirTamanoTexto } = useTamanoTexto()
 
   const [confirmandoBorrado, setConfirmandoBorrado] = useState(false)
   const [textoBorrado, setTextoBorrado] = useState('')
@@ -86,6 +88,16 @@ export default function Ajustes() {
     <>
       <h2 className="titulo-seccion">Configuración</h2>
       <p className="sub-seccion">Ajusta tu app a tu negocio.</p>
+
+      <h3 style={{ fontSize: 14, marginBottom: 4 }}>Tamaño de letra</h3>
+      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 10 }}>Si se te hace chiquita la letra, agrándala — toda la app cambia de tamaño junto con ella.</p>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        {(['normal', 'grande', 'extra'] as const).map((t) => (
+          <button key={t} className="btn-secundario" style={{ margin: 0, flex: 1, ...(tamanoTexto === t ? { borderColor: 'var(--accent)', color: 'var(--accent)' } : {}) }} onClick={() => elegirTamanoTexto(t)}>
+            {NOMBRE_TAMANO[t]}
+          </button>
+        ))}
+      </div>
 
       <h3 style={{ fontSize: 14, marginBottom: 4 }}>Gastos de tu negocio</h3>
       <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Opcional — si no lo llenas, seguimos usando un cálculo simple. Si lo llenas, tus precios van a ser más exactos.</p>

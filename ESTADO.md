@@ -1,6 +1,27 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Tamaño de letra ajustable — accesibilidad (hallazgo del mismo cliente potencial, 2026-11-24)
+El cliente potencial de la usuaria le dijo que la letra se le hacía muy pequeña. Se agregó un
+control de tamaño de letra con 3 niveles (Normal / Grande / Muy grande) que escala TODA la
+interfaz de forma proporcional (letra, íconos, espaciados juntos) — así el diseño nunca se ve
+"roto" ni desordenado, solo más grande, igual que el zoom nativo de un celular.
+- **Nuevo** `src/lib/useTamanoTexto.ts`: hook reutilizable que aplica la escala con la propiedad
+  CSS `zoom` sobre toda la página y recuerda la elección en este dispositivo (como ya pasa con el
+  modo oscuro — es una preferencia del aparato, no del negocio, no se guarda en Supabase).
+- **Dónde se puede cambiar**: un botón nuevo "Aa" junto al de modo oscuro, visible desde el primer
+  momento — landing/onboarding/paywall/login (`PhoneFrame.tsx`) y dentro de la app ya con sesión
+  (`AppLayout.tsx`) — cicla entre los 3 tamaños y muestra un aviso breve ("Letra: Grande"). Además,
+  en Ajustes hay una sección "Tamaño de letra" con los 3 botones explícitos, por si alguien no nota
+  el ícono pequeño.
+- Probado en vivo en varias pantallas (onboarding, Ajustes) en los 3 niveles: la interfaz escala
+  completa, sin desbordes ni elementos descuadrados, barra inferior fija incluida.
+- ⚠️ Nota técnica para el futuro: `zoom` no es un estándar CSS universal — funciona en Chrome,
+  Edge y Safari (las mayorías de los celulares de LATAM), pero Firefox de escritorio lo soportó
+  solo recientemente. Si algún día aparece un reporte de que no funciona en un navegador específico,
+  empezar por revisar ahí.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Onboarding: preguntas redundantes al comprar por docena/paquete (hallazgo del mismo cliente potencial, 2026-11-24)
 Tras el arreglo anterior (cantidad comprada + total pagado), la usuaria reportó que su cliente
 también notó que, al elegir "Docena" o "Paquete", la app preguntaba dos cosas que se sentían

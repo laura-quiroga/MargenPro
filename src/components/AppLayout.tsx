@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useTemaOscuro } from './PhoneFrame'
+import { NOMBRE_TAMANO, useTamanoTexto } from '../lib/useTamanoTexto'
 import { logSesionIniciadaSiCorresponde } from '../lib/eventos'
 import { supabase } from '../lib/supabaseClient'
 import './AppLayout.css'
@@ -15,7 +16,15 @@ const TABS = [
 
 export default function AppLayout() {
   const { oscuro, alternar } = useTemaOscuro()
+  const { tamano, siguienteTamano } = useTamanoTexto()
+  const [avisoTamano, setAvisoTamano] = useState(false)
   const navigate = useNavigate()
+
+  function cambiarTamano() {
+    siguienteTamano()
+    setAvisoTamano(true)
+    setTimeout(() => setAvisoTamano(false), 1400)
+  }
 
   useEffect(() => {
     logSesionIniciadaSiCorresponde()
@@ -38,13 +47,19 @@ export default function AppLayout() {
       <div className="app-frame">
         <div className="topbar">
           <div className="logo"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> MargenPro</div>
-          <button className="tema-toggle" aria-label="Cambiar tema" onClick={alternar}>
-            {oscuro ? (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.5a8.5 8.5 0 11-9-13 7 7 0 009 13z" /></svg>
-            ) : (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
-            )}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
+            {avisoTamano && <span className="aviso-tamano-texto">Letra: {NOMBRE_TAMANO[tamano]}</span>}
+            <button className="tema-toggle" aria-label="Cambiar el tamaño de la letra" onClick={cambiarTamano}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M18 19v-6M15.5 15.5L18 13l2.5 2.5" /></svg>
+            </button>
+            <button className="tema-toggle" aria-label="Cambiar tema" onClick={alternar}>
+              {oscuro ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.5a8.5 8.5 0 11-9-13 7 7 0 009 13z" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+              )}
+            </button>
+          </div>
         </div>
 
         <section className="seccion activa">
