@@ -1,6 +1,20 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## InfoTooltip: el cuadro de texto se salía de la pantalla (hallazgo de la usuaria, 2026-11-24)
+En Recetas, cuando el ícono ⓘ quedaba cerca del borde derecho de un celular (el texto del
+subtítulo lo empuja ahí según cuánto ocupe), el cuadro de "Ejemplos..." se salía de la pantalla y
+quedaba cortado — porque siempre se centraba exactamente sobre el ícono sin importar el espacio
+disponible. Arreglado en `src/components/InfoTooltip.tsx`:
+- La posición del cuadro ahora se calcula en JavaScript (con la posición real del ícono en la
+  pantalla) y se recorta para que SIEMPRE quede completo dentro del ancho visible, con 12px de
+  margen mínimo a cada lado.
+- Pedido explícito de la usuaria: tocar el cuadro de texto (no solo el ícono) también lo cierra.
+- Se quitó la flechita que apuntaba al ícono (ya no tenía sentido con la posición recortada;
+  simplifica el componente sin perder claridad).
+- Probado en vivo a 375px: el cuadro queda completo y legible, y se cierra al tocarlo.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Cotizaciones: 2 bugs reales con subrecetas, encontrados por la usuaria (2026-11-24)
 La usuaria probó cotizar una receta armada SOLO con una subreceta (sin insumos directos — ej.
 "Mini Donitas X9 Unidades" hecha con la subreceta "Masa Base X1Uni") y el precio a cobrar no

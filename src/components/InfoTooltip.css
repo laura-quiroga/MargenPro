@@ -6,13 +6,11 @@
   transition: background .12s ease-out, color .12s ease-out;
 }
 .info-tooltip-icono:hover, .info-tooltip-icono:focus-visible { background: rgb(var(--accent-tint) / .25); color: var(--accent); }
+/* La posición (left/top) la pone el componente en línea, en px, ya recortada para que nunca se
+   salga de la pantalla — aquí solo va la apariencia. Tocar el globo también lo cierra, por eso
+   `pointer-events` ya no es `none`. */
 .info-tooltip-globo {
-  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
   width: 230px; background: var(--text-1); color: var(--bg); font-size: 12px; font-weight: 400;
   line-height: 1.45; text-transform: none; letter-spacing: normal; padding: 10px 12px;
-  border-radius: 10px; box-shadow: var(--shadow-2); z-index: 20; pointer-events: none;
-}
-.info-tooltip-globo::after {
-  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-  border: 6px solid transparent; border-top-color: var(--text-1);
+  border-radius: 10px; box-shadow: var(--shadow-2); z-index: 20; cursor: pointer;
 }
