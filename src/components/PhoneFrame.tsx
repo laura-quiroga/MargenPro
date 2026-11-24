@@ -41,7 +41,7 @@ export default function PhoneFrame({ children, onBack, progreso }: PhoneFramePro
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
           {avisoTamano && <span className="aviso-tamano-texto">Letra: {NOMBRE_TAMANO[tamano]}</span>}
           <button className="tema-toggle" aria-label="Cambiar el tamaño de la letra" onClick={cambiarTamano}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M18 19v-6M15.5 15.5L18 13l2.5 2.5" /></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M19 4v6M16 7h6" /><path d="M16 16h6" /></svg>
           </button>
           <button className="tema-toggle" aria-label="Cambiar tema" onClick={alternar}>
             {oscuro ? (

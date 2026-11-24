@@ -48,6 +48,7 @@
 .app-interna .formula-ganancia { font-size:11px; color:var(--text-2); margin-top:10px; line-height:1.4; }
 
 .app-interna .aviso-precio { display:flex; gap:12px; background:rgb(var(--aviso-tint)/.10); border:1.5px solid rgb(var(--aviso-tint)/.28); border-radius:var(--radius-card); padding:14px; margin-bottom:16px; }
+.app-interna .aviso-precio.error { background:rgb(var(--error-tint)/.10); border-color:rgb(var(--error-tint)/.28); }
 .app-interna .aviso-precio p { font-size:12.5px; font-weight:600; line-height:1.4; }
 .app-interna .aviso-precio button.link { color:var(--accent); font-weight:800; font-size:12.5px; margin-top:4px; background:none; border:none; cursor:pointer; }
 

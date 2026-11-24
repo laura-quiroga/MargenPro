@@ -7,17 +7,26 @@
 }
 .info-tooltip-icono:hover, .info-tooltip-icono:focus-visible { background: rgb(var(--accent-tint) / .25); color: var(--accent); }
 
-/* Posicionado SIEMPRE relativo al propio ícono (position:absolute, no fixed, nada de px copiados
-   de getBoundingClientRect) — así el zoom del tamaño de letra lo escala junto con todo lo demás,
-   en vez de desplazarlo. La alineación (centro/izquierda/derecha) la decide React con una clase,
-   para que nunca se corte contra el borde de la pantalla. */
-.info-tooltip-globo {
-  position: absolute; bottom: calc(100% + 8px);
-  width: max-content; max-width: min(230px, calc(100vw - 24px));
-  background: var(--text-1); color: var(--bg); font-size: 12px; font-weight: 400;
-  line-height: 1.45; text-transform: none; letter-spacing: normal; padding: 10px 12px;
-  border-radius: 10px; box-shadow: var(--shadow-2); z-index: 20; cursor: pointer;
+/* Fijo y centrado en TODA la pantalla, nunca relativo al ícono — así el zoom del tamaño de letra
+   no lo desplaza (ver nota del componente). El fondo oscuro deja claro que es un aviso aparte,
+   no parte del flujo de la pantalla, y se cierra tocando en cualquier lado. */
+.info-tooltip-fondo {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: rgb(0 0 0 / .32);
+  animation: infoFondoIn .15s ease-out;
 }
-.info-tooltip-globo.alinear-centro { left: 50%; transform: translateX(-50%); }
-.info-tooltip-globo.alinear-izquierda { left: 0; }
-.info-tooltip-globo.alinear-derecha { right: 0; }
+.info-tooltip-globo {
+  width: 100%; max-width: 280px; font-family: var(--font-body);
+  background: var(--text-1); color: var(--bg); font-size: 13px; font-weight: 400;
+  line-height: 1.5; text-transform: none; letter-spacing: normal; padding: 16px 18px;
+  border-radius: 14px; box-shadow: var(--shadow-2); cursor: pointer;
+  animation: infoGloboIn .2s cubic-bezier(.22, 1, .36, 1);
+}
+
+@keyframes infoFondoIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes infoGloboIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .info-tooltip-fondo, .info-tooltip-globo { animation: none; }
+}

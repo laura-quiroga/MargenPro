@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { convertirMedidaCompra, encontrarInsumoPorNombreExacto, etiquetaUnidad, formatearStock, medidasDeCompraPara, mismaFamiliaMedida, nombreCantidadUnidad, normalizarParaBuscar, precioPorUnidadDesdeCompra, stockBaseDesdeCantidad, stockEsBajo, useAppStore, valorInventario, valorStockInsumo } from '../../lib/appStore'
+import { convertirMedidaCompra, encontrarInsumoPorNombreExacto, etiquetaUnidad, formatearStock, medidasDeCompraPara, mismaFamiliaMedida, nombreCantidadUnidad, normalizarParaBuscar, precioPorUnidadDesdeCompra, stockAgotado, stockBaseDesdeCantidad, stockEsBajo, useAppStore, valorInventario, valorStockInsumo } from '../../lib/appStore'
 import type { Insumo, Moneda } from '../../lib/types'
 import { Toast, useToast } from '../../components/Toast'
 import type { CategoriaInsumo, UnidadInsumo } from '../../lib/types'
@@ -281,6 +281,7 @@ export default function Insumos() {
   if (vista === 'detalle' && insumoDetalle) {
     const stockTxt = formatearStock(insumoDetalle, moneda)
     const bajo = !!stockTxt && stockEsBajo(insumoDetalle, recetas)
+    const agotado = stockAgotado(insumoDetalle)
     const ultimaCompraTxt = textoUltimaCompra(insumoDetalle, money, moneda)
     return (
       <>
@@ -322,7 +323,11 @@ export default function Insumos() {
               <p style={{ fontWeight: 800, fontSize: 17 }}>{ultimaCompraTxt}</p>
             </div>
           )}
-          {bajo && <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>Se te está acabando — considera comprar más pronto.</p>}
+          {agotado ? (
+            <p className="formula-ganancia" style={{ color: 'var(--error)', fontWeight: 700 }}>Ya se agotó este insumo — regístralo cuanto antes.</p>
+          ) : bajo ? (
+            <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>Se te está acabando — considera comprar más pronto.</p>
+          ) : null}
         </div>
         <h3 style={{ fontSize: 14, marginBottom: 10 }}>Registrar una nueva compra</h3>
         <p className="sub-seccion" style={{ marginTop: -6 }}>Esto SUMA a lo que ya tienes — no lo reemplaza.</p>
@@ -378,12 +383,25 @@ export default function Insumos() {
     .slice()
     .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
 
-  const insumosBajos = insumos.filter((i) => !!formatearStock(i, moneda) && stockEsBajo(i, recetas))
+  const insumosConStock = insumos.filter((i) => !!formatearStock(i, moneda))
+  const insumosAgotados = insumosConStock.filter((i) => stockAgotado(i))
+  const insumosBajos = insumosConStock.filter((i) => !stockAgotado(i) && stockEsBajo(i, recetas))
 
   return (
     <>
       <h2 className="titulo-seccion">Tus insumos</h2>
       <p className="sub-seccion">Lo que compras para producir — con su precio real.</p>
+      {insumosAgotados.length > 0 && (
+        <div className="aviso-precio error">
+          <div className="chip-icono error" style={{ width: 36, height: 36 }}><IconoAviso /></div>
+          <div>
+            <p>
+              <strong>Ya se {insumosAgotados.length === 1 ? 'agotó' : 'agotaron'}:</strong>{' '}
+              {insumosAgotados.map((i) => i.nombre).join(', ')}.
+            </p>
+          </div>
+        </div>
+      )}
       {insumosBajos.length > 0 && (
         <div className="aviso-precio">
           <div className="chip-icono aviso" style={{ width: 36, height: 36 }}><IconoAviso /></div>
@@ -425,6 +443,7 @@ export default function Insumos() {
           {lista.map((i) => {
             const stockTxt = formatearStock(i, moneda)
             const bajo = !!stockTxt && stockEsBajo(i, recetas)
+            const agotado = !!stockTxt && stockAgotado(i)
             const ultimaCompraTxt = textoUltimaCompra(i, money, moneda)
             return (
               <div className="item-lista" key={i.id} onClick={() => abrirDetalle(i.id)} style={{ cursor: 'pointer' }}>
@@ -433,7 +452,11 @@ export default function Insumos() {
                   <div className="nombre">{i.nombre}</div>
                   <div className="meta">
                     {ultimaCompraTxt ? `Última compra: ${ultimaCompraTxt}` : `por ${etiquetaUnidad(i.unidad)}${i.unidadesQueTrae > 1 ? ` (${i.unidadesQueTrae} und.)` : ''}`}
-                    {stockTxt && <> · <span style={bajo ? { color: 'var(--aviso)', fontWeight: 700 } : undefined}>quedan {stockTxt}{bajo ? ' — se está acabando' : ''}</span></>}
+                    {stockTxt && (
+                      <> · <span style={agotado ? { color: 'var(--error)', fontWeight: 700 } : bajo ? { color: 'var(--aviso)', fontWeight: 700 } : undefined}>
+                        quedan {stockTxt}{agotado ? ' — ya se agotó' : bajo ? ' — se está acabando' : ''}
+                      </span></>
+                    )}
                   </div>
                 </div>
               </div>

@@ -51,6 +51,9 @@ const IconoAviso = () => (
 const IconoQuitar = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
 )
+const IconoPapelera = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6" /><path d="M10 11v6M14 11v6" /></svg>
+)
 
 function iconoEstado(estado: EstadoCotizacion) {
   if (estado === 'vendida') return <IconoVendida />
@@ -80,7 +83,7 @@ interface FilaCotizacion {
 }
 
 export default function Cotizaciones() {
-  const { recetas: todasLasRecetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion, plan } = useAppStore()
+  const { recetas: todasLasRecetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, eliminarCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion, plan } = useAppStore()
   // Una subreceta/adicional nunca se vende sola — solo las recetas completas se cotizan.
   const recetas = todasLasRecetas.filter((r) => !r.esSubreceta)
   const { toast, mostrarToast } = useToast()
@@ -98,6 +101,7 @@ export default function Cotizaciones() {
   const [preview, setPreview] = useState<PreviewCotizacion | null>(null)
   const [confettiIdx, setConfettiIdx] = useState<number | null>(null)
   const [enviando, setEnviando] = useState(false)
+  const [confirmandoEliminarIdx, setConfirmandoEliminarIdx] = useState<number | null>(null)
 
   function filaNuevaPara(nombreProducto: string): FilaCotizacion {
     const receta = recetas.find((r) => r.nombre === nombreProducto)
@@ -260,6 +264,14 @@ export default function Cotizaciones() {
     }
   }
 
+  async function eliminarCotizacionIdx(idx: number) {
+    const cotizacion = cotizaciones[idx]
+    const ok = await eliminarCotizacion(cotizacion.id)
+    setConfirmandoEliminarIdx(null)
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar esta cotización. Intenta de nuevo.'); return }
+    mostrarToast(<IconoOk />, 'Cotización eliminada.')
+  }
+
   const listaFiltrada = cotizaciones
     .map((c, idx) => ({ c, idx }))
     .filter(({ c }) => filtro === 'todas' || c.estado === filtro)
@@ -380,15 +392,26 @@ export default function Cotizaciones() {
                 <div className={`chip-icono${c.estado === 'rechazada' ? ' error' : c.estado === 'pendiente' ? ' aviso' : ''}`}>{iconoEstado(c.estado)}</div>
                 <div className="info"><div className="nombre">{c.cliente}</div><div className="meta">{c.producto} · {c.fecha}</div></div>
                 <div className="cifra">{money(c.monto)}</div>
+                <button aria-label="Eliminar cotización" style={{ flexShrink: 0, color: 'var(--text-2)' }} onClick={() => setConfirmandoEliminarIdx(idx)}><IconoPapelera /></button>
               </div>
               <span className={`estado-pill ${c.estado}`}>{c.estado}</span>
-              <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                {(['vendida', 'pendiente', 'rechazada'] as EstadoCotizacion[]).filter((e) => e !== c.estado).map((e) => (
-                  <button key={e} className="btn-secundario" style={{ margin: 0, ...(e === 'rechazada' ? { borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' } : {}) }} onClick={() => cambiarEstado(idx, e)}>
-                    {ETIQUETA_ESTADO[e]}
-                  </button>
-                ))}
-              </div>
+              {confirmandoEliminarIdx === idx ? (
+                <div style={{ marginTop: 12 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>¿Eliminar esta cotización para siempre?</p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1 }} onClick={() => setConfirmandoEliminarIdx(null)}>Cancelar</button>
+                    <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1, borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' }} onClick={() => eliminarCotizacionIdx(idx)}>Eliminar</button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                  {(['vendida', 'pendiente', 'rechazada'] as EstadoCotizacion[]).filter((e) => e !== c.estado).map((e) => (
+                    <button key={e} className="btn-secundario" style={{ margin: 0, ...(e === 'rechazada' ? { borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' } : {}) }} onClick={() => cambiarEstado(idx, e)}>
+                      {ETIQUETA_ESTADO[e]}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

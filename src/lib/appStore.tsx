@@ -254,6 +254,7 @@ interface AppContextValue {
   cargandoCotizaciones: boolean
   crearCotizacion: (datos: { cliente: string; telefono?: string; items: ItemCotizacion[] }) => Promise<boolean>
   cambiarEstadoCotizacion: (id: string, nuevoEstado: Cotizacion['estado']) => Promise<boolean>
+  eliminarCotizacion: (id: string) => Promise<boolean>
   cfg: ConfigNegocio
   modoCalculo: 'simple' | 'real'
   moneda: Moneda
@@ -327,6 +328,11 @@ function umbralStockBajo(ins: Insumo, recetas: Receta[]): number {
 
 export function stockEsBajo(ins: Insumo, recetas: Receta[]): boolean {
   return typeof ins.stockDisponible === 'number' && ins.stockDisponible <= umbralStockBajo(ins, recetas)
+}
+
+/** Ya se acabó del todo (0 o menos) — distinto de "se está acabando" (bajo pero todavía queda). */
+export function stockAgotado(ins: Insumo): boolean {
+  return typeof ins.stockDisponible === 'number' && ins.stockDisponible <= 0
 }
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
@@ -693,6 +699,15 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     return true
   }
 
+  /** Borra una cotización para siempre (ej.: se envió repetida o quedó mal armada). Sus
+   * `cotizacion_items` se borran solos (cascada en la base de datos) — no tocan recetas ni insumos. */
+  async function eliminarCotizacion(id: string): Promise<boolean> {
+    const { error } = await supabase.from('cotizaciones').delete().eq('id', id)
+    if (error) return false
+    setCotizaciones((prev) => prev.filter((c) => c.id !== id))
+    return true
+  }
+
   const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString(LOCALE_MONEDA[moneda] || 'es-CO')}`
 
   const subrecetas = recetas.filter((r) => r.esSubreceta)
@@ -774,6 +789,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     cargandoCotizaciones,
     crearCotizacion,
     cambiarEstadoCotizacion,
+    eliminarCotizacion,
     cfg,
     modoCalculo,
     moneda,
