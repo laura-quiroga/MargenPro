@@ -5,6 +5,7 @@ import PhoneFrame from '../components/PhoneFrame'
 import { Confetti, useConfeti } from '../components/Confetti'
 import { Toast, useToast } from '../components/Toast'
 import { costoPorUnidadBase } from '../lib/costeo'
+import { etiquetaUnidad, nombreCantidadUnidad, precioPorUnidadDesdeCompra } from '../lib/appStore'
 import type { Moneda, UnidadInsumo } from '../lib/types'
 import { LOCALE_MONEDA, SIMBOLOS_MONEDA } from '../lib/types'
 import './Onboarding.css'
@@ -19,6 +20,11 @@ interface InsumoForm {
   precio: number
   moneda: Moneda
   cantidadUsada?: number
+  /** Cuánto compró y cuánto pagó en total — lo que el usuario sí sabe de memoria. `precio`
+   * (precio por kg/L/g/etc., el que usa el motor de costeo) se calcula a partir de estos dos,
+   * igual que en la pantalla real de Insumos — nunca se le pide hacer la división a mano. */
+  cantidadComprada?: number
+  totalPagado?: number
 }
 
 interface EjemploNegocio {
@@ -100,7 +106,7 @@ export default function Onboarding() {
   const [respuestaDolor, setRespuestaDolor] = useState<string | null>(null)
   const [moneda, setMoneda] = useState<Moneda>('COP')
   const [insumos, setInsumos] = useState<InsumoForm[]>([])
-  const [form, setForm] = useState<InsumoForm>({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda: 'COP' })
+  const [form, setForm] = useState<InsumoForm>({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda: 'COP', cantidadComprada: 0, totalPagado: 0 })
   const [recetaNombre, setRecetaNombre] = useState('')
   const [precioActual, setPrecioActual] = useState(0)
   const [margen, setMargen] = useState(40)
@@ -123,7 +129,7 @@ export default function Onboarding() {
     // Los insumos los agrega el cliente desde cero — nada precargado, ni como chip ni en
     // el formulario. Solo se adapta el nombre/precio de ejemplo del PRODUCTO (paso 5).
     setInsumos([])
-    setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda })
+    setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda, cantidadComprada: 0, totalPagado: 0 })
     setRecetaNombre(ej.productoNombre)
     setPrecioActual(ej.precioActual)
     clearTimeout(siguientePasoTimer.current)
@@ -143,12 +149,13 @@ export default function Onboarding() {
 
   function agregarInsumo() {
     if (insumos.length >= MAX_INSUMOS) return
-    if (!form.precio) {
-      mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe el precio de compra antes de agregarlo.')
+    if (!form.cantidadComprada || !form.totalPagado) {
+      mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="9" /></svg>, 'Escribe cuánto compraste y cuánto pagaste en total antes de agregarlo.')
       return
     }
-    setInsumos((prev) => [...prev, form])
-    setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda })
+    const precio = precioPorUnidadDesdeCompra(form, form.cantidadComprada, form.totalPagado)
+    setInsumos((prev) => [...prev, { ...form, precio }])
+    setForm({ nombre: '', unidad: 'kg', unidadesQueTrae: 1, precio: 0, moneda, cantidadComprada: 0, totalPagado: 0 })
     mostrarToast(<svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>, 'Insumo agregado.')
   }
 
@@ -316,10 +323,14 @@ export default function Onboarding() {
                       <input id="insumoUnidadesTrae" type="number" value={form.unidadesQueTrae || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, unidadesQueTrae: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
                     </div>
                   )}
-                  <label htmlFor="insumoPrecio" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>Precio de compra</label>
+                  <div className="campo">
+                    <label htmlFor="insumoCantidadComprada">¿Cuántos {nombreCantidadUnidad(form.unidad)} compraste?</label>
+                    <input id="insumoCantidadComprada" type="number" placeholder="Ej: 2" value={form.cantidadComprada || ''} onChange={(e) => { const raw = e.target.value; setForm((f) => ({ ...f, cantidadComprada: raw === '' ? 0 : parseFloat(raw) || 0 })) }} />
+                  </div>
+                  <label htmlFor="insumoTotalPagado" style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: 'var(--text-2)', marginBottom: 7 }}>¿Cuánto pagaste en total por esa compra?</label>
                   <div className="campo-con-moneda">
                     <div className="campo-prefijo"><span>{simbolo}</span>
-                      <input id="insumoPrecio" type="number" placeholder="12000" value={form.precio || ''} onChange={(e) => setForm((f) => ({ ...f, precio: parseFloat(e.target.value) || 0 }))} />
+                      <input id="insumoTotalPagado" type="number" placeholder="12000" value={form.totalPagado || ''} onChange={(e) => setForm((f) => ({ ...f, totalPagado: parseFloat(e.target.value) || 0 }))} />
                     </div>
                     <select className="selector-moneda" value={moneda} onChange={(e) => { setMoneda(e.target.value as Moneda); setForm((f) => ({ ...f, moneda: e.target.value as Moneda })) }}>
                       <option value="COP">COP</option>
@@ -335,7 +346,7 @@ export default function Onboarding() {
                 {insumos.map((ins, idx) => (
                   <div className="insumo-chip" key={idx}>
                     <span className="nombre">{ins.nombre}</span>
-                    <span className="precio">{SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.precio).toLocaleString(LOCALE_MONEDA[ins.moneda])}</span>
+                    <span className="precio">{ins.cantidadComprada} {etiquetaUnidad(ins.unidad)} · {SIMBOLOS_MONEDA[ins.moneda]}{Math.round(ins.totalPagado || 0).toLocaleString(LOCALE_MONEDA[ins.moneda])}</span>
                     <button type="button" className="editar-insumo" aria-label="Editar insumo" onClick={() => editarInsumo(idx)}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></svg>
                     </button>

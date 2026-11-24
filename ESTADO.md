@@ -1,5 +1,34 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-23 | Sesión actual: 6
+Última actualización: 2026-11-24 | Sesión actual: 6
+
+## Onboarding: faltaba decir cuánto se compró de cada insumo (hallazgo de un cliente potencial, 2026-11-24)
+La usuaria le mostró la app a un cliente potencial, probando el onboarding en vivo. Él notó que al
+agregar sus 3 ingredientes no había forma de decir "compré 2 kilos" — solo se pedía un "precio de
+compra" directo, que en la práctica obligaba a la persona a calcular mentalmente el precio por kilo
+antes de escribirlo. Esto podía sembrar duda sobre si la cotización final era real.
+- **Arreglado** en `src/pages/Onboarding.tsx`: el formulario de cada insumo ahora pregunta
+  "¿Cuántos [kilos/gramos/litros/piezas…] compraste?" y "¿Cuánto pagaste en total por esa compra?"
+  — exactamente como ya funciona en la pantalla real de Insumos de la app — y MargenPro calcula
+  solo el precio por unidad (reutilizando `precioPorUnidadDesdeCompra` de `appStore.tsx`, sin
+  duplicar esa lógica). La tarjeta de cada insumo agregado ahora muestra "2 kg · $24.000" en vez de
+  un precio por kilo ya calculado, para que la persona vea reflejado exactamente lo que compró.
+- Probado en vivo con un caso real (2 kg de harina por $24.000 → $12.000/kg): el costo y precio
+  sugerido salieron matemáticamente correctos.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
+## Faltaba un botón para cerrar sesión (hallazgo real de la usuaria probando en su celular, 2026-11-24)
+La usuaria probó el recorrido completo (onboarding → paywall → "Probar X días gratis") en su propio
+celular y notó que entraba directo a la app sin pedirle el correo. No era un bug del flujo nuevo:
+su celular ya tenía su propia sesión abierta de antes (de cuando se probó "Continuar con Google"),
+y la app — correctamente — no le vuelve a pedir el correo a alguien que ya está adentro. Confirmado
+mirando los registros del servidor: coincide justo con su cuenta real iniciando sesión a esa hora.
+- **El problema real que esto dejó ver**: en toda la pantalla de Ajustes NO había ninguna forma de
+  cerrar sesión — la única opción para "salir" de la cuenta era "Eliminar mi cuenta" (borrarla para
+  siempre). Ya arreglado: nuevo botón "Cerrar sesión" en Ajustes (antes de la zona de eliminar
+  cuenta), mismo patrón ya usado en el panel de admin.
+- `npx tsc --noEmit` y `npm run build` limpios. Probado en vivo (dev local): el botón cierra la
+  sesión y manda a la pantalla de "Tu correo" como corresponde.
+- Publicado en producción (`https://margenpro-ochre.vercel.app`).
 
 ## Subrecetas & adicionales — construido, probado y arreglado un bug real de permisos (2026-11-23)
 Idea propuesta por la usuaria (poder armar una receta final a partir de piezas reutilizables ya
@@ -966,6 +995,7 @@ usuarios a mano. Plan aprobado en modo plan y ejecutado completo:
 - [veredicto:landing] Estado real a 2026-11-16, código React (`src/pages/Landing.tsx`), NO el prototipo HTML viejo (ese ya quedó obsoleto, ver nota abajo): 3 pasadas del revisor-visual. 1ª: 30/40·13/20·17/20. 2ª (tras recolorear a #185062/#59A6C0 y 4 fixes): 31/40·16/20·18/20. 3ª (tras quitar la frase "la app está en construcción", poner datos reales en los mockups del carrusel, bajar "Elegir mensual" a enlace de texto): **34/40 · 17/20 (craft YA PASA el umbral ≥16) · 18/20 — sigue NO LISTA solo por usabilidad (34 < 36)**. Único defecto real que falta: no existe un elemento visual de FIRMA propio ligado al "Radar de Ganancia" (hoy son blobs de gradiente genéricos) — es una tarea de diseño nueva, no una corrección de código, se deja para una sesión aparte. Veredicto completo con las 3 pasadas en `docs/revisiones/landing-veredicto.md`.
 - [veredicto:paywall] Estado real a 2026-11-16 (`src/pages/Paywall.tsx`), primera vez que se revisa. 1ª pasada: 31/40·13/20·10/20 NO LISTA (plan mensual no se podía elegir, sin garantía visible, sin nombrar el Radar de Ganancia, sin checkmarks, sin animación). 2ª pasada (tras corregir esos 5): 34/40·15/20·15/20. 3ª pasada (tras agregar la escena de dolor exacta de FICHA-AVATAR.md — "10pm, mesa con harina, pareja preguntando cuánto dejó el pedido" — y subir el peso visual de la nota del plan elegido): 33/40·15/20·15/20 — **sigue NO LISTA**. El defecto que más pesa (prueba social cerca de la oferta) **NO se puede corregir con código**: la app todavía no tiene usuarios reales, y el sistema prohíbe inventar una cifra — se resuelve solo cuando haya el primer dato real de uso/venta. El otro defecto que queda (un detalle visual de firma propia) es la MISMA tarea de diseño pendiente que en la landing — se resuelven juntas en la misma sesión futura. Veredicto completo con las 3 pasadas en `docs/revisiones/paywall-veredicto.md`.
 - Decisión tomada tras 3 rondas completas en cada pantalla (landing y paywall), con mejoras reales y verificadas en cada una (no solo reintentos ciegos): dejar de insistir con más pasadas del revisor por ahora. Lo que falta en ambas no son bugs de código sino (a) una tarea de diseño de una firma visual propia — su propio proyecto, no un ajuste rápido — y (b) en el paywall, un dato real de prueba social que solo existe después de vender. Retomar esto cuando: el usuario tenga ganas de invertir en la pieza de diseño propia, y/o cuando haya el primer cliente real para citar como prueba social.
+- [veredicto:onboarding] Nunca se le ha pasado el revisor-visual a la pantalla de Onboarding en código React (`src/pages/Onboarding.tsx`) — la línea del checkpoint de la Sesión 6 que la menciona como "construida/verificada" se refiere solo a que el flujo funciona de punta a punta (probado en navegador por el usuario), no a una puntuación formal de diseño. Queda en la misma bolsa que landing y paywall: se retoma junto con esas dos cuando el usuario quiera invertir en la pieza de diseño propia.
 - [pendiente-viejo-obsoleto] Las menciones a `dev/*.html` (landing/onboarding-paywall-login/app-interna) y al "scaffold en curso" en notas más arriba de este archivo son de sesiones anteriores al port completo a React — ya NO aplican, todo vive en `src/` como código real desde hace varias sesiones. Se dejan sin borrar por ahora para no perder el historial, pero no son accionables.
 
 ## Pendientes del usuario (acciones que el usuario debe hacer)
