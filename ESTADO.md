@@ -1,6 +1,28 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Séptima ronda: "MargenPro" pegado, copy de Recetas, e indicador de la barra investigado (2026-11-24)
+La usuaria no quiso subir la pantalla de carga a 5-10s (se le explicó el riesgo de que eso afecte
+a TODO futuro cliente, no solo a ella una vez — aceptó el argumento); se le mandó una captura de
+cómo se ve el contenido para confirmarlo sin alargar el tiempo real. Mandó 3 pedidos más, resueltos
+y desplegados (commit `326be4d`, deploy `dpl_8szV8iqgZcc8Tiukj2avkRfC1EQy`):
+
+1. **"Pro" salía despegado de "Margen"** en el logo del encabezado — causa real: `.logo` es un
+   contenedor flex con `gap:8px`, y "Margen" (nodo de texto suelto) + el `<span>Pro</span>` eran
+   DOS hijos distintos de ese flex — el gap se metía entre ellos. Se envolvieron los dos juntos en
+   un solo `<span>` para que cuenten como un solo hijo del flex. Aplicado en `AppLayout.tsx` y
+   `PhoneFrame.tsx`.
+2. **El óvalo indicador de la barra inferior, investigado a fondo** (reportado como "desfasado" al
+   cambiar de pestaña, en ambos modos): medido con `getBoundingClientRect()` en vivo, clic real por
+   clic real en las 5 pestañas — en CADA caso el óvalo terminó con la MISMA posición x exacta que
+   el ícono activo (alineación perfecta en reposo). Conclusión más probable: lo que vio la usuaria
+   es la animación de 0.32s DESLIZÁNDOSE de una pestaña a otra (intencional, para que la barra se
+   sienta viva) capturada a mitad de camino, no un defecto persistente — no se encontró ningún caso
+   real de mala alineación en reposo. Queda anotado por si vuelve a reportarse con más detalle (ej.
+   video) de en qué momento exacto ocurre.
+3. **Subtítulo de "Tus recetas"**: se aclara explícitamente que el precio SÍ incluye el margen de
+   ganancia, y opcionalmente la hora de trabajo y los costos fijos, según lo que el usuario active.
+
 ## Sexta ronda: confirmado el arreglo del splash (era el ícono cacheado por Android al instalar), + 3 pulidos visuales (2026-11-24)
 Tras desinstalar y reinstalar la app, la usuaria confirmó que el ícono/splash ya se ve bien — esto
 cierra DEL TODO el hallazgo de la ronda 4 (el splash SÍ se cachea aparte, a nivel Android, al
