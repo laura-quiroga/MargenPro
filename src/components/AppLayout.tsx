@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTemaOscuro } from './PhoneFrame'
 import { NOMBRE_TAMANO, useTamanoTexto } from '../lib/useTamanoTexto'
@@ -23,6 +23,24 @@ export default function AppLayout() {
   // -1 si ninguna coincide (no debería pasar dentro de /app) — así el indicador deslizante
   // sabe detrás de cuál ícono ponerse, igual que la pestaña NavLink ya marcada "activa".
   const activeIndex = TABS.findIndex((t) => (t.fin ? location.pathname === t.to : location.pathname.startsWith(t.to)))
+  const tabsRef = useRef<Array<HTMLAnchorElement | null>>([])
+  const [indicadorPos, setIndicadorPos] = useState<{ left: number; width: number } | null>(null)
+
+  // El indicador se posiciona midiendo el botón activo de verdad (offsetLeft/offsetWidth), no
+  // asumiendo que las 5 pestañas miden lo mismo: con letra grande/muy grande, en una pantalla
+  // angosta, una etiqueta larga como "Panorama" no le alcanza a su quinta parte del ancho y esa
+  // pestaña queda más ancha que las demás — con un cálculo de "ancho igual para todas" el
+  // indicador terminaba corrido respecto al ícono real. Midiendo el DOM real, siempre coincide,
+  // sea cual sea el ancho real de cada pestaña.
+  useEffect(() => {
+    function medir() {
+      const el = tabsRef.current[activeIndex]
+      if (el) setIndicadorPos({ left: el.offsetLeft, width: el.offsetWidth })
+    }
+    medir()
+    window.addEventListener('resize', medir)
+    return () => window.removeEventListener('resize', medir)
+  }, [activeIndex, tamano])
 
   function cambiarTamano() {
     siguienteTamano()
@@ -76,12 +94,12 @@ export default function AppLayout() {
       </div>
 
       <div className="tabbar">
-        <div className="tabbar-inner" style={{ '--tabs-count': TABS.length } as React.CSSProperties}>
-          {activeIndex >= 0 && (
-            <div className="tabbar-indicador" style={{ transform: `translateX(${activeIndex * 100}%)` }} />
+        <div className="tabbar-inner">
+          {indicadorPos && (
+            <div className="tabbar-indicador" style={{ left: indicadorPos.left, width: indicadorPos.width }} />
           )}
-          {TABS.map((t) => (
-            <NavLink key={t.to} to={t.to} end={t.fin} className={({ isActive }) => `tab-btn${isActive ? ' activo' : ''}`}>
+          {TABS.map((t, idx) => (
+            <NavLink key={t.to} ref={(el) => { tabsRef.current[idx] = el }} to={t.to} end={t.fin} className={({ isActive }) => `tab-btn${isActive ? ' activo' : ''}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg>
               <span>{t.label}</span>
             </NavLink>

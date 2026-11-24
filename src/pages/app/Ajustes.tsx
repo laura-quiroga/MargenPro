@@ -89,7 +89,7 @@ export default function Ajustes() {
       <p className="sub-seccion">Ajusta tu app a tu negocio.</p>
 
       <h3 style={{ fontSize: 14, marginBottom: 4 }}>Gastos de tu negocio</h3>
-      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Opcional — si no lo llenas, seguimos usando un cálculo simple. Si lo llenas, tus precios van a ser más exactos.</p>
+      <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Opcional — si no lo llenas, seguimos con el cálculo simple: tu precio solo cuenta lo que gastas en insumos (y tu tiempo de trabajo, si lo activas en cada receta). Si lo llenas, pasamos al cálculo avanzado: además de insumos y tu tiempo, se reparte en el precio una parte de tu arriendo y demás gastos fijos — tus precios van a ser más exactos.</p>
 
       <div className="fila-config">
         <div className="txt"><div className="n">Usar mis gastos reales<InfoTooltip texto="Si lo prendes, cada precio ya incluye tu arriendo, sueldo y demás gastos del mes (lo que configuras abajo) — útil si quieres saber tu ganancia real de una vez. Si lo apagas, el precio solo cubre tus insumos y tu margen — más rápido, pero no te dice si de verdad te alcanza para todo." /></div><div className="d">En vez del cálculo simple</div></div>
