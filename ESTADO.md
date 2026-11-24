@@ -14,7 +14,10 @@
    "Añadir a inicio" (iPhone), el ícono y nombre que aparecen ya son los reales.
 3. **Botón "Entrar" de la landing, antes un enlace de texto chiquito**, ahora es un botón real con
    borde (`.entrar` en `Landing.css`) — más fácil de encontrar para quien ya tiene cuenta.
-4. **Bug real: las horas de trabajo nunca se guardaban** — el interruptor "Incluir mi tiempo en
+4. **Bug real: las horas de trabajo nunca se guardaban** (probado en vivo end-to-end: se creó una
+   receta con 2 horas + el interruptor activado, se guardó, se confirmó en la base de datos
+   `incluir_mano_de_obra=true`, y en Cotizaciones el precio salió idéntico — $38.050 — al que se
+   vio al calcularla en Recetas; datos de prueba limpiados después) — el interruptor "Incluir mi tiempo en
    este cálculo" (modo sencillo) era solo un estado temporal de la pantalla, nunca se escribía en
    la base de datos. Por eso, al cotizar esa receta (o incluso al volver a editarla), el interruptor
    aparecía apagado y el costo de las horas desaparecía. Arreglado de punta a punta: nueva columna
