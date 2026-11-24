@@ -624,7 +624,7 @@ export default function Recetas() {
       <h2 className="titulo-seccion" style={{ marginTop: 28 }}>Tus subrecetas & adicionales</h2>
       <p className="sub-seccion">
         ¿Tienes partes que repites en varias recetas? Agrégalas aquí UNA vez y úsalas en todas las recetas que quieras — nunca se venden solas.
-        <InfoTooltip texto="Ejemplos: el pan y la carne que arman una Hamburguesa, o la Masa base y el Empaque que arman una Caja de mini donas. Solo llevan su costo, sin ganancia — la ganancia se agrega en la receta completa de arriba." />
+        <InfoTooltip texto="Ejemplo: aquí armas piezas que ya tienes listas, como 'Hamburguesa clásica', 'Papas fritas' o 'Jugo natural'. Después las combinas para crear una receta completa — como un Combo que junta las tres. Solo llevan su costo, sin ganancia — la ganancia se agrega en la receta completa de arriba, y nunca se venden solas." />
       </p>
       <button className="btn-secundario" style={{ marginBottom: 14 }} onClick={abrirConstructorSubreceta}>+ Agregar subreceta</button>
       {!cargandoRecetas && subrecetas.length === 0 && (

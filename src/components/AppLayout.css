@@ -8,6 +8,7 @@
 .app-interna .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 10px; }
 .app-interna .logo { display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700; font-size:16px; }
 .app-interna .logo .mark { width:28px; height:28px; display:block; }
+.app-interna .logo .acento { color:var(--accent); }
 .app-interna .tema-toggle { width:36px; height:36px; border-radius:10px; background:var(--sunken); display:flex; align-items:center; justify-content:center; color:var(--text-2); flex-shrink:0; }
 .app-interna .tema-toggle svg { width:17px; height:17px; }
 

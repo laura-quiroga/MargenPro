@@ -42,6 +42,10 @@
   --error-tint: 224 131 122;
   --aviso: #E0B15C;
   --aviso-tint: 224 177 92;
+  /* En modo oscuro el fondo de la app ya es casi negro — la barra inferior, antes siempre del
+     mismo negro-verdoso fijo, se perdía contra ese fondo. Se usa el azul-teal de marca para que
+     siga destacando como una barra flotante, en vez de mezclarse con la página. */
+  --tabbar-bg: #185062;
 }
 
 body {
