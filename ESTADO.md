@@ -1,6 +1,19 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Ayuda en línea en los 3 controles que más confunden (en vez de un tutorial aparte, 2026-11-24)
+La usuaria preguntó si se podía agregar un tutorial para lo que puede confundir de entrada a un
+cliente nuevo — en vez de un recorrido guiado completo (que casi nadie lee), se agregó el mismo
+ícono ⓘ ya usado hoy en Recetas, con una explicación de una frase + ejemplo concreto, justo al
+lado de los 3 controles de dinero que más pueden confundir:
+- **Ajustes → "Usar mis gastos reales"**
+- **Cotizar → "Incluir mis costos fijos y variables"**
+- **Recetas → "Incluir mi tiempo en este cálculo"** (con el ejemplo numérico: 2 horas × $8.000 = $16.000)
+- Probado en vivo (Ajustes y Recetas): el cuadro de texto abre correctamente y completo; el de
+  Cotizaciones usa el mismo componente ya verificado dos veces hoy, no se re-probó visualmente por
+  falta de una receta de ejemplo en esa sesión de pruebas.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## 4 pedidos de la usuaria resueltos de una vez (2026-11-24)
 1. **Redirección automática si ya hay sesión**: antes, la dirección raíz (`/`) siempre mostraba la
    página de ventas, incluso con sesión activa. Ahora `Landing.tsx` revisa la sesión al entrar y,

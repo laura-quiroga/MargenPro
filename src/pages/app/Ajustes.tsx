@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
 import { supabase } from '../../lib/supabaseClient'
 import { Toast, useToast } from '../../components/Toast'
+import InfoTooltip from '../../components/InfoTooltip'
 import { NOMBRE_TAMANO, useTamanoTexto } from '../../lib/useTamanoTexto'
 import type { Moneda } from '../../lib/types'
 import './Ajustes.css'
@@ -103,7 +104,7 @@ export default function Ajustes() {
       <p style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 12 }}>Opcional — si no lo llenas, seguimos usando un cálculo simple. Si lo llenas, tus precios van a ser más exactos.</p>
 
       <div className="fila-config">
-        <div className="txt"><div className="n">Usar mis gastos reales</div><div className="d">En vez del cálculo simple</div></div>
+        <div className="txt"><div className="n">Usar mis gastos reales<InfoTooltip texto="Si lo prendes, cada precio ya incluye tu arriendo, sueldo y demás gastos del mes (lo que configuras abajo) — útil si quieres saber tu ganancia real de una vez. Si lo apagas, el precio solo cubre tus insumos y tu margen — más rápido, pero no te dice si de verdad te alcanza para todo." /></div><div className="d">En vez del cálculo simple</div></div>
         <button className={`toggle-switch${modoReal ? ' on' : ''}`} onClick={() => setModoCalculoLocal(modoReal ? 'simple' : 'real')} aria-label="Usar mis gastos reales"><span /></button>
       </div>
 

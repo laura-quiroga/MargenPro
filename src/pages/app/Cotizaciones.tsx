@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useAppStore } from '../../lib/appStore'
 import { redondearPrecioVenta } from '../../lib/costeo'
 import { Toast, useToast } from '../../components/Toast'
+import InfoTooltip from '../../components/InfoTooltip'
 import { Confetti, useConfeti } from '../../components/Confetti'
 import { generarImagenCotizacion } from '../../lib/imagenCotizacion'
 import { logEvent } from '../../lib/eventos'
@@ -287,7 +288,7 @@ export default function Cotizaciones() {
               <input value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder="Ej: Juliana Restrepo" />
             </div>
             <div className="fila-config" style={{ marginBottom: 6 }}>
-              <div className="txt"><div className="n">Incluir mis costos fijos y variables</div><div className="d">Para saber tu ganancia real de este pedido</div></div>
+              <div className="txt"><div className="n">Incluir mis costos fijos y variables<InfoTooltip texto="Prendido: el precio de este pedido ya cubre tu arriendo, sueldo y demás gastos del mes — lo recomendado, para no cobrar de menos. Apagado: el precio solo cubre tus insumos y tu margen — útil solo si quieres comparar, no para cobrarle al cliente." /></div><div className="d">Para saber tu ganancia real de este pedido</div></div>
               <button className={`toggle-switch${incluirGastosReales ? ' on' : ''}`} onClick={() => setIncluirGastosReales((v) => !v)} aria-label="Incluir mis costos fijos y variables"><span /></button>
             </div>
             <p className="ayuda-campo" style={{ marginBottom: 16 }}>

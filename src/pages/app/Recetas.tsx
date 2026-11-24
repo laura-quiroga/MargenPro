@@ -514,7 +514,7 @@ export default function Recetas() {
 
         {modoCalculo === 'simple' && (
           <div className="fila-config" style={{ marginBottom: 16 }}>
-            <div className="txt"><div className="n">Incluir mi tiempo en este cálculo</div><div className="d">Apagado por defecto, para que el modo rápido siga siendo rápido</div></div>
+            <div className="txt"><div className="n">Incluir mi tiempo en este cálculo<InfoTooltip texto="Ejemplo: si trabajas 2 horas en esta receta y tu hora vale $8.000 (lo configuras en Ajustes), prender esto le suma $16.000 al costo. Apagado, el precio solo cuenta lo que gastaste en insumos — más rápido, pero no te paga tu tiempo." /></div><div className="d">Apagado por defecto, para que el modo rápido siga siendo rápido</div></div>
             <button className={`toggle-switch${incluirManoDeObraSimple ? ' on' : ''}`} onClick={() => setIncluirManoDeObraSimple((v) => !v)} aria-label="Incluir mi tiempo en este cálculo"><span /></button>
           </div>
         )}
