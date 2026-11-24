@@ -1,6 +1,31 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Barra de navegación inferior rediseñada (referencia visual de Pinterest, 2026-11-24)
+La usuaria sintió la barra inferior de la app "plana, sin vida" y dio 2 referencias de Pinterest
+(barra flotante tipo pastilla + indicador que se desliza entre íconos). Construido en
+`src/components/AppLayout.tsx` + `AppLayout.css`:
+- La barra dejó de estar pegada borde a borde — ahora flota con margen, totalmente redondeada
+  (`border-radius: 999px`), con sombra propia.
+- Nuevo indicador deslizante (`.tabbar-indicador`): un div que se mueve con `transform: translateX`
+  animado hasta el ícono activo (calculado con `useLocation()` de react-router) — reemplaza el
+  viejo "cambio de color plano" por una animación real de desplazamiento.
+- Micro-interacción nueva: el ícono activo crece levemente y cualquier toque de pestaña se encoge
+  un poco al presionar (`:active { transform: scale(.92) }`).
+- Probado en vivo en producción (cuenta real de la usuaria): el indicador se desliza
+  correctamente de una pestaña a otra.
+- `npx tsc --noEmit` y `npm run build` limpios.
+- ⚠️ **Pendiente, hallazgo real sin resolver todavía**: en Ajustes, el interruptor "Usar mis gastos
+  reales" se ve APAGADO en pantalla pero la base de datos de la cuenta real de la usuaria tiene
+  guardado `modo_calculo='real'` (prendido) — un desajuste entre lo que se ve y lo que está
+  guardado. Encontrado mientras se grababa un GIF de demostración para la landing (se cambió
+  temporalmente a 'simple' para esa grabación y se devolvió a 'real' al terminar, sin tocar nada
+  más). Falta diagnosticar la causa raíz en `Ajustes.tsx` (probablemente el estado local del
+  interruptor no se sincroniza bien con `store.cfg` tras cargar).
+- Pendiente explícito de la usuaria: está definiendo más ajustes visuales (ya vio 2 referencias de
+  Pinterest, puede traer más) antes de grabar un GIF nuevo para "La app por dentro" de la landing
+  — no grabar hasta que ella confirme que terminó de iterar el diseño.
+
 ## Recetas vs subrecetas: textos más claros con ejemplos (hallazgo del mismo cliente potencial, 2026-11-24)
 El cliente potencial, ya dentro de la app, no entendía para qué servía cada botón ("+ Costear
 receta nueva" vs "+ Agregar subreceta"). Se le presentaron 3 propuestas de texto a la usuaria; eligió
