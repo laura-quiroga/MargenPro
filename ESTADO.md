@@ -1,6 +1,44 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Tercera ronda: aviso de info a puro toque, inventario al eliminar venta, pantalla de carga, luna e ícono +/- (2026-11-24)
+Tras publicar la segunda ronda, la usuaria probó en su celular real y reportó 3 cosas más (más 2
+pedidos sueltos que mandó aparte sobre la pantalla de carga y el ícono de luna). Todo quedó
+corregido, verificado (`tsc` + `build` limpios) y desplegado (commit `8b4360f`, deploy
+`dpl_AVpx57j2FvDxtc3Z54shkPKW6pvk`, ya en `margenpro-ochre.vercel.app`):
+
+1. **El aviso de información seguía sin abrir al tocar en el celular real** — causa más probable:
+   `InfoTooltip` dependía de `hover`/`foco` (pensado para mouse de escritorio) COMBINADO con el
+   toque; en un celular real el orden exacto en que el navegador simula "mouseenter"/"mouseleave"
+   al soltar el dedo puede no coincidir con cómo se probó en este entorno (el `computer` de esta
+   sesión simula CLICS de mouse incluso en viewport "mobile", no toques reales — por eso el bug no
+   se veía aquí). Se SIMPLIFICÓ: ahora es un solo estado (`abierto`), toggle puro al tocar, sin
+   ninguna dependencia de hover/foco — elimina esa categoría entera de condiciones de carrera.
+   También se agrandó el ÁREA TÁCIL real del ícono a 44×44 (antes 16×16 — muy chico para acertarle
+   con el dedo, aunque el ícono se siga VIENDO igual de chico) con un `::before` invisible.
+2. **Al eliminar una cotización "vendida", los insumos no regresaban al inventario** — se agregó:
+   si la cotización que se borra estaba vendida, se le devuelven sus insumos automáticamente
+   (mismo mecanismo que ya existía al cambiarle el estado de "vendida" a otra cosa), con aviso
+   explícito ANTES de borrar ("hazlo solo si fue una venta equivocada o duplicada, no para
+   'deshacer' una venta real") y un mensaje de éxito que lo confirma. Las no-vendidas no tenían
+   nada descontado, así que no les aplica.
+3. **Ícono +/- de tamaño de letra muy pegado a la "A"** — se le dio más separación (viewBox más
+   ancho, de 24 a 30 unidades).
+4. **Pantalla de carga/splash fea al abrir la app instalada**: el manifest declaraba el ícono como
+   `purpose: "maskable"` usando el MISMO archivo que el ícono normal (sin zona segura de margen) —
+   Android le aplica su propia máscara/zoom y terminaba recortando y pixelando el ícono (la captura
+   de la usuaria mostraba la punta de la flecha cortada). Se quitó ese "purpose" del manifest, y
+   además se agregó una pantalla de carga propia en `index.html` (fuera del bundle de React, se ve
+   desde el primer instante): el isotipo + "MargenPro" en la tipografía de marca + "Costea · Cotiza
+   · Vende" — se reemplaza sola en cuanto React termina de montar la app real.
+5. **Ícono de luna "muy plano"**: antes era solo un arco sin nada más; ahora es una luna con un
+   destello pequeño al lado (mismo estilo de trazo que el sol, para que ambos se vean a la par).
+- Verificado en el navegador bajo viewport móvil: el aviso abre y cierra correctamente al tocar
+  (confirmado con medición directa del DOM, no solo mirando la pantalla), el área táctil mide
+  44×44 de verdad, y los dos íconos nuevos (+/- y luna) tienen el `path` SVG esperado. No se pudo
+  verificar con una captura pixel-perfecta por una limitación de la herramienta de zoom de este
+  entorno (desajuste de coordenadas), pero el contenido y comportamiento están confirmados.
+
 ## Segunda ronda: InfoTooltip de verdad a prueba de zoom (portal fuera de body), borrar cotización, ícono +/-, insumo agotado en rojo (2026-11-24)
 Tras la ronda anterior, la usuaria confirmó que el aviso de información TODAVÍA salía mal ubicado
 con letra grande — y pidió 3 cosas más. Las 4 quedaron resueltas, verificadas (`tsc` + `build`
