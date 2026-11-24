@@ -56,11 +56,13 @@ export default function AppLayout() {
             <button className="tema-toggle" aria-label="Cambiar el tamaño de la letra" onClick={cambiarTamano}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M18 19v-6M15.5 15.5L18 13l2.5 2.5" /></svg>
             </button>
+            {/* Muestra el ícono de a dónde vas a pasar al tocar, no el del modo actual: en modo
+                claro se ve una luna (vas a oscuro) y en modo oscuro un sol (vas a claro). */}
             <button className="tema-toggle" aria-label="Cambiar tema" onClick={alternar}>
               {oscuro ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.5a8.5 8.5 0 11-9-13 7 7 0 009 13z" /></svg>
-              ) : (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.5a8.5 8.5 0 11-9-13 7 7 0 009 13z" /></svg>
               )}
             </button>
           </div>

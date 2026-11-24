@@ -6,11 +6,18 @@
   transition: background .12s ease-out, color .12s ease-out;
 }
 .info-tooltip-icono:hover, .info-tooltip-icono:focus-visible { background: rgb(var(--accent-tint) / .25); color: var(--accent); }
-/* La posición (left/top) la pone el componente en línea, en px, ya recortada para que nunca se
-   salga de la pantalla — aquí solo va la apariencia. Tocar el globo también lo cierra, por eso
-   `pointer-events` ya no es `none`. */
+
+/* Posicionado SIEMPRE relativo al propio ícono (position:absolute, no fixed, nada de px copiados
+   de getBoundingClientRect) — así el zoom del tamaño de letra lo escala junto con todo lo demás,
+   en vez de desplazarlo. La alineación (centro/izquierda/derecha) la decide React con una clase,
+   para que nunca se corte contra el borde de la pantalla. */
 .info-tooltip-globo {
-  width: 230px; background: var(--text-1); color: var(--bg); font-size: 12px; font-weight: 400;
+  position: absolute; bottom: calc(100% + 8px);
+  width: max-content; max-width: min(230px, calc(100vw - 24px));
+  background: var(--text-1); color: var(--bg); font-size: 12px; font-weight: 400;
   line-height: 1.45; text-transform: none; letter-spacing: normal; padding: 10px 12px;
   border-radius: 10px; box-shadow: var(--shadow-2); z-index: 20; cursor: pointer;
 }
+.info-tooltip-globo.alinear-centro { left: 50%; transform: translateX(-50%); }
+.info-tooltip-globo.alinear-izquierda { left: 0; }
+.info-tooltip-globo.alinear-derecha { right: 0; }

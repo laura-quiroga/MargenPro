@@ -299,13 +299,13 @@ export default function Cotizaciones() {
             <h3 style={{ fontSize: 14, marginBottom: 10 }}>¿Qué le vas a cobrar?</h3>
             {filas.map((f, idx) => (
               <div key={idx} className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <select style={{ flex: 1.4, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                  <select style={{ flex: '1 1 160px', minWidth: 0, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }}
                     value={f.producto} onChange={(e) => elegirProductoFila(idx, e.target.value)}>
                     {recetas.map((r) => <option key={r.id} value={r.nombre}>{r.nombre}</option>)}
                   </select>
                   <input type="number" value={f.cantidad} onChange={(e) => actualizarFila(idx, { cantidad: e.target.value })} placeholder="Cant."
-                    style={{ width: 64, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
+                    style={{ width: 64, flexShrink: 0, padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
                   {filas.length > 1 && <button onClick={() => quitarFila(idx)} aria-label="Quitar producto"><IconoQuitar /></button>}
                 </div>
                 <p className="ayuda-campo" style={{ margin: 0 }}>
