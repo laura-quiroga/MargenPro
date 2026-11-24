@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 import './Landing.css'
 
 const PRECIO_HEROE_FINAL = 84000
@@ -147,6 +148,20 @@ function FaqItem({ q, a, abiertoInicial }: { q: string; a: string; abiertoInicia
 }
 
 export default function Landing() {
+  // Si ya hay sesión iniciada en este dispositivo, no tiene sentido volver a mostrar la página
+  // de ventas — se manda directo a la app, como cualquier app a la que ya se le dio acceso antes.
+  const [revisandoSesion, setRevisandoSesion] = useState(true)
+  const navigate = useNavigate()
+  useEffect(() => {
+    let activo = true
+    supabase.auth.getSession().then(({ data }) => {
+      if (!activo) return
+      if (data.session) navigate('/app', { replace: true })
+      else setRevisandoSesion(false)
+    })
+    return () => { activo = false }
+  }, [navigate])
+
   const [stickyVisible, setStickyVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
   const ofertaRef = useRef<HTMLDivElement>(null)
@@ -175,6 +190,8 @@ export default function Landing() {
     actualizar()
     return () => window.removeEventListener('scroll', actualizar)
   }, [])
+
+  if (revisandoSesion) return null
 
   return (
     <div className="landing">

@@ -53,7 +53,14 @@
 .landing .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 0; }
 .landing .logo { display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:18px; }
 .landing .logo .mark { width:32px; height:32px; display:block; }
-.landing .entrar { font-size:13.5px; font-weight:700; color:var(--text-2); text-decoration:none; }
+/* Antes era un enlace de texto chiquito, fácil de pasar por alto para quien ya tiene cuenta —
+   ahora es un botón con borde, del mismo tamaño táctil que cualquier otro botón de la app. */
+.landing .entrar {
+  font-size:14px; font-weight:700; color:var(--accent); text-decoration:none;
+  padding:9px 18px; border-radius:999px; border:1.5px solid rgb(var(--accent-tint)/.4);
+  transition:background .15s ease-out;
+}
+.landing .entrar:hover { background:rgb(var(--accent-tint)/.1); }
 
 /* HERO */
 .landing .hero { padding-top:56px; }

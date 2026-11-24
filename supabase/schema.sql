@@ -77,6 +77,10 @@ create table public.recetas (
   horas        numeric not null default 0 check (horas >= 0),
   unidades     integer not null default 1 check (unidades >= 1),
   es_subreceta boolean not null default false,
+  -- Solo aplica en modo sencillo: si esta receta cuenta las horas de trabajo dentro del costo.
+  -- Se guarda por receta para que sobreviva al editarla y para que una cotización use el mismo
+  -- costo que ya se vio al calcular el precio (antes no se guardaba — bug real corregido).
+  incluir_mano_de_obra boolean not null default false,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );

@@ -46,6 +46,7 @@ function filaARecetaBase(fila: Record<string, unknown>) {
     horas: Number(fila.horas),
     unidades: Number(fila.unidades),
     esSubreceta: Boolean(fila.es_subreceta),
+    incluirManoDeObraEnSencillo: Boolean(fila.incluir_mano_de_obra),
   }
 }
 
@@ -606,6 +607,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     if (!usuario) return false
     const { data, error } = await supabase.from('recetas').insert({
       user_id: usuario.id, nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades, es_subreceta: datos.esSubreceta ?? false,
+      incluir_mano_de_obra: datos.incluirManoDeObraEnSencillo ?? false,
     }).select().single()
     if (error || !data) return false
     const filas = [
@@ -627,6 +629,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   async function actualizarRecetaExistente(id: string, datos: Omit<Receta, 'id'>): Promise<boolean> {
     const { error } = await supabase.from('recetas').update({
       nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades, es_subreceta: datos.esSubreceta ?? false,
+      incluir_mano_de_obra: datos.incluirManoDeObraEnSencillo ?? false,
     }).eq('id', id)
     if (error) return false
     await supabase.from('receta_insumos').delete().eq('receta_id', id)

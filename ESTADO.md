@@ -1,6 +1,28 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## 4 pedidos de la usuaria resueltos de una vez (2026-11-24)
+1. **Redirección automática si ya hay sesión**: antes, la dirección raíz (`/`) siempre mostraba la
+   página de ventas, incluso con sesión activa. Ahora `Landing.tsx` revisa la sesión al entrar y,
+   si existe, manda directo a `/app` (sin mostrar la landing ni un parpadeo de contenido).
+2. **La app se puede "instalar" en la pantalla de inicio del celular** (PWA básica, sin tienda de
+   apps): se generó el ícono real de la marca (recortado de la imagen que dio la usuaria, el
+   isotipo teal con la M/flecha) en los tamaños que piden los sistemas — `public/icon-192.png`,
+   `icon-512.png`, `apple-touch-icon.png` (180px), `favicon-32.png` — y `public/site.webmanifest`
+   con nombre "MargenPro", `display: standalone` (abre sin la barra del navegador) y
+   `start_url: /app`. Enlazado en `index.html`. Al "Agregar a pantalla de inicio" (Android) o
+   "Añadir a inicio" (iPhone), el ícono y nombre que aparecen ya son los reales.
+3. **Botón "Entrar" de la landing, antes un enlace de texto chiquito**, ahora es un botón real con
+   borde (`.entrar` en `Landing.css`) — más fácil de encontrar para quien ya tiene cuenta.
+4. **Bug real: las horas de trabajo nunca se guardaban** — el interruptor "Incluir mi tiempo en
+   este cálculo" (modo sencillo) era solo un estado temporal de la pantalla, nunca se escribía en
+   la base de datos. Por eso, al cotizar esa receta (o incluso al volver a editarla), el interruptor
+   aparecía apagado y el costo de las horas desaparecía. Arreglado de punta a punta: nueva columna
+   `recetas.incluir_mano_de_obra` (migración aplicada), `Receta.incluirManoDeObraEnSencillo` en
+   `types.ts`, se lee/escribe en `appStore.tsx`, se restaura al editar y se usa en `Cotizaciones.tsx`
+   en vez del `false` fijo que tenía antes.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## InfoTooltip: el cuadro de texto se salía de la pantalla (hallazgo de la usuaria, 2026-11-24)
 En Recetas, cuando el ícono ⓘ quedaba cerca del borde derecho de un celular (el texto del
 subtítulo lo empuja ahí según cuánto ocupe), el cuadro de "Ejemplos..." se salía de la pantalla y

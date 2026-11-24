@@ -48,6 +48,10 @@ export interface Receta {
   esSubreceta?: boolean
   /** Solo aplica a recetas finales — las subrecetas ya usadas para armarla. */
   subrecetasUsadas: SubrecetaUsada[]
+  /** Solo aplica en modo sencillo: si esta receta cuenta tu tiempo (horas × tu valor/hora) dentro
+   * del costo, o no. Se guarda por receta para que la elección sobreviva al editarla y para que
+   * una cotización use el mismo costo que ya viste al calcular el precio. */
+  incluirManoDeObraEnSencillo?: boolean
 }
 
 /** Un producto dentro de una cotización — una cotización puede tener varios (ej. hamburguesas +

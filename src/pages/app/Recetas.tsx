@@ -155,8 +155,8 @@ export default function Recetas() {
     } else {
       setMargen(r.margen)
       setHoras(r.horas ? String(r.horas) : '')
-      setIncluirManoDeObraSimple(false)
-      setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades, false, r.subrecetasUsadas), insumosUsados: r.insumosUsados, subrecetasUsadas: r.subrecetasUsadas ?? [], margen: r.margen, horas: r.horas, unidades: r.unidades })
+      setIncluirManoDeObraSimple(!!r.incluirManoDeObraEnSencillo)
+      setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades, !!r.incluirManoDeObraEnSencillo, r.subrecetasUsadas), insumosUsados: r.insumosUsados, subrecetasUsadas: r.subrecetasUsadas ?? [], margen: r.margen, horas: r.horas, unidades: r.unidades })
     }
     setConfirmandoEliminar(false)
     setVista('constructor')
@@ -260,7 +260,7 @@ export default function Recetas() {
   async function guardarReceta() {
     if (!resultado) return
     const nombreFinal = nombre.trim() || 'Mi producto'
-    const datos = { nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados, subrecetasUsadas: resultado.subrecetasUsadas, esSubreceta: false }
+    const datos = { nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados, subrecetasUsadas: resultado.subrecetasUsadas, esSubreceta: false, incluirManoDeObraEnSencillo: incluirManoDeObraSimple }
     setGuardando(true)
     const ok = editId !== null ? await actualizarRecetaExistente(editId, datos) : await guardarRecetaNueva(datos)
     setGuardando(false)
