@@ -1,6 +1,23 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Cotizaciones: 2 bugs reales con subrecetas, encontrados por la usuaria (2026-11-24)
+La usuaria probó cotizar una receta armada SOLO con una subreceta (sin insumos directos — ej.
+"Mini Donitas X9 Unidades" hecha con la subreceta "Masa Base X1Uni") y el precio a cobrar no
+aparecía (salía en $0, invisible en la práctica). También notó que las subrecetas aparecían
+seleccionables en la lista de productos a cotizar, cuando nunca se venden solas. Ambos arreglados
+en `src/pages/app/Cotizaciones.tsx`:
+- **Causa raíz real del precio en $0**: al calcular el precio de cada fila de la cotización
+  (`montoVivoFila` y `calcularItems`), se llamaba a `costearReal`/`costearSimple` sin pasarle
+  `receta.subrecetasUsadas` — así que para una receta hecha solo de subrecetas, el costo
+  calculado daba exactamente $0 (ni insumos directos ni subrecetas contaban). Arreglado pasando
+  ese dato en las dos llamadas.
+- **Las subrecetas ya no aparecen** en el selector de producto a cotizar ni en los contadores
+  relacionados — se filtran con `recetas.filter(r => !r.esSubreceta)` justo al leer el store,
+  así el resto del archivo (que ya usaba `recetas` en 7 lugares distintos) quedó corregido sin
+  tener que tocar cada uno por separado.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Barra de navegación inferior rediseñada (referencia visual de Pinterest, 2026-11-24)
 La usuaria sintió la barra inferior de la app "plana, sin vida" y dio 2 referencias de Pinterest
 (barra flotante tipo pastilla + indicador que se desliza entre íconos). Construido en

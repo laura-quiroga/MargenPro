@@ -79,7 +79,9 @@ interface FilaCotizacion {
 }
 
 export default function Cotizaciones() {
-  const { recetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion, plan } = useAppStore()
+  const { recetas: todasLasRecetas, cotizaciones, cargandoCotizaciones, crearCotizacion, cambiarEstadoCotizacion, money, costearReal, costearSimple, ajustarInventarioPorVenta, logoNegocio, nombreNegocio, lineaAtencion, plan } = useAppStore()
+  // Una subreceta/adicional nunca se vende sola — solo las recetas completas se cotizan.
+  const recetas = todasLasRecetas.filter((r) => !r.esSubreceta)
   const { toast, mostrarToast } = useToast()
   const { piezas, lanzar } = useConfeti()
   const location = useLocation()
@@ -146,7 +148,7 @@ export default function Cotizaciones() {
       const cantidadNum = parseFloat(f.cantidad) || 0
       if (cantidadNum <= 0) return null
       const receta = recetas.find((r) => r.nombre === f.producto)
-      const calc = receta ? costearElegido(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
+      const calc = receta ? costearElegido(receta.insumosUsados, receta.margen, receta.horas, receta.unidades, false, receta.subrecetasUsadas) : null
       const precioPorUnidad = calc ? calc.precioPorUnidad : 20000
       items.push({ recetaId: receta?.id, producto: f.producto, cantidad: cantidadNum, monto: redondearPrecioVenta(Math.round(precioPorUnidad * cantidadNum)) })
     }
@@ -266,7 +268,7 @@ export default function Cotizaciones() {
       const cantidadNum = parseFloat(f.cantidad) || 0
       if (cantidadNum <= 0) return null
       const receta = recetas.find((r) => r.nombre === f.producto)
-      const calc = receta ? (incluirGastosReales ? costearReal : costearSimple)(receta.insumosUsados, receta.margen, receta.horas, receta.unidades) : null
+      const calc = receta ? (incluirGastosReales ? costearReal : costearSimple)(receta.insumosUsados, receta.margen, receta.horas, receta.unidades, false, receta.subrecetasUsadas) : null
       const precioPorUnidad = calc ? calc.precioPorUnidad : 20000
       return redondearPrecioVenta(Math.round(precioPorUnidad * cantidadNum))
     }
