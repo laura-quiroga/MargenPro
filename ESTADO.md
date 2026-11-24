@@ -1,6 +1,36 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Cuarta ronda: HALLAZGO IMPORTANTE — el celular de la usuaria servía una versión vieja de la app (2026-11-24)
+Tras la tercera ronda, la usuaria reportó: (a) no le gustó la luna nueva ("un + innecesario"), y
+(b) tras eliminar sus 2 cotizaciones de prueba, el aviso de "se está acabando" seguía saliendo
+aunque "no debería haber ninguna disminución sin ventas" — y por separado dijo que la pantalla de
+carga "sigue siendo la anterior". Las 3 cosas, investigadas y resueltas (commit `56dbd03`, deploy
+`dpl_9utYm3czt9b6yi2MstWzta1YbAQD`, ya en `margenpro-ochre.vercel.app`):
+
+1. **Luna sin el "+"**: se quitó el destello (sparkle) que agregué en la ronda anterior — ahora es
+   una luna creciente RELLENA (sólida), sin decoración extra. `AppLayout.tsx` + `PhoneFrame.tsx`.
+2. **HALLAZGO REAL, no un bug de lógica — el celular de la usuaria estaba sirviendo una versión
+   VIEJA de la app.** Se investigó directo en la base de datos (Supabase, proyecto
+   `iguryohxkhsnaumzwcip`): la tabla `cotizaciones` ya NO tenía ninguna fila de "Galletas" (la
+   había borrado), pero `Mantequilla Mavesa` seguía en 250/500g y `Huevos` en 29/30 — exactamente
+   lo que consume UNA tanda de "Galletas" (250g mantequilla + 1 huevo, según `receta_insumos`).
+   Es decir: SÍ había borrado una cotización vendida de Galletas, pero el inventario NO se le
+   devolvió — la función que lo hace (agregada en la ronda anterior, commit `8b4360f`) no corrió
+   para ella. Conclusión: su celular todavía tenía cargada una versión de la app de ANTES de ese
+   deploy (consistente con que también viera la pantalla de carga vieja) — el navegador tenía
+   cacheado el `index.html` viejo, que apuntaba al bundle de JS anterior. **Corregido para que no
+   vuelva a pasar**: `vercel.json` ahora sirve `index.html` y `site.webmanifest` con
+   `Cache-Control: no-cache, must-revalidate` — así el navegador siempre revisa si hay una versión
+   nueva en vez de quedarse con una copia vieja guardada. **Y se corrigió el dato real de la
+   usuaria ahora mismo** (una sola vez, por SQL directo): se le devolvieron los 250g de mantequilla
+   y el huevo que le faltaban — su inventario ya quedó exacto.
+3. La pantalla de carga "vieja" que seguía viendo es el mismo síntoma del punto 2 (index.html
+   cacheado) — con el fix de cache-control debería verse la nueva en su próxima visita; si insiste,
+   recomendarle cerrar la app desde "apps recientes" (no solo minimizarla) o quitarla y volverla a
+   agregar a la pantalla de inicio, porque el ícono del acceso directo específicamente SÍ se cachea
+   aparte en Android al momento de instalarla.
+
 ## Tercera ronda: aviso de info a puro toque, inventario al eliminar venta, pantalla de carga, luna e ícono +/- (2026-11-24)
 Tras publicar la segunda ronda, la usuaria probó en su celular real y reportó 3 cosas más (más 2
 pedidos sueltos que mandó aparte sobre la pantalla de carga y el ícono de luna). Todo quedó
