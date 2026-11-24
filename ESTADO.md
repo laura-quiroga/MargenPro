@@ -1,6 +1,23 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Octava ronda: CONFIRMADO con video — el indicador de la barra SÍ tenía un bug real (2026-11-24)
+La usuaria mandó un video (WhatsApp, ~14s) del problema del óvalo "desfasado". Se analizó con
+OpenCV (instalado `opencv-python-headless` para esta sesión): se extrajeron ~64 cuadros del video
+a ~4fps, se armó un contact sheet recortando la franja de la barra inferior de cada cuadro, y en
+varios cuadros se confirmó el bug real: el texto de "Insumos" ya aparecía coloreado como activo,
+mientras el óvalo de fondo seguía sobre "Recetas" (la pestaña anterior) — no fue mi suposición
+anterior de "solo es la animación deslizándose", sí había una causa real que corregir. Corregido y
+desplegado (commit `f7e039c`, deploy `dpl_9QU5FjQmfKgBe8K69Z7nXpVXgZ5N`):
+
+**Causa real**: el color del texto/ícono activo (`.tab-btn span`, `.tab-btn svg`) transicionaba en
+`.2s`, pero el óvalo que se desliza (`.tabbar-indicador`) transiciona en `.32s` — dos animaciones
+de duración distinta para el MISMO cambio de pestaña. En la ventana de ~120ms entre que termina
+una y la otra sigue en curso, el texto ya muestra la pestaña nueva como activa mientras el óvalo
+todavía no llega — exactamente lo que la usuaria fotografió/grabó. Se igualaron ambas duraciones a
+`.32s` con la misma curva (`cubic-bezier(.22,1,.36,1)`), para que el color y la posición del óvalo
+terminen exactamente juntos, sin importar a qué pestaña se cambie ni en qué modo (claro/oscuro).
+
 ## Séptima ronda: "MargenPro" pegado, copy de Recetas, e indicador de la barra investigado (2026-11-24)
 La usuaria no quiso subir la pantalla de carga a 5-10s (se le explicó el riesgo de que eso afecte
 a TODO futuro cliente, no solo a ella una vez — aceptó el argumento); se le mandó una captura de
