@@ -117,7 +117,7 @@
 .app-interna .tabbar-indicador { position:absolute; top:8px; bottom:8px; left:8px; width:calc((100% - 16px) / var(--tabs-count)); border-radius:999px; background:rgb(var(--accent-tint)/.28); transition:transform .32s cubic-bezier(.22,1,.36,1); }
 .app-interna .tab-btn { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:6px 2px; border-radius:999px; transition:transform .18s cubic-bezier(.22,1,.36,1); text-decoration:none; }
 .app-interna .tab-btn:active { transform:scale(.92); }
-.app-interna .tab-btn svg { width:21px; height:21px; stroke:var(--tabbar-icon-inactivo); filter:drop-shadow(0 1px 1px rgb(0 0 0/.3)); transition:stroke .2s; }
-.app-interna .tab-btn span { font-size:10px; font-weight:700; color:var(--tabbar-icon-inactivo); transition:color .2s; }
+.app-interna .tab-btn svg { width:21px; height:21px; stroke:var(--tabbar-icon-inactivo); filter:drop-shadow(0 1px 1px rgb(0 0 0/.3)); transition:stroke .32s cubic-bezier(.22,1,.36,1); }
+.app-interna .tab-btn span { font-size:10px; font-weight:700; color:var(--tabbar-icon-inactivo); transition:color .32s cubic-bezier(.22,1,.36,1); }
 .app-interna .tab-btn.activo svg { stroke:var(--on-accent); filter:drop-shadow(0 1px 1px rgb(0 0 0/.15)); transform:scale(1.08); }
 .app-interna .tab-btn.activo span { color:var(--accent); }
