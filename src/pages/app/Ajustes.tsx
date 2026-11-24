@@ -55,6 +55,11 @@ export default function Ajustes() {
     lector.readAsDataURL(archivo)
   }
 
+  async function cerrarSesion() {
+    await supabase.auth.signOut()
+    navigate('/login')
+  }
+
   async function eliminarMiCuenta() {
     setBorrando(true)
     const { data: sesion } = await supabase.auth.getSession()
@@ -183,6 +188,8 @@ export default function Ajustes() {
         <a href="/privacidad" style={{ color: 'var(--text-2)' }}>Privacidad</a> ·{' '}
         <a href="/terminos" style={{ color: 'var(--text-2)' }}>Términos</a>
       </p>
+
+      <button className="btn-secundario" style={{ marginBottom: 10 }} onClick={cerrarSesion}>Cerrar sesión</button>
 
       {!confirmandoBorrado ? (
         <button className="btn-texto" style={{ color: 'var(--error)' }} onClick={() => setConfirmandoBorrado(true)}>Eliminar mi cuenta</button>
