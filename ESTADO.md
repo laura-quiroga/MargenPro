@@ -1,6 +1,29 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Sexta ronda: confirmado el arreglo del splash (era el ícono cacheado por Android al instalar), + 3 pulidos visuales (2026-11-24)
+Tras desinstalar y reinstalar la app, la usuaria confirmó que el ícono/splash ya se ve bien — esto
+cierra DEL TODO el hallazgo de la ronda 4 (el splash SÍ se cachea aparte, a nivel Android, al
+momento de "Agregar a pantalla de inicio"; no se arregla con más deploys ni limpiando caché del
+navegador, solo reinstalando). Mandó 4 pedidos más, todos resueltos y desplegados (commit
+`3049eb0`, deploy `dpl_9fxQ5SQKTk8gpYS8dF7qyn9CCTph`):
+
+1. **La pantalla de carga propia (con el texto) no alcanzaba a verse** por lo rápido que carga su
+   conexión — en vez de quitarla, se le puso una duración MÍNIMA de 600ms (contados desde que
+   arranca la navegación con `performance.now()`, no desde que corre el script — así sí cuenta el
+   tiempo que ya tardó el bundle en llegar). No es un "splash" que retrasa el acceso a propósito
+   (prohibido por el SO): es solo estirar un poco el tiempo de carga que de todas formas iba a
+   pasar, para que no sea un parpadeo invisible.
+2. **"Pro" de "MargenPro" sin el color de acento** en el encabezado — ahora "Pro" usa el acento de
+   marca (se adapta solo a modo claro/oscuro), como en la imagen de referencia que dio la usuaria.
+3. **Barra de navegación inferior invisible en modo oscuro**: usaba un negro-verdoso FIJO (mismo
+   en claro y oscuro, por diseño original) que en modo oscuro casi no se distinguía del fondo de
+   la página (ambos casi negros). Se le dio una excepción en modo oscuro: usa el azul-teal
+   característico de la marca (`#185062`) en vez del negro-verdoso, para que siga leyéndose como
+   una barra flotante.
+4. **Tooltip de "Tus subrecetas & adicionales"**: ejemplo reescrito con la idea de la usuaria —
+   piezas ya armadas (Hamburguesa clásica, Papas fritas, Jugo natural) que se combinan en un Combo.
+
 ## Quinta ronda: isotipo embebido en la carga, copy de Recetas, y corrección final de inventario (2026-11-24)
 A la usuaria le encantó la luna nueva. Reportó 2 cosas más: el isotipo de la pantalla de carga
 salía como un cuadro en blanco parpadeando (mandó captura), y la Harina de trigo le seguía
