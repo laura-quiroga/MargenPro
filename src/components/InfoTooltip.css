@@ -1,10 +1,13 @@
 .info-tooltip { position: relative; display: inline-flex; vertical-align: middle; margin-left: 5px; }
 .info-tooltip-icono {
-  width: 16px; height: 16px; border-radius: 50%; border: none; padding: 0; cursor: help;
+  position: relative; width: 16px; height: 16px; border-radius: 50%; border: none; padding: 0; cursor: help;
   display: flex; align-items: center; justify-content: center;
   background: rgb(var(--accent-tint) / .14); color: var(--text-2);
   transition: background .12s ease-out, color .12s ease-out;
 }
+/* El ícono se ve chico (16px) pero el área que de verdad se puede tocar es de 44x44 (el mínimo
+   recomendado para el dedo) — este ::before invisible la agranda sin cambiar cómo se ve. */
+.info-tooltip-icono::before { content: ''; position: absolute; inset: -14px; }
 .info-tooltip-icono:hover, .info-tooltip-icono:focus-visible { background: rgb(var(--accent-tint) / .25); color: var(--accent); }
 
 /* Fijo y centrado en TODA la pantalla, nunca relativo al ícono — así el zoom del tamaño de letra

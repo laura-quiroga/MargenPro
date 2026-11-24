@@ -54,7 +54,7 @@ export default function AppLayout() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
             {avisoTamano && <span className="aviso-tamano-texto">Letra: {NOMBRE_TAMANO[tamano]}</span>}
             <button className="tema-toggle" aria-label="Cambiar el tamaño de la letra" onClick={cambiarTamano}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M19 4v6M16 7h6" /><path d="M16 16h6" /></svg>
+              <svg width="21" height="17" viewBox="0 0 30 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19L9.5 5h1L16 19M5.5 15h9" /><path d="M24 3v6M21 6h6" /><path d="M21 17h6" /></svg>
             </button>
             {/* Muestra el ícono de a dónde vas a pasar al tocar, no el del modo actual: en modo
                 claro se ve una luna (vas a oscuro) y en modo oscuro un sol (vas a claro). */}
@@ -62,7 +62,7 @@ export default function AppLayout() {
               {oscuro ? (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
               ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.5a8.5 8.5 0 11-9-13 7 7 0 009 13z" /></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 006 6 9 9 0 11-6-6z" /><path d="M19 3v4M21 5h-4" /></svg>
               )}
             </button>
           </div>

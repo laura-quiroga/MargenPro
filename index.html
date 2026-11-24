@@ -14,9 +14,36 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="MargenPro" />
+
+    <!-- Fuentes de marca precargadas aparte del bundle, para que la pantalla de carga de abajo
+         (mientras el usuario espera a que abra la app, sobre todo con internet lenta) ya se vea
+         con la tipografía real desde el primer instante, no con una genérica de respaldo. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400..800&display=swap" rel="stylesheet" />
+    <style>
+      #carga-inicial {
+        position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+        background: #FAFAF6; font-family: 'Manrope', 'Segoe UI', sans-serif;
+      }
+      #carga-inicial img { width: 64px; height: 64px; border-radius: 18px; animation: cargaPulso 1.6s ease-in-out infinite; }
+      #carga-inicial .marca { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; color: #2B2A26; }
+      #carga-inicial .marca b { color: #185062; font-weight: 700; }
+      #carga-inicial .lema { font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #716C5F; }
+      @keyframes cargaPulso { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .85; transform: scale(.96); } }
+      @media (prefers-reduced-motion: reduce) { #carga-inicial img { animation: none; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Se reemplaza solo en cuanto React monta la app real — esto es lo único que alcanza a
+           verse mientras carga, en vez de una pantalla en blanco. -->
+      <div id="carga-inicial">
+        <img src="/isotipo.svg" alt="" />
+        <div class="marca">Margen<b>Pro</b></div>
+        <div class="lema">Costea · Cotiza · Vende</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -266,10 +266,18 @@ export default function Cotizaciones() {
 
   async function eliminarCotizacionIdx(idx: number) {
     const cotizacion = cotizaciones[idx]
+    const eraVendida = cotizacion.estado === 'vendida'
     const ok = await eliminarCotizacion(cotizacion.id)
     setConfirmandoEliminarIdx(null)
     if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar esta cotización. Intenta de nuevo.'); return }
-    mostrarToast(<IconoOk />, 'Cotización eliminada.')
+    if (eraVendida) {
+      // Estaba vendida: al venderla se le había restado el stock a los insumos que usó — borrarla
+      // se lo devuelve, para que tu inventario y tu ganancia real no queden descuadrados.
+      ajustarInventarioPorVenta(cotizacion.items, 1)
+      mostrarToast(<IconoOk />, 'Cotización eliminada — te devolvimos los insumos que había descontado.')
+    } else {
+      mostrarToast(<IconoOk />, 'Cotización eliminada.')
+    }
   }
 
   const listaFiltrada = cotizaciones
@@ -397,7 +405,11 @@ export default function Cotizaciones() {
               <span className={`estado-pill ${c.estado}`}>{c.estado}</span>
               {confirmandoEliminarIdx === idx ? (
                 <div style={{ marginTop: 12 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>¿Eliminar esta cotización para siempre?</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+                    {c.estado === 'vendida'
+                      ? 'Esta cotización está vendida — al eliminarla te devolvemos los insumos que había descontado. Hazlo solo si fue una venta equivocada o duplicada, no para "deshacer" una venta real.'
+                      : '¿Eliminar esta cotización para siempre?'}
+                  </p>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1 }} onClick={() => setConfirmandoEliminarIdx(null)}>Cancelar</button>
                     <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1, borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' }} onClick={() => eliminarCotizacionIdx(idx)}>Eliminar</button>

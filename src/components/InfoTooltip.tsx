@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import './InfoTooltip.css'
 
-/** Ícono de información — en escritorio se muestra al pasar el mouse o hacer foco (teclado). En
- * celular (donde no hay "hover" de verdad) el TOQUE lo "fija" abierto hasta el siguiente toque,
- * y tocar el globo de texto (o el fondo oscuro) también lo cierra. `fijado` y `hover` se combinan
- * (no se pisan uno al otro) para que un clic con el mouse ya encima (hover ya activo) no lo
- * cierre de inmediato.
+/** Ícono de información — toca el ícono para abrir el aviso, y toca el aviso (o el fondo oscuro)
+ * para cerrarlo. Antes dependía también de "hover"/foco (pensado para mouse de escritorio), pero
+ * en un celular real eso puede dejarlo atascado abierto o cerrado según el orden exacto en que el
+ * navegador simula esos eventos al soltar el dedo — un simple toggle por toque es más confiable.
  *
  * El cuadro SIEMPRE aparece fijo y centrado en medio de la pantalla real — con un `createPortal`
  * a un nodo que se cuelga de `<html>`, FUERA de `<body>`. El tamaño de letra grande/muy grande de
@@ -16,9 +15,7 @@ import './InfoTooltip.css'
  * La única forma de que el cuadro no se mueva ni se deforme es que viva por completo afuera del
  * elemento zoomeado. */
 export default function InfoTooltip({ texto }: { texto: string }) {
-  const [hover, setHover] = useState(false)
-  const [fijado, setFijado] = useState(false)
-  const visible = hover || fijado
+  const [abierto, setAbierto] = useState(false)
   const [portal, setPortal] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -28,28 +25,19 @@ export default function InfoTooltip({ texto }: { texto: string }) {
     return () => { document.documentElement.removeChild(nodo) }
   }, [])
 
-  function cerrar() {
-    setFijado(false)
-    setHover(false)
-  }
-
   return (
-    <span
-      className="info-tooltip"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-    >
-      <button type="button" className="info-tooltip-icono" aria-label="Qué significa esto" onClick={(e) => { e.stopPropagation(); setFijado((f) => !f) }}>
+    <span className="info-tooltip">
+      {/* El ícono visual es chico (13px) pero el área que se puede tocar es de 44x44 — el mínimo
+          recomendado — con un ::before invisible más grande (ver InfoTooltip.css). */}
+      <button type="button" className="info-tooltip-icono" aria-label="Qué significa esto" onClick={(e) => { e.stopPropagation(); setAbierto((a) => !a) }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
           <circle cx="12" cy="12" r="9" />
           <path d="M12 16v-5M12 8h.01" />
         </svg>
       </button>
-      {visible && portal && createPortal(
-        <div className="info-tooltip-fondo" onClick={(e) => { e.stopPropagation(); cerrar() }}>
-          <div className="info-tooltip-globo" role="tooltip" onClick={(e) => { e.stopPropagation(); cerrar() }}>
+      {abierto && portal && createPortal(
+        <div className="info-tooltip-fondo" onClick={(e) => { e.stopPropagation(); setAbierto(false) }}>
+          <div className="info-tooltip-globo" role="tooltip" onClick={(e) => { e.stopPropagation(); setAbierto(false) }}>
             {texto}
           </div>
         </div>,
