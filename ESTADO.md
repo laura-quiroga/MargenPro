@@ -1,6 +1,34 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Novena ronda: causa raíz REAL del desfase (solo con letra grande) + copy de Ajustes (2026-11-24)
+La usuaria aclaró el dato clave que faltaba: el desfase del indicador "solo pasa con la letra
+grande y muy grande". Reproducido y corregido de raíz (commit `c8ca39a`, deploy
+`dpl_5cwWkBMoBZBHkXQTCxGaDkTQAYaW`):
+
+**Causa real**: el indicador calculaba su posición asumiendo que las 5 pestañas miden EXACTAMENTE
+lo mismo (`ancho total / 5`, vía CSS `calc()`). Eso es cierto casi siempre — pero con letra grande
+o muy grande, en una pantalla angosta (375px), la etiqueta "Panorama" (la más larga de las 5) deja
+de caber en su quinta parte del ancho: el navegador no puede encoger el texto más allá de su ancho
+mínimo de contenido, así que esa pestaña queda más ANCHA que las otras 4 — rompiendo la suposición
+de "todas iguales" en la que se basaba el cálculo del indicador. Esto NO pasaba a tamaño normal
+porque a ese tamaño "Panorama" sí entra en su quinta parte sin forzar nada.
+**Corregido midiendo el DOM real** en vez de calcular a ciegas: ahora el indicador usa
+`offsetLeft`/`offsetWidth` del botón activo de verdad (con un `useEffect` que depende de
+`activeIndex` y `tamano`, más un listener de `resize`) — así siempre coincide exacto con la
+pestaña real, sea cual sea su ancho, sin asumir nada. Verificado con medición directa: alineación
+exacta en las 5 pestañas, incluida "Panorama" (la más ancha), bajo zoom 1.3.
+⚠️ Nota para el futuro: este fue el TERCER intento de arreglar este mismo síntoma (primero se
+descartó como "animación deslizándose", luego se corrigió una carrera de timing real pero
+distinta, y recién en este intento se encontró la causa que la usuaria describía) — el dato que
+lo resolvió fue que ella especificara EXACTAMENTE bajo qué condición pasaba (solo con letra
+grande). Cuando un bug visual "no se repite" en las pruebas propias, preguntar por la condición
+exacta antes de descartarlo es más rápido que adivinar.
+
+Además, a pedido de la usuaria, el subtítulo de "Gastos de tu negocio" en Ajustes ahora explica
+qué incluye el cálculo simple (insumos + tu tiempo si lo activas) y qué suma el avanzado (además,
+una parte de tus costos fijos).
+
 ## Octava ronda: CONFIRMADO con video — el indicador de la barra SÍ tenía un bug real (2026-11-24)
 La usuaria mandó un video (WhatsApp, ~14s) del problema del óvalo "desfasado". Se analizó con
 OpenCV (instalado `opencv-python-headless` para esta sesión): se extrajeron ~64 cuadros del video
