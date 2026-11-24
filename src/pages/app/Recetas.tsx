@@ -587,7 +587,7 @@ export default function Recetas() {
       <h2 className="titulo-seccion">Tus recetas</h2>
       <p className="sub-seccion">
         ¿Qué le vas a vender a tu cliente? Aquí armas el producto final — con ingredientes directos, con subrecetas, o con ambos.
-        <InfoTooltip texto="Ejemplos: una Hamburguesa armada directo con pan + carne, o una Caja de mini donas armada con las subrecetas Masa base + Decoración + Empaque." />
+        <InfoTooltip texto="Ejemplo: aquí armas tu receta como una hamburguesa, con sus ingredientes (pan, carne, salsa). Puedes armarla solo con ingredientes, solo con subrecetas, o con ambos — arma tu hamburguesa sencilla y agrégale la subreceta 'Papas fritas'." />
       </p>
       {limiteRecetasAlcanzado && (
         <div className="aviso-precio" style={{ marginBottom: 14 }}>

@@ -26,20 +26,29 @@
         position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
         background: #FAFAF6; font-family: 'Manrope', 'Segoe UI', sans-serif;
       }
-      #carga-inicial img { width: 64px; height: 64px; border-radius: 18px; animation: cargaPulso 1.6s ease-in-out infinite; }
+      #carga-inicial svg { width: 64px; height: 64px; animation: cargaPulso 1.6s ease-in-out infinite; }
       #carga-inicial .marca { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; color: #2B2A26; }
       #carga-inicial .marca b { color: #185062; font-weight: 700; }
       #carga-inicial .lema { font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #716C5F; }
       @keyframes cargaPulso { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .85; transform: scale(.96); } }
-      @media (prefers-reduced-motion: reduce) { #carga-inicial img { animation: none; } }
+      @media (prefers-reduced-motion: reduce) { #carga-inicial svg { animation: none; } }
     </style>
   </head>
   <body>
     <div id="root">
       <!-- Se reemplaza solo en cuanto React monta la app real — esto es lo único que alcanza a
-           verse mientras carga, en vez de una pantalla en blanco. -->
+           verse mientras carga, en vez de una pantalla en blanco. El isotipo va EMBEBIDO aquí (no
+           un <img src="/isotipo.svg">): un <img> depende de otra petición de red que puede tardar
+           o fallar mientras la animación ya está corriendo, y eso es justo lo que se veía como un
+           cuadro en blanco parpadeando — el SVG embebido no tiene ese hueco, nunca puede "no
+           cargar". -->
       <div id="carga-inicial">
-        <img src="/isotipo.svg" alt="" />
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="96" height="96" rx="22" fill="#185062" />
+          <path d="M28 70 L28 30 L50 54 L72 30" fill="none" stroke="#FAFAF6" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M72 30 L86 14" fill="none" stroke="#59A6C0" stroke-width="8.5" stroke-linecap="round" />
+          <path d="M86 14 L84.2 24.4 M86 14 L75.8 16.4" fill="none" stroke="#59A6C0" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
         <div class="marca">Margen<b>Pro</b></div>
         <div class="lema">Costea · Cotiza · Vende</div>
       </div>
