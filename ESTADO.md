@@ -1,6 +1,51 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Ronda de 4 pedidos tras probar en vivo: overflow con letra grande, tooltip mal ubicado, Ajustes y precio sin actualizar (2026-11-24)
+La usuaria probó la app con "Muy grande" activo y mandó una captura + 4 puntos en un solo mensaje.
+Los 4 quedaron corregidos, verificados (`tsc` + `build` limpios) y desplegados a producción
+(commit `749a4c9`, deploy `dpl_EHch4n9cFszbdDNzGDaqASKGsGQW` ya en `margenpro-ochre.vercel.app`):
+
+1. **Overflow horizontal en Cotizar con letra "Muy grande"**: la fila de producto (selector +
+   cantidad) no envolvía — con un nombre de receta largo más la letra agrandada, se salía de la
+   pantalla por ambos lados (captura de la usuaria lo mostraba). Arreglado en `Cotizaciones.tsx`:
+   `flexWrap:'wrap'` en el contenedor, `minWidth:0` en el `<select>`, `flexShrink:0` en el input de
+   cantidad.
+2. **Hallazgo real de fondo (no solo "falta el aviso"): CSS `zoom` duplica cualquier posición en
+   píxeles calculada por JS.** El tamaño de letra grande/muy grande de esta app usa
+   `document.body.style.zoom` (no solo `font-size`) — y el navegador reescala TODOS los valores en
+   px de los elementos de adentro, incluido un `top`/`left` puesto a mano desde JavaScript. El
+   `InfoTooltip` viejo calculaba su posición con `getBoundingClientRect()` y la volvía a escribir
+   como estilo en línea — por eso el globo de texto aparecía lejos de su ícono con letra grande (la
+   usuaria lo describió exacto: "sale muy arriba, no donde debe ser"). Reescrito completo
+   (`InfoTooltip.tsx`/`.css`): ya no calcula ni copia ningún píxel — usa `position:absolute` fijo
+   respecto al propio ícono, y JS solo elige entre 3 clases CSS (`centro`/`izquierda`/`derecha`)
+   según si el tooltip chocaría con el borde de la pantalla. Verificado con una prueba aislada
+   (medí el hueco real entre ícono y globo bajo zoom 1.3: quedó en ~10px, correcto) — esta regla
+   (nunca escribir un px calculado por JS dentro de un elemento con `zoom` encima) vale para
+   cualquier posición futura calculada en JS en esta app.
+3. **Ajustes tenía 3 botones redundantes de tamaño de letra** (Normal/Grande/Muy grande) que
+   duplicaban el botón "Aa" que ya existe en el encabezado — quitados junto con el hook ya sin uso.
+4. **Precio de la receta en la lista no reflejaba "Incluir mi tiempo"**: iba por la pestaña Recetas
+   después de guardar con el interruptor encendido, y el precio en la LISTA seguía siendo el de solo
+   insumos. Era el mismo bug de parámetro fijo en `false` que ya se había corregido 2 veces este
+   mes en `Cotizaciones.tsx` — faltaba esta 3ª instancia en la vista de lista de `Recetas.tsx`
+   (línea ~609). Confirmado por grep que ya no queda ningún `costear(...)` en todo el código sin
+   este parámetro.
+   - Aprovechando el mismo pedido: también se quitó el subtítulo "Apagado por defecto..." de ese
+     interruptor (ya lo explica el ícono de información) y se le dio más aire al último control
+     antes del botón "Calcular precio" (la barra de navegación flotante quedaba casi pegada).
+5. **De paso, el ícono de sol/luna (modo oscuro/claro) estaba al revés**: mostraba el ícono del modo
+   ACTUAL en vez de a dónde vas a pasar al tocarlo (la convención estándar). Corregido en
+   `AppLayout.tsx` (la app) y `PhoneFrame.tsx` (onboarding/login/paywall): modo claro → luna (vas a
+   oscuro), modo oscuro → sol (vas a claro).
+- ⚠️ **No se pudo tomar una captura a 375px con datos reales de esta ronda específica**: la sesión
+  local no tenía usuario logueado (sin acceso al correo para el enlace mágico) y la extensión de
+  Chrome conectada al navegador real de la usuaria no respondió en este momento de la sesión. El
+  fix de overflow y el de precio-en-lista son correcciones de CSS/lógica directas y se verificaron
+  por código + `tsc`/`build`; el de InfoTooltip sí tiene verificación empírica del gap real bajo
+  zoom. Pendiente: que la usuaria confirme en la app real que los 4 puntos quedaron resueltos.
+
 ## Ayuda en línea en los 3 controles que más confunden (en vez de un tutorial aparte, 2026-11-24)
 La usuaria preguntó si se podía agregar un tutorial para lo que puede confundir de entrada a un
 cliente nuevo — en vez de un recorrido guiado completo (que casi nadie lee), se agregó el mismo
