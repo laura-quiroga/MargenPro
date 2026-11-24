@@ -1,4 +1,4 @@
-import type { ConfigNegocio, Insumo, InsumoUsado, UnidadInsumo } from './types'
+import type { ConfigNegocio, Insumo, InsumoUsado, Receta, SubrecetaUsada, UnidadInsumo } from './types'
 
 /** Redondea el precio que se le COBRA al cliente hacia arriba, al múltiplo de $50 más cercano
  * (ej. $31.013 → $31.050) — nunca hacia abajo, para no perder margen. Solo se usa en el precio
@@ -57,9 +57,23 @@ export function convertirAGramos(cantidad: number, medida: string, nombreInsumo:
   return cantidad
 }
 
+/** El costo de una subreceta/adicional — SOLO suma sus insumos, nunca lleva margen, mano de obra
+ * ni gastos fijos/variables. Esto es "cuánto me cuesta prepararla", no "cuánto la cobro" (una
+ * subreceta nunca se cotiza sola). */
+export function calcularCostoSubreceta(insumos: Insumo[], insumosUsados: InsumoUsado[]): number {
+  let costo = 0
+  insumosUsados.forEach((u) => {
+    const ins = insumos.find((i) => i.id === u.insumoId)
+    if (!ins) return
+    costo += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas
+  })
+  return costo
+}
+
 export interface ResultadoCosteo {
   unidades: number
   costoInsumos: number
+  costoSubrecetas: number
   costoManoDeObra: number
   costoFijoAsignado: number
   costoVariableAsignado: number
@@ -92,6 +106,8 @@ export function calcularCostoReceta(
   modoReal: boolean,
   cfg: ConfigNegocio,
   incluirManoDeObraEnSencillo = false,
+  subrecetas: Receta[] = [],
+  subrecetasUsadas: SubrecetaUsada[] = [],
 ): ResultadoCosteo {
   const unidadesSeguras = unidades || 1
   let costoInsumos = 0
@@ -99,6 +115,12 @@ export function calcularCostoReceta(
     const ins = insumos.find((i) => i.id === u.insumoId)
     if (!ins) return
     costoInsumos += costoPorUnidadBase(ins.precio, ins.unidad, ins.unidadesQueTrae) * u.cantidadGramosOPiezas
+  })
+  let costoSubrecetas = 0
+  subrecetasUsadas.forEach((su) => {
+    const sub = subrecetas.find((r) => r.id === su.subrecetaId)
+    if (!sub) return
+    costoSubrecetas += calcularCostoSubreceta(insumos, sub.insumosUsados) * (su.tandas || 0)
   })
   const costoManoDeObra = (horas || 0) * cfg.valorHora
 
@@ -110,7 +132,7 @@ export function calcularCostoReceta(
   let pctAlto = false
 
   if (modoReal) {
-    const costoDirecto = costoInsumos + costoManoDeObra
+    const costoDirecto = costoInsumos + costoSubrecetas + costoManoDeObra
     let pctOcupado = (cfg.fijoPct + cfg.variablePct + margen) / 100
     pctAlto = pctOcupado >= 0.7
     if (pctOcupado >= 0.97) {
@@ -122,13 +144,14 @@ export function calcularCostoReceta(
     costoVariableAsignado = Math.round((precioSugerido * cfg.variablePct) / 100)
     costoBase = costoDirecto + costoFijoAsignado + costoVariableAsignado
   } else {
-    costoBase = costoInsumos + (incluirManoDeObraEnSencillo ? costoManoDeObra : 0)
+    costoBase = costoInsumos + costoSubrecetas + (incluirManoDeObraEnSencillo ? costoManoDeObra : 0)
     precioSugerido = Math.round(costoBase / (1 - margen / 100))
   }
 
   const precioPorUnidad = Math.round(precioSugerido / unidadesSeguras)
 
   return {
+    costoSubrecetas: Math.round(costoSubrecetas),
     unidades: unidadesSeguras,
     costoInsumos: Math.round(costoInsumos),
     costoManoDeObra: Math.round(costoManoDeObra),

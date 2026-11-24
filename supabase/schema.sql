@@ -67,15 +67,18 @@ create policy "update_own" on public.insumos for update
 create policy "delete_own" on public.insumos for delete using ((select auth.uid()) = user_id);
 
 -- ── recetas ──────────────────────────────────────────────────────────────────
+-- es_subreceta = true: es una subreceta/adicional (solo lleva su costo de insumos, sin margen,
+-- nunca se cotiza sola). false (default): es una receta final, la que se costea y se cotiza.
 create table public.recetas (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references auth.users(id) on delete cascade,
-  nombre     text not null check (length(nombre) between 1 and 160),
-  margen     integer not null default 50 check (margen between 0 and 95),
-  horas      numeric not null default 0 check (horas >= 0),
-  unidades   integer not null default 1 check (unidades >= 1),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  nombre       text not null check (length(nombre) between 1 and 160),
+  margen       integer not null default 50 check (margen between 0 and 95),
+  horas        numeric not null default 0 check (horas >= 0),
+  unidades     integer not null default 1 check (unidades >= 1),
+  es_subreceta boolean not null default false,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
 );
 create index recetas_user_idx on public.recetas(user_id);
 
@@ -89,26 +92,48 @@ create policy "update_own" on public.recetas for update
   using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 create policy "delete_own" on public.recetas for delete using ((select auth.uid()) = user_id);
 
--- ── receta_insumos — tabla intermedia N:M (qué insumos usa cada receta) ──────
+-- ── receta_insumos — tabla intermedia N:M: qué usa cada receta FINAL, insumos y/o subrecetas ──
+-- Cada fila es insumo_id O subreceta_id (nunca ambos, nunca ninguno) — una subreceta solo puede
+-- llevar insumos (no otra subreceta adentro, para evitar referencias circulares).
 create table public.receta_insumos (
   id            uuid primary key default gen_random_uuid(),
   receta_id     uuid not null references public.recetas(id) on delete cascade,
-  insumo_id     uuid not null references public.insumos(id) on delete restrict,
-  cantidad_base numeric not null check (cantidad_base > 0), -- gramos, mililitros o piezas, según el insumo
-  created_at    timestamptz not null default now()
+  insumo_id     uuid references public.insumos(id) on delete restrict,
+  subreceta_id  uuid references public.recetas(id) on delete cascade,
+  cantidad_base numeric not null check (cantidad_base > 0), -- gramos/ml/piezas del insumo, o tandas de la subreceta
+  created_at    timestamptz not null default now(),
+  constraint receta_insumos_uno_u_otro check (
+    (insumo_id is not null and subreceta_id is null) or (insumo_id is null and subreceta_id is not null)
+  )
 );
 create index receta_insumos_receta_idx on public.receta_insumos(receta_id);
 create index receta_insumos_insumo_idx on public.receta_insumos(insumo_id);
 
--- No tiene user_id propio: su RLS filtra por el dueño de la receta.
+-- No tiene user_id propio: su RLS filtra por el dueño de la receta (y, si es una fila de
+-- subreceta, también por el dueño de esa subreceta — una subreceta es a su vez una fila de
+-- `recetas` con es_subreceta=true).
 alter table public.receta_insumos enable row level security;
 create policy "select_own" on public.receta_insumos for select
   using (receta_id in (select id from public.recetas where user_id = (select auth.uid())));
 create policy "insert_own" on public.receta_insumos for insert
-  with check (receta_id in (select id from public.recetas where user_id = (select auth.uid())));
+  with check (
+    receta_id in (select id from public.recetas where user_id = (select auth.uid()))
+    and (
+      (insumo_id is not null and insumo_id in (select id from public.insumos where user_id = (select auth.uid())))
+      or
+      (subreceta_id is not null and subreceta_id in (select id from public.recetas where user_id = (select auth.uid()) and es_subreceta = true))
+    )
+  );
 create policy "update_own" on public.receta_insumos for update
   using (receta_id in (select id from public.recetas where user_id = (select auth.uid())))
-  with check (receta_id in (select id from public.recetas where user_id = (select auth.uid())));
+  with check (
+    receta_id in (select id from public.recetas where user_id = (select auth.uid()))
+    and (
+      (insumo_id is not null and insumo_id in (select id from public.insumos where user_id = (select auth.uid())))
+      or
+      (subreceta_id is not null and subreceta_id in (select id from public.recetas where user_id = (select auth.uid()) and es_subreceta = true))
+    )
+  );
 create policy "delete_own" on public.receta_insumos for delete
   using (receta_id in (select id from public.recetas where user_id = (select auth.uid())));
 

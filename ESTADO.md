@@ -1,6 +1,36 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-23 | Sesión actual: 6
 
+## Subrecetas & adicionales — construido, probado y arreglado un bug real de permisos (2026-11-23)
+Idea propuesta por la usuaria (poder armar una receta final a partir de piezas reutilizables ya
+costeadas — masa base, decoración, empaque — en vez de repetir insumos cada vez). Se construyó
+completo:
+- **Modelo de datos**: `recetas` ganó `es_subreceta` (true = es una subreceta/adicional, solo lleva
+  su costo de insumos, sin margen, nunca se cotiza sola). `receta_insumos` ahora acepta filas de
+  insumo O de subreceta (nunca ambas) — una subreceta **solo** puede llevar insumos, nunca otra
+  subreceta adentro, a propósito, para que nunca se pueda armar una cadena circular.
+- **UI** (dentro de la misma pantalla de Recetas, sin ítem nuevo en la barra inferior, tal como lo
+  pidió la usuaria): sección "Tus subrecetas & adicionales" separada de "Tus recetas", con el aviso
+  explícito de que las subrecetas nunca se costean con margen ni se cotizan solas. El constructor
+  de receta final tiene una sección opcional "Subrecetas que usas" (cantidad en "tandas": 1 = toda
+  la preparación) además de los insumos directos.
+- **El tope de 3 recetas gratis cuenta solo recetas finales**, nunca subrecetas — decisión tomada
+  al construir, documentada aquí.
+- 🔴 **Bug real encontrado y arreglado en la verificación en vivo**: al guardar la primera receta
+  final con una subreceta, Supabase devolvía 403 y la receta se revertía sola. Causa: la política
+  de seguridad (RLS) de `receta_insumos` para insertar/editar nunca se actualizó al agregar las
+  subrecetas — seguía exigiendo que `insumo_id` perteneciera al usuario, y en una fila de subreceta
+  ese campo es nulo, así que la condición fallaba siempre. Arreglado (migración aplicada en
+  Supabase + reflejado en `supabase/schema.sql`): ahora la política acepta la fila si el insumo
+  referenciado es del usuario, O si la subreceta referenciada es del usuario y de verdad es una
+  subreceta.
+- Probado en vivo de punta a punta con la cuenta de prueba: creé la subreceta "Masa base para
+  donas" (9 unidades, $420 de costo) y la receta final "Caja x9 mini donas sencillas" usándola a
+  1 tanda — el desglose mostró "Incluye tus subrecetas: $420" y el precio sugerido ($840 con 50%
+  de margen) salió exacto; la receta final quedó guardada y visible en "Tus recetas", la subreceta
+  en su propia sección. Datos de prueba limpiados después.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Paywall conectado a los enlaces de pago reales de Hotmart (2026-11-23)
 Se consiguieron los dos enlaces reales (no sirve uno solo por plan — cada "oferta" de Hotmart
 tiene su propio enlace, no hay un selector Mensual/Anual dentro de Hotmart; la elección ya la

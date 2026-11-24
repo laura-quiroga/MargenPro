@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
-import { convertirAGramos, GRAMOS_POR_LIBRA } from '../../lib/costeo'
+import { calcularCostoSubreceta, convertirAGramos, GRAMOS_POR_LIBRA } from '../../lib/costeo'
 import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
-import type { Insumo, InsumoUsado } from '../../lib/types'
+import type { Insumo, InsumoUsado, SubrecetaUsada } from '../../lib/types'
 import './Recetas.css'
 
 type MedidaFila = 'g' | 'ml' | 'libra' | 'pz' | 'taza' | 'cda' | 'cdta'
@@ -17,6 +17,12 @@ interface FilaInsumo {
   /** Solo se usa (y se pide en pantalla) cuando la medida elegida no coincide con la familia
    * natural del insumo — ej: el insumo se compra por peso pero aquí se quiere usar por piezas. */
   equivalencia: string
+}
+
+interface FilaSubreceta {
+  subrecetaId: string
+  textoBusqueda: string
+  tandas: string
 }
 
 const ETIQUETA_MEDIDA: Record<MedidaFila, string> = { g: 'gramos', ml: 'mililitros', libra: 'libras', pz: 'piezas', taza: 'tazas', cda: 'cucharadas', cdta: 'cucharaditas' }
@@ -64,15 +70,20 @@ const IconoQuitar = () => (
 const IconoReceta = () => (
   <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>
 )
+const IconoSubreceta = () => (
+  <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M8 12h8M12 8v8" /></svg>
+)
 
 export default function Recetas() {
-  const { insumos, recetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, eliminarReceta, cfg, modoCalculo, money, costear, plan } = useAppStore()
+  const { insumos, recetas, subrecetas, cargandoRecetas, guardarRecetaNueva, actualizarRecetaExistente, eliminarReceta, cfg, modoCalculo, money, costear, plan } = useAppStore()
   const navigate = useNavigate()
+  const recetasFinales = recetas.filter((r) => !r.esSubreceta)
   const TOPE_RECETAS_GRATIS = 3
-  const limiteRecetasAlcanzado = plan === 'gratis' && recetas.length >= TOPE_RECETAS_GRATIS
+  const limiteRecetasAlcanzado = plan === 'gratis' && recetasFinales.length >= TOPE_RECETAS_GRATIS
   const { toast, mostrarToast } = useToast()
   const location = useLocation()
   const [vista, setVista] = useState<'lista' | 'constructor'>('lista')
+  const [esSubrecetaEnCurso, setEsSubrecetaEnCurso] = useState(false)
 
   const [editId, setEditId] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
@@ -81,25 +92,44 @@ export default function Recetas() {
   const [nombre, setNombre] = useState('')
   const [unidades, setUnidades] = useState('1')
   const [filas, setFilas] = useState<FilaInsumo[]>([])
+  const [filasSub, setFilasSub] = useState<FilaSubreceta[]>([])
   const [margen, setMargen] = useState(50)
   const [horas, setHoras] = useState('')
   const [incluirManoDeObraSimple, setIncluirManoDeObraSimple] = useState(false)
-  const [resultado, setResultado] = useState<{ calc: ReturnType<typeof costear>; insumosUsados: InsumoUsado[]; margen: number; horas: number; unidades: number } | null>(null)
+  const [resultado, setResultado] = useState<{ calc: ReturnType<typeof costear>; insumosUsados: InsumoUsado[]; subrecetasUsadas: SubrecetaUsada[]; margen: number; horas: number; unidades: number } | null>(null)
+  const [resultadoSub, setResultadoSub] = useState<{ costo: number; insumosUsados: InsumoUsado[]; unidades: number } | null>(null)
   const [filaAbierta, setFilaAbierta] = useState<number | null>(null)
+  const [filaSubAbierta, setFilaSubAbierta] = useState<number | null>(null)
 
   function abrirConstructor() {
     if (limiteRecetasAlcanzado) {
       mostrarToast(<IconoAviso />, `El plan gratis permite hasta ${TOPE_RECETAS_GRATIS} recetas activas. Pásate a Pro para agregar recetas ilimitadas.`)
       return
     }
+    setEsSubrecetaEnCurso(false)
     setEditId(null)
     setNombre('')
     setUnidades('1')
     setFilas(insumos.length ? [{ insumoId: insumos[0].id, textoBusqueda: insumos[0].nombre, cantidad: '100', medida: medidaInicialPara(insumos[0]), equivalencia: '' }] : [])
+    setFilasSub([])
     setMargen(50)
     setHoras('')
     setIncluirManoDeObraSimple(false)
     setResultado(null)
+    setResultadoSub(null)
+    setConfirmandoEliminar(false)
+    setVista('constructor')
+  }
+
+  function abrirConstructorSubreceta() {
+    setEsSubrecetaEnCurso(true)
+    setEditId(null)
+    setNombre('')
+    setUnidades('1')
+    setFilas(insumos.length ? [{ insumoId: insumos[0].id, textoBusqueda: insumos[0].nombre, cantidad: '100', medida: medidaInicialPara(insumos[0]), equivalencia: '' }] : [])
+    setFilasSub([])
+    setResultado(null)
+    setResultadoSub(null)
     setConfirmandoEliminar(false)
     setVista('constructor')
   }
@@ -107,6 +137,7 @@ export default function Recetas() {
   function abrirEditar(id: string) {
     const r = recetas.find((x) => x.id === id)
     if (!r) return
+    setEsSubrecetaEnCurso(!!r.esSubreceta)
     setEditId(id)
     setNombre(r.nombre)
     setUnidades(String(r.unidades))
@@ -114,10 +145,18 @@ export default function Recetas() {
       const ins = insumos.find((i) => i.id === u.insumoId)
       return { insumoId: u.insumoId, textoBusqueda: ins?.nombre ?? '', cantidad: String(u.cantidadGramosOPiezas), medida: medidaInicialPara(ins), equivalencia: '' }
     }))
-    setMargen(r.margen)
-    setHoras(r.horas ? String(r.horas) : '')
-    setIncluirManoDeObraSimple(false)
-    setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades, false), insumosUsados: r.insumosUsados, margen: r.margen, horas: r.horas, unidades: r.unidades })
+    setFilasSub((r.subrecetasUsadas ?? []).map((su) => {
+      const sub = subrecetas.find((s) => s.id === su.subrecetaId)
+      return { subrecetaId: su.subrecetaId, textoBusqueda: sub?.nombre ?? '', tandas: String(su.tandas) }
+    }))
+    if (r.esSubreceta) {
+      setResultadoSub({ costo: calcularCostoSubreceta(insumos, r.insumosUsados), insumosUsados: r.insumosUsados, unidades: r.unidades })
+    } else {
+      setMargen(r.margen)
+      setHoras(r.horas ? String(r.horas) : '')
+      setIncluirManoDeObraSimple(false)
+      setResultado({ calc: costear(r.insumosUsados, r.margen, r.horas, r.unidades, false, r.subrecetasUsadas), insumosUsados: r.insumosUsados, subrecetasUsadas: r.subrecetasUsadas ?? [], margen: r.margen, horas: r.horas, unidades: r.unidades })
+    }
     setConfirmandoEliminar(false)
     setVista('constructor')
   }
@@ -127,9 +166,9 @@ export default function Recetas() {
     setEliminando(true)
     const ok = await eliminarReceta(editId)
     setEliminando(false)
-    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar la receta. Intenta de nuevo.'); setConfirmandoEliminar(false); return }
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos eliminar esto — revisa que no esté siendo usado en otra receta.'); setConfirmandoEliminar(false); return }
     setVista('lista')
-    mostrarToast(<IconoOk />, 'Receta eliminada.')
+    mostrarToast(<IconoOk />, esSubrecetaEnCurso ? 'Subreceta eliminada.' : 'Receta eliminada.')
   }
 
   useEffect(() => {
@@ -148,15 +187,19 @@ export default function Recetas() {
     setFilas((prev) => prev.map((f, i) => (i === idx ? { ...f, ...cambios } : f)))
   }
 
-  function calcularReceta() {
-    if (!filas.length) { mostrarToast(<IconoAviso />, 'Agrega al menos un insumo antes de calcular.'); return }
-    const margenNum = margen
-    const horasNum = Math.max(0, parseFloat(horas) || 0)
-    const unidadesNum = Math.max(1, parseFloat(unidades) || 1)
-    if (modoCalculo === 'real' && cfg.fijoPct + cfg.variablePct + margenNum >= 95) {
-      mostrarToast(<IconoAviso />, `Entre tu arriendo/gastos fijos, tus otros gastos y tu margen suman ${cfg.fijoPct + cfg.variablePct + margenNum}% — eso ya casi no deja espacio para un precio real. Baja alguno en Ajustes o en el margen de esta receta.`)
-    }
-    const insumosUsados: InsumoUsado[] = filas.map((f) => {
+  function agregarFilaSub() {
+    if (!subrecetas.length) return
+    setFilasSub((prev) => [...prev, { subrecetaId: subrecetas[0].id, textoBusqueda: subrecetas[0].nombre, tandas: '1' }])
+  }
+  function quitarFilaSub(idx: number) {
+    setFilasSub((prev) => prev.filter((_, i) => i !== idx))
+  }
+  function actualizarFilaSub(idx: number, cambios: Partial<FilaSubreceta>) {
+    setFilasSub((prev) => prev.map((f, i) => (i === idx ? { ...f, ...cambios } : f)))
+  }
+
+  function construirInsumosUsados(): InsumoUsado[] {
+    return filas.map((f) => {
       const ins = insumos.find((i) => i.id === f.insumoId)
       const cantidadNum = parseFloat(f.cantidad) || 0
       const coincide = familiaDeMedida(f.medida) === familiaNaturalInsumo(ins)
@@ -177,14 +220,46 @@ export default function Recetas() {
       }
       return { insumoId: f.insumoId, cantidadGramosOPiezas: cantidadBase }
     })
-    const calc = costear(insumosUsados, margenNum, horasNum, unidadesNum, incluirManoDeObraSimple)
-    setResultado({ calc, insumosUsados, margen: margenNum, horas: horasNum, unidades: unidadesNum })
+  }
+
+  function calcularSubreceta() {
+    if (!filas.length) { mostrarToast(<IconoAviso />, 'Agrega al menos un insumo antes de calcular.'); return }
+    const unidadesNum = Math.max(1, parseFloat(unidades) || 1)
+    const insumosUsados = construirInsumosUsados()
+    const costo = calcularCostoSubreceta(insumos, insumosUsados)
+    setResultadoSub({ costo, insumosUsados, unidades: unidadesNum })
+  }
+
+  function calcularReceta() {
+    if (!filas.length && !filasSub.length) { mostrarToast(<IconoAviso />, 'Agrega al menos un insumo o una subreceta antes de calcular.'); return }
+    const margenNum = margen
+    const horasNum = Math.max(0, parseFloat(horas) || 0)
+    const unidadesNum = Math.max(1, parseFloat(unidades) || 1)
+    if (modoCalculo === 'real' && cfg.fijoPct + cfg.variablePct + margenNum >= 95) {
+      mostrarToast(<IconoAviso />, `Entre tu arriendo/gastos fijos, tus otros gastos y tu margen suman ${cfg.fijoPct + cfg.variablePct + margenNum}% — eso ya casi no deja espacio para un precio real. Baja alguno en Ajustes o en el margen de esta receta.`)
+    }
+    const insumosUsados = construirInsumosUsados()
+    const subrecetasUsadas: SubrecetaUsada[] = filasSub.map((f) => ({ subrecetaId: f.subrecetaId, tandas: parseFloat(f.tandas) || 0 }))
+    const calc = costear(insumosUsados, margenNum, horasNum, unidadesNum, incluirManoDeObraSimple, subrecetasUsadas)
+    setResultado({ calc, insumosUsados, subrecetasUsadas, margen: margenNum, horas: horasNum, unidades: unidadesNum })
+  }
+
+  async function guardarSubreceta() {
+    if (!resultadoSub) return
+    const nombreFinal = nombre.trim() || 'Mi subreceta'
+    const datos = { nombre: nombreFinal, margen: 0, horas: 0, unidades: resultadoSub.unidades, insumosUsados: resultadoSub.insumosUsados, subrecetasUsadas: [], esSubreceta: true }
+    setGuardando(true)
+    const ok = editId !== null ? await actualizarRecetaExistente(editId, datos) : await guardarRecetaNueva(datos)
+    setGuardando(false)
+    if (!ok) { mostrarToast(<IconoAviso />, 'No pudimos guardar la subreceta. Intenta de nuevo.'); return }
+    setVista('lista')
+    mostrarToast(<IconoOk />, editId !== null ? 'Subreceta actualizada.' : 'Subreceta guardada — ya la puedes usar dentro de una receta.')
   }
 
   async function guardarReceta() {
     if (!resultado) return
     const nombreFinal = nombre.trim() || 'Mi producto'
-    const datos = { nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados }
+    const datos = { nombre: nombreFinal, margen: resultado.margen, horas: resultado.horas, unidades: resultado.unidades, insumosUsados: resultado.insumosUsados, subrecetasUsadas: resultado.subrecetasUsadas, esSubreceta: false }
     setGuardando(true)
     const ok = editId !== null ? await actualizarRecetaExistente(editId, datos) : await guardarRecetaNueva(datos)
     setGuardando(false)
@@ -192,6 +267,118 @@ export default function Recetas() {
     if (editId === null) void logEvent('receta_creada')
     setVista('lista')
     mostrarToast(<IconoOk />, editId !== null ? 'Receta actualizada.' : 'Receta guardada — ya puedes cotizarla.')
+  }
+
+  if (vista === 'constructor' && esSubrecetaEnCurso) {
+    return (
+      <>
+        <button className="btn-atras-sub" onClick={() => setVista('lista')}><IconoVolver />Recetas</button>
+        <h2 className="titulo-seccion" style={{ fontSize: 19 }}>{editId !== null ? 'Editar subreceta' : 'Nueva subreceta o adicional'}</h2>
+        <p className="sub-seccion">Esto es una pieza (masa, relleno, empaque…) que vas a usar dentro de una receta completa — aquí solo anotas cuánto te cuesta, sin margen ni precio de venta.</p>
+        <div className="campo">
+          <label>Nombre de la subreceta</label>
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Masa base para 9 mini donas" />
+        </div>
+        <div className="campo">
+          <label>¿Cuántas unidades rinde esta tanda?</label>
+          <p className="ayuda-campo">Ej: 9 si esta masa alcanza para 9 mini donas.</p>
+          <input type="number" value={unidades} onChange={(e) => setUnidades(e.target.value)} placeholder="Ej: 9" />
+        </div>
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginBottom: 8 }}>Insumos que usas</label>
+        {filas.map((f, idx) => {
+          const ins = insumos.find((i) => i.id === f.insumoId)
+          const necesitaEquivalencia = familiaDeMedida(f.medida) !== familiaNaturalInsumo(ins)
+          const textoBuscado = normalizarParaBuscar(f.textoBusqueda.trim())
+          const sugerencias = textoBuscado ? insumos.filter((i) => normalizarParaBuscar(i.nombre).includes(textoBuscado)).slice(0, 8) : []
+          return (
+            <div className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }} key={idx}>
+              <div style={{ position: 'relative' }}>
+                <input style={{ width: '100%', padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }}
+                  placeholder="Escribe para buscar…"
+                  value={f.textoBusqueda}
+                  onFocus={() => setFilaAbierta(idx)}
+                  onBlur={() => setTimeout(() => setFilaAbierta((actual) => (actual === idx ? null : actual)), 150)}
+                  onChange={(e) => { actualizarFila(idx, { textoBusqueda: e.target.value }); setFilaAbierta(idx) }} />
+                {filaAbierta === idx && textoBuscado && (
+                  <div className="lista-sugerencias">
+                    {sugerencias.length ? sugerencias.map((i) => (
+                      <button key={i.id} type="button"
+                        onMouseDown={() => {
+                          actualizarFila(idx, { insumoId: i.id, textoBusqueda: i.nombre, medida: medidaInicialPara(i), equivalencia: '' })
+                          setFilaAbierta(null)
+                        }}>
+                        {i.nombre}
+                      </button>
+                    )) : <div className="sin-resultados">No encontramos ningún insumo con ese nombre — revisa Insumos para ver cómo lo registraste.</div>}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" value={f.cantidad} onChange={(e) => actualizarFila(idx, { cantidad: e.target.value })}
+                  style={{ width: 72, padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }} />
+                <select style={{ flex: 1, padding: '11px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 14 }}
+                  value={f.medida} onChange={(e) => actualizarFila(idx, { medida: e.target.value as MedidaFila })}>
+                  <option value="g">gramos</option>
+                  <option value="ml">mililitros</option>
+                  <option value="taza">tazas</option>
+                  <option value="cda">cucharadas</option>
+                  <option value="cdta">cucharaditas</option>
+                  <option value="pz">piezas</option>
+                  <option value="libra">libras</option>
+                </select>
+                <button onClick={() => quitarFila(idx)} aria-label="Quitar" style={{ flexShrink: 0 }}><IconoQuitar /></button>
+              </div>
+              {necesitaEquivalencia && (
+                <div className="campo" style={{ marginTop: 2 }}>
+                  <label style={{ fontSize: 11.5 }}>¿Cuántos {etiquetaBaseInsumo(ins)} tiene 1 {ETIQUETA_MEDIDA[f.medida].replace(/s$/, '')}?</label>
+                  <input type="number" value={f.equivalencia} onChange={(e) => actualizarFila(idx, { equivalencia: e.target.value })}
+                    placeholder="Ej: 20" style={{ padding: '9px 8px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 12.5 }} />
+                </div>
+              )}
+            </div>
+          )
+        })}
+        <button className="btn-secundario" onClick={agregarFila}>+ Agregar insumo</button>
+
+        <div className="nota-estimado">
+          <IconoAviso />
+          Para harina, azúcar, mantequilla, aceite y leche puedes escribir en tazas o cucharadas en vez de gramos — es un estimado, ajústalo si lo sabes mejor.
+        </div>
+
+        <button className="btn-cta" onClick={calcularSubreceta}>Calcular costo →</button>
+
+        {resultadoSub && (
+          <div className="resultado-mini">
+            <div className="precio">{money(resultadoSub.costo)}</div>
+            <div className="sub">esto es lo que te cuesta preparar toda la tanda — no es un precio de venta</div>
+            {resultadoSub.unidades > 1 && (
+              <div className="por-unidad">Por unidad: te cuesta <span>{money(resultadoSub.costo / resultadoSub.unidades)}</span></div>
+            )}
+          </div>
+        )}
+        {resultadoSub && (
+          <button className="btn-secundario" style={{ borderStyle: 'solid' }} onClick={guardarSubreceta} disabled={guardando}>
+            {guardando ? 'Guardando…' : editId !== null ? 'Guardar cambios' : 'Guardar subreceta'}
+          </button>
+        )}
+        {editId !== null && (
+          confirmandoEliminar ? (
+            <div className="tarjeta" style={{ marginTop: 16, borderColor: 'rgb(var(--error-tint)/.4)' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>¿Eliminar "{nombre}" para siempre?</p>
+              <p className="ayuda-campo" style={{ marginBottom: 12 }}>Esto no se puede deshacer. Si alguna receta ya la está usando, no se podrá eliminar hasta que la quites de esa receta.</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1 }} onClick={() => setConfirmandoEliminar(false)}>Cancelar</button>
+                <button className="btn-secundario" style={{ margin: 0, width: 'auto', flex: 1, borderColor: 'rgb(var(--error-tint)/.4)', color: 'var(--error)' }} onClick={eliminarEstaReceta} disabled={eliminando}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button>
+              </div>
+            </div>
+          ) : (
+            <button className="btn-texto" style={{ marginTop: 10, color: 'var(--error)' }} onClick={() => setConfirmandoEliminar(true)}>Eliminar esta subreceta</button>
+          )
+        )}
+        <Toast toast={toast} />
+      </>
+    )
   }
 
   if (vista === 'constructor') {
@@ -209,7 +396,49 @@ export default function Recetas() {
           <input type="number" value={unidades} onChange={(e) => setUnidades(e.target.value)} placeholder="Ej: 12" />
         </div>
 
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginBottom: 8 }}>Insumos que usas</label>
+        {subrecetas.length > 0 && (
+          <>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginBottom: 8 }}>Subrecetas que usas (opcional)</label>
+            {filasSub.map((f, idx) => {
+              const textoBuscado = normalizarParaBuscar(f.textoBusqueda.trim())
+              const sugerencias = textoBuscado ? subrecetas.filter((s) => normalizarParaBuscar(s.nombre).includes(textoBuscado)).slice(0, 8) : []
+              return (
+                <div className="insumo-chip" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }} key={idx}>
+                  <div style={{ position: 'relative' }}>
+                    <input style={{ width: '100%', padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }}
+                      placeholder="Escribe para buscar una subreceta…"
+                      value={f.textoBusqueda}
+                      onFocus={() => setFilaSubAbierta(idx)}
+                      onBlur={() => setTimeout(() => setFilaSubAbierta((actual) => (actual === idx ? null : actual)), 150)}
+                      onChange={(e) => { actualizarFilaSub(idx, { textoBusqueda: e.target.value }); setFilaSubAbierta(idx) }} />
+                    {filaSubAbierta === idx && textoBuscado && (
+                      <div className="lista-sugerencias">
+                        {sugerencias.length ? sugerencias.map((s) => (
+                          <button key={s.id} type="button"
+                            onMouseDown={() => {
+                              actualizarFilaSub(idx, { subrecetaId: s.id, textoBusqueda: s.nombre })
+                              setFilaSubAbierta(null)
+                            }}>
+                            {s.nombre}
+                          </button>
+                        )) : <div className="sin-resultados">No encontramos ninguna subreceta con ese nombre.</div>}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input type="number" value={f.tandas} onChange={(e) => actualizarFilaSub(idx, { tandas: e.target.value })}
+                      style={{ width: 72, padding: '11px 10px', borderRadius: 9, border: '1.5px solid var(--sunken)', background: 'var(--surface)', fontSize: 15, textAlign: 'left' }} />
+                    <span style={{ fontSize: 13, color: 'var(--text-2)' }}>tandas (1 = toda la preparación)</span>
+                    <button onClick={() => quitarFilaSub(idx)} aria-label="Quitar" style={{ flexShrink: 0, marginLeft: 'auto' }}><IconoQuitar /></button>
+                  </div>
+                </div>
+              )
+            })}
+            <button className="btn-secundario" onClick={agregarFilaSub}>+ Agregar subreceta</button>
+          </>
+        )}
+
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginTop: 16, marginBottom: 8 }}>Insumos que usas (opcional)</label>
         {filas.map((f, idx) => {
           const ins = insumos.find((i) => i.id === f.insumoId)
           const necesitaEquivalencia = familiaDeMedida(f.medida) !== familiaNaturalInsumo(ins)
@@ -301,6 +530,9 @@ export default function Recetas() {
             {modoCalculo === 'real' && (
               <div className="desglose-costo">
                 <div className="fila"><span>Insumos</span><span>{money(resultado.calc.costoInsumos)}</span></div>
+                {resultado.calc.costoSubrecetas > 0 && (
+                  <div className="fila"><span>Subrecetas</span><span>{money(resultado.calc.costoSubrecetas)}</span></div>
+                )}
                 {resultado.calc.costoManoDeObra > 0 && (
                   <div className="fila"><span>Tu hora de trabajo</span><span>{money(resultado.calc.costoManoDeObra)}</span></div>
                 )}
@@ -316,6 +548,9 @@ export default function Recetas() {
                   <p className="formula-ganancia" style={{ color: 'var(--aviso)', fontWeight: 700 }}>⚠️ Con estos números, el {Math.round((cfg.fijoPct + cfg.variablePct + resultado.margen))}% de tu precio se va en gastos y margen — de cada $100 que cobres, menos de $30 te quedan para cubrir tus insumos y tu trabajo. Baja el margen de esta receta, o el % de gastos fijos/otros gastos en Ajustes, para que tu precio no se dispare por encima del mercado.</p>
                 )}
               </div>
+            )}
+            {modoCalculo === 'simple' && resultado.calc.costoSubrecetas > 0 && (
+              <p className="formula-ganancia" style={{ marginTop: 10 }}>Incluye tus subrecetas: {money(resultado.calc.costoSubrecetas)}.</p>
             )}
             {modoCalculo === 'simple' && incluirManoDeObraSimple && resultado.calc.costoManoDeObra > 0 && (
               <p className="formula-ganancia" style={{ marginTop: 10 }}>Incluye tu tiempo: {money(resultado.calc.costoManoDeObra)} de las {resultado.horas} horas que dijiste.</p>
@@ -362,12 +597,12 @@ export default function Recetas() {
       <button className="btn-cta" style={{ marginBottom: 14 }} onClick={abrirConstructor}>+ Costear receta nueva</button>
       {cargandoRecetas ? (
         <div className="vacio"><p>Cargando tus recetas…</p></div>
-      ) : !recetas.length ? (
+      ) : !recetasFinales.length ? (
         <div className="vacio"><p>Todavía no costeas ninguna receta.</p></div>
       ) : (
         <div>
-          {recetas.map((r) => {
-            const c = costear(r.insumosUsados, r.margen, r.horas, r.unidades)
+          {recetasFinales.map((r) => {
+            const c = costear(r.insumosUsados, r.margen, r.horas, r.unidades, false, r.subrecetasUsadas)
             return (
               <div className="item-lista" key={r.id} onClick={() => abrirEditar(r.id)} style={{ cursor: 'pointer' }}>
                 <div className="chip-icono"><IconoReceta /></div>
@@ -376,6 +611,30 @@ export default function Recetas() {
                   <div className="meta">costo real {money(c.costoBase)}{r.unidades > 1 ? ` · ${money(c.precioPorUnidad)} c/u` : ''}</div>
                 </div>
                 <div className="cifra">{money(c.precioSugerido)}<span className="sub">{r.margen}% ganancia</span></div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      <h2 className="titulo-seccion" style={{ marginTop: 28 }}>Tus subrecetas & adicionales</h2>
+      <p className="sub-seccion">Piezas que usas DENTRO de tus recetas (masa, relleno, empaque…). Nunca se costean con margen ni se cotizan solas — solo las recetas completas de arriba se costean y se cotizan.</p>
+      <button className="btn-secundario" style={{ marginBottom: 14 }} onClick={abrirConstructorSubreceta}>+ Agregar subreceta</button>
+      {!cargandoRecetas && subrecetas.length === 0 && (
+        <div className="vacio"><p>Todavía no tienes ninguna subreceta.</p></div>
+      )}
+      {subrecetas.length > 0 && (
+        <div>
+          {subrecetas.map((s) => {
+            const costo = calcularCostoSubreceta(insumos, s.insumosUsados)
+            return (
+              <div className="item-lista" key={s.id} onClick={() => abrirEditar(s.id)} style={{ cursor: 'pointer' }}>
+                <div className="chip-icono"><IconoSubreceta /></div>
+                <div className="info">
+                  <div className="nombre">{s.nombre}</div>
+                  <div className="meta">rinde {s.unidades} {s.unidades > 1 ? 'unidades' : 'unidad'}</div>
+                </div>
+                <div className="cifra">{money(costo)}<span className="sub">te cuesta</span></div>
               </div>
             )
           })}

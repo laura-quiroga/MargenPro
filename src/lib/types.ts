@@ -28,6 +28,14 @@ export interface InsumoUsado {
   cantidadGramosOPiezas: number
 }
 
+/** Cuántas tandas de una subreceta ya existente se usan dentro de una receta final — 1 = toda la
+ * tanda de esa subreceta, 0.5 = media tanda, etc. Solo una receta FINAL puede llevar esto; una
+ * subreceta nunca lleva otra subreceta adentro (evita ciclos infinitos). */
+export interface SubrecetaUsada {
+  subrecetaId: string
+  tandas: number
+}
+
 export interface Receta {
   id: string
   nombre: string
@@ -35,6 +43,11 @@ export interface Receta {
   horas: number
   unidades: number
   insumosUsados: InsumoUsado[]
+  /** true = es una subreceta/adicional (solo lleva su costo, sin margen, nunca se cotiza sola).
+   * false/undefined = es una receta final de verdad, la que se costea y se cotiza. */
+  esSubreceta?: boolean
+  /** Solo aplica a recetas finales — las subrecetas ya usadas para armarla. */
+  subrecetasUsadas: SubrecetaUsada[]
 }
 
 /** Un producto dentro de una cotización — una cotización puede tener varios (ej. hamburguesas +

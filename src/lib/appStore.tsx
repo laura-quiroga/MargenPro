@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import type { ConfigNegocio, Cotizacion, Insumo, InsumoUsado, ItemCotizacion, Moneda, Receta, UnidadInsumo } from './types'
+import type { ConfigNegocio, Cotizacion, Insumo, InsumoUsado, ItemCotizacion, Moneda, Receta, SubrecetaUsada, UnidadInsumo } from './types'
 import { LOCALE_MONEDA, SIMBOLOS_MONEDA } from './types'
 import { calcularCostoReceta, costoPorUnidadBase } from './costeo'
 import { supabase } from './supabaseClient'
@@ -45,6 +45,7 @@ function filaARecetaBase(fila: Record<string, unknown>) {
     margen: Number(fila.margen),
     horas: Number(fila.horas),
     unidades: Number(fila.unidades),
+    esSubreceta: Boolean(fila.es_subreceta),
   }
 }
 
@@ -270,13 +271,16 @@ interface AppContextValue {
    * manuales y por factura) — reemplaza el número fijo que había antes en Panorama. */
   gastoMesActual: number
   money: (n: number) => string
-  costear: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean) => ReturnType<typeof calcularCostoReceta>
+  costear: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean, subrecetasUsadas?: SubrecetaUsada[]) => ReturnType<typeof calcularCostoReceta>
   /** Para cotizaciones cuando el usuario SÍ quiere incluir sus gastos fijos/variables —
    * sin importar el modo elegido en Ajustes, para poder comparar a propósito con/sin ellos. */
-  costearReal: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number) => ReturnType<typeof calcularCostoReceta>
+  costearReal: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean, subrecetasUsadas?: SubrecetaUsada[]) => ReturnType<typeof calcularCostoReceta>
   /** Lo mismo pero forzando el cálculo SIMPLE — para cuando el usuario elige cotizar sin sus
    * gastos fijos/variables, sin importar el modo elegido en Ajustes. */
-  costearSimple: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean) => ReturnType<typeof calcularCostoReceta>
+  costearSimple: (insumosUsados: Receta['insumosUsados'], margen: number, horas: number, unidades: number, incluirManoDeObraEnSencillo?: boolean, subrecetasUsadas?: SubrecetaUsada[]) => ReturnType<typeof calcularCostoReceta>
+  /** Todas las recetas marcadas como subreceta/adicional — las que solo llevan su costo, nunca
+   * se cotizan solas, y sirven para armar recetas finales. */
+  subrecetas: Receta[]
   /** Descuenta (signo -1) o devuelve (signo +1) del inventario los insumos de TODOS los
    * productos de la cotización vendida/corregida — una cotización puede tener varios. */
   ajustarInventarioPorVenta: (items: ItemCotizacion[], signo: 1 | -1) => string[]
@@ -357,15 +361,21 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       if (error || !recetasData) { setCargandoRecetas(false); return }
       const ids = recetasData.map((r) => r.id)
       const usosPorReceta: Record<string, InsumoUsado[]> = {}
+      const subusosPorReceta: Record<string, SubrecetaUsada[]> = {}
       if (ids.length) {
         const { data: usos } = await supabase.from('receta_insumos').select('*').in('receta_id', ids)
         usos?.forEach((u) => {
-          const lista = usosPorReceta[u.receta_id] ?? (usosPorReceta[u.receta_id] = [])
-          lista.push({ insumoId: u.insumo_id, cantidadGramosOPiezas: Number(u.cantidad_base) })
+          if (u.insumo_id) {
+            const lista = usosPorReceta[u.receta_id] ?? (usosPorReceta[u.receta_id] = [])
+            lista.push({ insumoId: u.insumo_id, cantidadGramosOPiezas: Number(u.cantidad_base) })
+          } else if (u.subreceta_id) {
+            const lista = subusosPorReceta[u.receta_id] ?? (subusosPorReceta[u.receta_id] = [])
+            lista.push({ subrecetaId: u.subreceta_id, tandas: Number(u.cantidad_base) })
+          }
         })
       }
       if (!activo) return
-      setRecetas(recetasData.map((r) => ({ ...filaARecetaBase(r), insumosUsados: usosPorReceta[r.id] ?? [] })))
+      setRecetas(recetasData.map((r) => ({ ...filaARecetaBase(r), insumosUsados: usosPorReceta[r.id] ?? [], subrecetasUsadas: subusosPorReceta[r.id] ?? [] })))
       setCargandoRecetas(false)
     }
     async function cargarCotizaciones() {
@@ -595,30 +605,36 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     const usuario = userData.user
     if (!usuario) return false
     const { data, error } = await supabase.from('recetas').insert({
-      user_id: usuario.id, nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades,
+      user_id: usuario.id, nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades, es_subreceta: datos.esSubreceta ?? false,
     }).select().single()
     if (error || !data) return false
-    if (datos.insumosUsados.length) {
-      const filas = datos.insumosUsados.map((u) => ({ receta_id: data.id, insumo_id: u.insumoId, cantidad_base: u.cantidadGramosOPiezas }))
+    const filas = [
+      ...datos.insumosUsados.map((u) => ({ receta_id: data.id, insumo_id: u.insumoId, cantidad_base: u.cantidadGramosOPiezas })),
+      ...datos.subrecetasUsadas.map((su) => ({ receta_id: data.id, subreceta_id: su.subrecetaId, cantidad_base: su.tandas })),
+    ]
+    if (filas.length) {
       const { error: errorUsos } = await supabase.from('receta_insumos').insert(filas)
       if (errorUsos) {
-        // No dejar una receta a medias (creada pero sin insumos) si falló su detalle.
+        // No dejar una receta a medias (creada pero sin su detalle) si falló.
         await supabase.from('recetas').delete().eq('id', data.id)
         return false
       }
     }
-    setRecetas((prev) => [...prev, { ...filaARecetaBase(data), insumosUsados: datos.insumosUsados }])
+    setRecetas((prev) => [...prev, { ...filaARecetaBase(data), insumosUsados: datos.insumosUsados, subrecetasUsadas: datos.subrecetasUsadas }])
     return true
   }
 
   async function actualizarRecetaExistente(id: string, datos: Omit<Receta, 'id'>): Promise<boolean> {
     const { error } = await supabase.from('recetas').update({
-      nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades,
+      nombre: datos.nombre, margen: datos.margen, horas: datos.horas, unidades: datos.unidades, es_subreceta: datos.esSubreceta ?? false,
     }).eq('id', id)
     if (error) return false
     await supabase.from('receta_insumos').delete().eq('receta_id', id)
-    if (datos.insumosUsados.length) {
-      const filas = datos.insumosUsados.map((u) => ({ receta_id: id, insumo_id: u.insumoId, cantidad_base: u.cantidadGramosOPiezas }))
+    const filas = [
+      ...datos.insumosUsados.map((u) => ({ receta_id: id, insumo_id: u.insumoId, cantidad_base: u.cantidadGramosOPiezas })),
+      ...datos.subrecetasUsadas.map((su) => ({ receta_id: id, subreceta_id: su.subrecetaId, cantidad_base: su.tandas })),
+    ]
+    if (filas.length) {
       const { error: errorUsos } = await supabase.from('receta_insumos').insert(filas)
       if (errorUsos) return false
     }
@@ -676,14 +692,16 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   const money = (n: number) => `${SIMBOLOS_MONEDA[moneda] || '$'}${Math.round(n).toLocaleString(LOCALE_MONEDA[moneda] || 'es-CO')}`
 
-  const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo) =>
-    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg, incluirManoDeObraEnSencillo)
+  const subrecetas = recetas.filter((r) => r.esSubreceta)
 
-  const costearReal: AppContextValue['costearReal'] = (insumosUsados, margen, horas, unidades) =>
-    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, true, cfg)
+  const costear: AppContextValue['costear'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo, subrecetasUsadas) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, modoCalculo === 'real', cfg, incluirManoDeObraEnSencillo, subrecetas, subrecetasUsadas)
 
-  const costearSimple: AppContextValue['costearSimple'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo) =>
-    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, false, cfg, incluirManoDeObraEnSencillo)
+  const costearReal: AppContextValue['costearReal'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo, subrecetasUsadas) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, true, cfg, incluirManoDeObraEnSencillo, subrecetas, subrecetasUsadas)
+
+  const costearSimple: AppContextValue['costearSimple'] = (insumosUsados, margen, horas, unidades, incluirManoDeObraEnSencillo, subrecetasUsadas) =>
+    calcularCostoReceta(insumos, insumosUsados, margen, horas, unidades, false, cfg, incluirManoDeObraEnSencillo, subrecetas, subrecetasUsadas)
 
   /** Guarda TODA la configuración del negocio de una vez — reemplaza lo que había antes en
    * localStorage, así no se pierde al cambiar de aparato o borrar datos del navegador. */
@@ -767,6 +785,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     costear,
     costearReal,
     costearSimple,
+    subrecetas,
     ajustarInventarioPorVenta,
     cargandoInsumos,
     agregarInsumo,
