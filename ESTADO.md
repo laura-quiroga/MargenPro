@@ -1,6 +1,35 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Quinta ronda: isotipo embebido en la carga, copy de Recetas, y corrección final de inventario (2026-11-24)
+A la usuaria le encantó la luna nueva. Reportó 2 cosas más: el isotipo de la pantalla de carga
+salía como un cuadro en blanco parpadeando (mandó captura), y la Harina de trigo le seguía
+saliendo "se está acabando" después de todo lo de la ronda anterior. También pidió mejorar el
+ejemplo del tooltip de "Tus recetas" y, aparte, que TODA la comunicación con ella sea siempre en
+español (ya anotado como memoria del usuario, no solo de este proyecto) y que los hallazgos de esta
+sesión se guarden para no repetir errores (4 memorias nuevas guardadas: comunicación en español,
+el bug de CSS zoom + position:fixed, el patrón de grepear todos los call sites de un parámetro, y
+el de caché de index.html en SPA). Todo corregido y desplegado (commit `99f7cdc`, deploy
+`dpl_B6Y4RCbvdZATozy9rqTiRw6dksQH`):
+
+1. **El isotipo de la pantalla de carga parpadeaba en blanco**: era un `<img src="/isotipo.svg">`
+   — una petición de red APARTE del HTML, y mientras esa petición no terminaba, lo que se veía era
+   el placeholder vacío del navegador, con la animación de pulso ya corriendo encima (de ahí el
+   "parpadeo sin logo"). Se cambió a el SVG embebido DIRECTO en `index.html` — ya no depende de
+   ninguna petición adicional, no puede quedar sin cargar.
+2. **Harina de trigo (y de paso Azúcar Mayagüez Blanca) seguían sin devolverse**: mismo hallazgo de
+   la ronda anterior (la cotización de "Galletas" borrada con la versión vieja de la app nunca
+   devolvió sus insumos) — se me había escapado revisar la receta COMPLETA la vez pasada. Revisado
+   insumo por insumo de la receta "Galletas" esta vez (consulta directa a la base de datos) y
+   confirmados TODOS en su cantidad real de compra: Harina de trigo 1000/1000, Mantequilla Mavesa
+   500/500, Azúcar Mayagüez Blanca 1000/1000, Huevos 30/30. El `vercel.json` con `Cache-Control`
+   de la ronda anterior evita que esto se repita hacia adelante.
+3. **Copy del tooltip de "Tus recetas"** reescrito con un ejemplo más concreto y claro (idea de la
+   usuaria, pulida): hamburguesa armada con ingredientes directos, o con subrecetas, o con ambos.
+- ⚠️ **Nota para toda sesión futura, no solo esta**: el usuario pidió explícitamente que TODA la
+  comunicación sea en español — ya es una memoria del usuario (no solo de MargenPro), pero se deja
+  anotado aquí también porque es la clase de instrucción que no debe olvidarse ni una vez.
+
 ## Cuarta ronda: HALLAZGO IMPORTANTE — el celular de la usuaria servía una versión vieja de la app (2026-11-24)
 Tras la tercera ronda, la usuaria reportó: (a) no le gustó la luna nueva ("un + innecesario"), y
 (b) tras eliminar sus 2 cotizaciones de prueba, el aviso de "se está acabando" seguía saliendo
