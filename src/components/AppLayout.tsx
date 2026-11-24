@@ -50,7 +50,7 @@ export default function AppLayout() {
     <div className="app-interna">
       <div className="app-frame">
         <div className="topbar">
-          <div className="logo"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> Margen<span className="acento">Pro</span></div>
+          <div className="logo"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> <span>Margen<span className="acento">Pro</span></span></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
             {avisoTamano && <span className="aviso-tamano-texto">Letra: {NOMBRE_TAMANO[tamano]}</span>}
             <button className="tema-toggle" aria-label="Cambiar el tamaño de la letra" onClick={cambiarTamano}>

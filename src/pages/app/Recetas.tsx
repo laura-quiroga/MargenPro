@@ -586,7 +586,7 @@ export default function Recetas() {
     <>
       <h2 className="titulo-seccion">Tus recetas</h2>
       <p className="sub-seccion">
-        ¿Qué le vas a vender a tu cliente? Aquí armas el producto final — con ingredientes directos, con subrecetas, o con ambos.
+        ¿Qué le vas a vender a tu cliente? Aquí armas el producto final — con ingredientes directos, con subrecetas, o con ambos. El precio que te calculamos SÍ incluye tu margen de ganancia, y si tú quieres, también tu hora de trabajo y tus costos fijos — tú decides qué sumarle.
         <InfoTooltip texto="Ejemplo: aquí armas tu receta como una hamburguesa, con sus ingredientes (pan, carne, salsa). Puedes armarla solo con ingredientes, solo con subrecetas, o con ambos — arma tu hamburguesa sencilla y agrégale la subreceta 'Papas fritas'." />
       </p>
       {limiteRecetasAlcanzado && (
