@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTemaOscuro } from './PhoneFrame'
 import { NOMBRE_TAMANO, useTamanoTexto } from '../lib/useTamanoTexto'
 import { logSesionIniciadaSiCorresponde } from '../lib/eventos'
@@ -19,6 +19,10 @@ export default function AppLayout() {
   const { tamano, siguienteTamano } = useTamanoTexto()
   const [avisoTamano, setAvisoTamano] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  // -1 si ninguna coincide (no debería pasar dentro de /app) — así el indicador deslizante
+  // sabe detrás de cuál ícono ponerse, igual que la pestaña NavLink ya marcada "activa".
+  const activeIndex = TABS.findIndex((t) => (t.fin ? location.pathname === t.to : location.pathname.startsWith(t.to)))
 
   function cambiarTamano() {
     siguienteTamano()
@@ -70,7 +74,10 @@ export default function AppLayout() {
       </div>
 
       <div className="tabbar">
-        <div className="tabbar-inner">
+        <div className="tabbar-inner" style={{ '--tabs-count': TABS.length } as React.CSSProperties}>
+          {activeIndex >= 0 && (
+            <div className="tabbar-indicador" style={{ transform: `translateX(${activeIndex * 100}%)` }} />
+          )}
           {TABS.map((t) => (
             <NavLink key={t.to} to={t.to} end={t.fin} className={({ isActive }) => `tab-btn${isActive ? ' activo' : ''}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg>
