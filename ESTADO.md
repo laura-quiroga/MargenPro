@@ -1,6 +1,48 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Segunda ronda: InfoTooltip de verdad a prueba de zoom (portal fuera de body), borrar cotización, ícono +/-, insumo agotado en rojo (2026-11-24)
+Tras la ronda anterior, la usuaria confirmó que el aviso de información TODAVÍA salía mal ubicado
+con letra grande — y pidió 3 cosas más. Las 4 quedaron resueltas, verificadas (`tsc` + `build`
+limpios, además de una prueba real en navegador bajo `zoom:1.3` con medición de coordenadas, no
+solo mirar la pantalla) y desplegadas a producción (commit `5c4231f`, deploy
+`dpl_89FtidWZvnVMnUfHDWUPWKQ3MqcF`, ya en `margenpro-ochre.vercel.app`):
+
+1. **HALLAZGO IMPORTANTE — `position:fixed` TAMBIÉN se distorsiona con `zoom`, no solo los px
+   calculados en JS.** El arreglo anterior de `InfoTooltip` (posición relativa al ícono con 3
+   clases CSS) sí evitó el bug original, pero cuando se probó la idea de centrar el aviso con
+   `position:fixed; inset:0` (para que "no se moviera de la pantalla principal"), se midió con
+   `getBoundingClientRect()` bajo `zoom:1.3` y el cuadro de fondo terminaba midiendo **1371px de
+   alto en una pantalla de 812px** — es decir, `position:fixed` DENTRO de un elemento con `zoom`
+   tampoco es zoom-safe en Chromium (el motor trata el contenido de adentro como si viviera en un
+   lienzo más chico y lo vuelve a escalar al pintar, así sea "fixed"). La única solución real:
+   sacar el aviso COMPLETAMENTE de `<body>` (que es donde vive el `zoom` — ver
+   `src/lib/useTamanoTexto.ts`) con un `createPortal` de React a un nodo colgado directo de
+   `<html>`. Reescrito `InfoTooltip.tsx`: ya no se posiciona relativo al ícono en absoluto — se
+   muestra como un cuadro fijo y centrado en medio de la pantalla real, con fondo oscuro que se
+   cierra al tocar. Verificado con medición real: el cuadro quedó con las coordenadas exactas del
+   centro de un viewport de 375×812 (`fondoRect` 0,0,375,812 — ya no 1371px). Esta regla (nada de
+   `position:fixed`/`absolute` con medidas de pantalla completa DENTRO del subárbol de `<body>`
+   mientras exista el `zoom` del tamaño de letra) aplica a cualquier futuro overlay de pantalla
+   completa en esta app — usar portal fuera de `body`, no fixed/absolute normal.
+2. **Botón para eliminar una cotización directo desde la lista** (se enviaba repetida o quedaba
+   mal armada): ícono de papelera en cada tarjeta de `Cotizaciones.tsx`, con confirmación inline
+   (mismo patrón que "Eliminar esta receta"). Nueva función `eliminarCotizacion` en `appStore.tsx`
+   — borra solo la fila de `cotizaciones`; sus `cotizacion_items` se van solos por la cascada que
+   ya existía en `supabase/schema.sql` (`on delete cascade`).
+3. **Ícono de tamaño de letra**: la flecha junto a la "A" se cambió por un "+" y un "−" (más
+   intuitivo) — en `AppLayout.tsx` (la app) y `PhoneFrame.tsx` (onboarding/login/paywall).
+4. **Insumo agotado vs. insumo bajo**: antes TODO el rango (bajo pero con algo, o completamente en
+   0) salía igual, en naranja, como "se está acabando". Ahora, cuando el stock llega a 0 exacto,
+   sale en ROJO con "ya se agotó" — distinto del naranja "se está acabando" (que sigue para cuando
+   queda poco pero no cero). Nueva función `stockAgotado` en `appStore.tsx` junto a la ya
+   existente `stockEsBajo`; aplicado en el letrero de arriba de Insumos (ahora dos banners
+   separados: agotados en rojo primero, bajos en naranja después), en la fila de cada insumo de la
+   lista, y en el detalle del insumo.
+- No se pudo probar con datos reales de la usuaria (sigue sin sesión local ni Chrome conectado en
+  este momento de la sesión) pero sí con mediciones reales en el navegador bajo zoom — es
+  verificación más fuerte que la ronda anterior, que solo tuvo verificación de código.
+
 ## Ronda de 4 pedidos tras probar en vivo: overflow con letra grande, tooltip mal ubicado, Ajustes y precio sin actualizar (2026-11-24)
 La usuaria probó la app con "Muy grande" activo y mandó una captura + 4 puntos en un solo mensaje.
 Los 4 quedaron corregidos, verificados (`tsc` + `build` limpios) y desplegados a producción
