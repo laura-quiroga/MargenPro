@@ -1,6 +1,29 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## Recetas vs subrecetas: textos más claros con ejemplos (hallazgo del mismo cliente potencial, 2026-11-24)
+El cliente potencial, ya dentro de la app, no entendía para qué servía cada botón ("+ Costear
+receta nueva" vs "+ Agregar subreceta"). Se le presentaron 3 propuestas de texto a la usuaria; eligió
+una combinación: el subtítulo en forma de pregunta-guía + un ícono ⓘ que al tocarlo muestra ejemplos
+concretos — pidió que los DOS ejemplos (Hamburguesa y Caja de mini donas) aparezcan en ambos lados.
+- **"Tus recetas"**: subtítulo "¿Qué le vas a vender a tu cliente? Aquí armas el producto final —
+  con ingredientes directos, con subrecetas, o con ambos." + ⓘ "Ejemplos: una Hamburguesa armada
+  directo con pan + carne, o una Caja de mini donas armada con las subrecetas Masa base +
+  Decoración + Empaque."
+- **"Tus subrecetas & adicionales"**: subtítulo "¿Tienes partes que repites en varias recetas?
+  Agrégalas aquí UNA vez y úsalas en todas las recetas que quieras — nunca se venden solas." + ⓘ
+  "Ejemplos: el pan y la carne que arman una Hamburguesa, o la Masa base y el Empaque que arman una
+  Caja de mini donas. Solo llevan su costo, sin ganancia — la ganancia se agrega en la receta
+  completa de arriba."
+- **Mejora real al componente `InfoTooltip.tsx`** (ya usado en el panel de admin, reutilizado
+  aquí): antes solo se abría con el mouse encima o con foco de teclado — en celular eso no sirve
+  (no hay "hover"). Ahora también se puede TOCAR para fijarlo abierto/cerrado. Al construirlo se
+  encontró un bug sutil (tocar con el mouse YA encima lo cerraba de inmediato) — arreglado
+  separando "hover" (vista previa de escritorio) de "fijado" (toque), combinados sin pisarse.
+- Probado en vivo: los dos íconos abren y cierran su globo de texto correctamente, sin romper el
+  diseño de la pantalla.
+- `npx tsc --noEmit` y `npm run build` limpios.
+
 ## Tamaño de letra ajustable — accesibilidad (hallazgo del mismo cliente potencial, 2026-11-24)
 El cliente potencial de la usuaria le dijo que la letra se le hacía muy pequeña. Se agregó un
 control de tamaño de letra con 3 niveles (Normal / Grande / Muy grande) que escala TODA la

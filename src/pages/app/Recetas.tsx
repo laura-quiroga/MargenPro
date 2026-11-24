@@ -4,6 +4,7 @@ import { normalizarParaBuscar, useAppStore } from '../../lib/appStore'
 import { calcularCostoSubreceta, convertirAGramos, GRAMOS_POR_LIBRA } from '../../lib/costeo'
 import { logEvent } from '../../lib/eventos'
 import { Toast, useToast } from '../../components/Toast'
+import InfoTooltip from '../../components/InfoTooltip'
 import type { Insumo, InsumoUsado, SubrecetaUsada } from '../../lib/types'
 import './Recetas.css'
 
@@ -584,7 +585,10 @@ export default function Recetas() {
   return (
     <>
       <h2 className="titulo-seccion">Tus recetas</h2>
-      <p className="sub-seccion">Cada una con su costo real y el precio sugerido.</p>
+      <p className="sub-seccion">
+        ¿Qué le vas a vender a tu cliente? Aquí armas el producto final — con ingredientes directos, con subrecetas, o con ambos.
+        <InfoTooltip texto="Ejemplos: una Hamburguesa armada directo con pan + carne, o una Caja de mini donas armada con las subrecetas Masa base + Decoración + Empaque." />
+      </p>
       {limiteRecetasAlcanzado && (
         <div className="aviso-precio" style={{ marginBottom: 14 }}>
           <IconoAviso />
@@ -618,7 +622,10 @@ export default function Recetas() {
       )}
 
       <h2 className="titulo-seccion" style={{ marginTop: 28 }}>Tus subrecetas & adicionales</h2>
-      <p className="sub-seccion">Piezas que usas DENTRO de tus recetas (masa, relleno, empaque…). Nunca se costean con margen ni se cotizan solas — solo las recetas completas de arriba se costean y se cotizan.</p>
+      <p className="sub-seccion">
+        ¿Tienes partes que repites en varias recetas? Agrégalas aquí UNA vez y úsalas en todas las recetas que quieras — nunca se venden solas.
+        <InfoTooltip texto="Ejemplos: el pan y la carne que arman una Hamburguesa, o la Masa base y el Empaque que arman una Caja de mini donas. Solo llevan su costo, sin ganancia — la ganancia se agrega en la receta completa de arriba." />
+      </p>
       <button className="btn-secundario" style={{ marginBottom: 14 }} onClick={abrirConstructorSubreceta}>+ Agregar subreceta</button>
       {!cargandoRecetas && subrecetas.length === 0 && (
         <div className="vacio"><p>Todavía no tienes ninguna subreceta.</p></div>
