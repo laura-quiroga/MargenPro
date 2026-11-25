@@ -9,6 +9,12 @@ se agregó un cross-fade con la View Transition API del navegador (`document.sta
 .45s de duración, con fallback automático si el navegador no la soporta. Todo desplegado (commit
 `5188d3a`, deploy `dpl_Dcqfc5eKkq4Gecy2Vzxb6b9saQoZ`). **Ya NO replantear esta duración ni el
 cross-fade sin que ella lo pida — quedó decidido y es cosa juzgada, como el resto de FICHA-ARTE.**
+⚠️ **Bug encontrado el mismo día y ya corregido**: los 4s se restaban del tiempo YA transcurrido
+desde el inicio de la navegación (`MINIMO_MS - performance.now()`) — si el splash nativo del
+celular o la red tardaban más de lo normal, a la pantalla propia le quedaba MENOS de los 4s (la
+usuaria lo vio en vivo: una vez la primera pantalla tardó más y la segunda solo se vio 1s). Ahora
+son 4s FIJOS con `setTimeout(montarConTransicion, 4000)` sin restar nada, siempre los mismos
+pase lo que pase antes (commit `dd3dd10`, deploy `dpl_6D7pZGm6m2kwJSF4AemoBcFHzFxV`).
 
 ## Novena ronda: causa raíz REAL del desfase (solo con letra grande) + copy de Ajustes (2026-11-24)
 La usuaria aclaró el dato clave que faltaba: el desfase del indicador "solo pasa con la letra
