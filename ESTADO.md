@@ -1,6 +1,20 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-25 | Sesión actual: 6
 
+## Landing: 4 correcciones tras el 2do veredicto del revisor (34/40), 3ra revisión en curso (2026-11-25)
+Segunda pasada del revisor-visual: 34/40 usabilidad · 16/20 craft · 18/20 copy, NO LISTA (2 puntos
+bajo el umbral de 36/40). Corregido (commit `cca4593`):
+1. El logo "MargenPro" del encabezado no hacía nada al tocarlo — ahora es un enlace a inicio (`/`).
+2. Se agregaron enlaces rápidos "Precios"/"Preguntas" en el header (ancla a `#oferta`/`#faq`),
+   ocultos en móvil (≤640px) para no saturar esa versión — visibles solo en pantallas más anchas.
+3. El texto "Garantía propia de MargenPro · 15 días" se veía en gris itálico de poco peso — ahora
+   es bold y con el color de acento, a la par del resto de la sección de garantía.
+4. Se agregó el separador "ELIGE TU PLAN" entre el resumen de ahorro y las tarjetas de precio
+   (antes pasaban directo, sin indicar que ahí empieza la elección entre los dos planes).
+Las 4 correcciones verificadas visualmente a 375px (innerWidth confirmado antes de cada captura,
+tras la lección de la ronda anterior) antes de recapturar. Relanzado el revisor-visual — veredicto
+pendiente.
+
 ## Landing: 4 de 5 defectos del revisor corregidos, re-revisión en curso (2026-11-25)
 Primera pasada del revisor-visual tras el avance: 29/40 usabilidad · 15/20 craft · 16/20 copy,
 NO LISTA. Corregido (commit `a61a7eb`, deploy `dpl_6Ct1ZXdvWEFU4r7xWFHzRtjofE2n`):
