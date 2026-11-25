@@ -1,6 +1,22 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-25 | Sesión actual: 6
 
+## Landing: 4 de 5 defectos del revisor corregidos, re-revisión en curso (2026-11-25)
+Primera pasada del revisor-visual tras el avance: 29/40 usabilidad · 15/20 craft · 16/20 copy,
+NO LISTA. Corregido (commit `a61a7eb`, deploy `dpl_6Ct1ZXdvWEFU4r7xWFHzRtjofE2n`):
+1. Ambigüedad garantía 15 días vs "7 días de prueba" en el cierre — el recap del CTA final, el PS
+   y la FAQ de reembolso ahora distinguen explícito los dos plazos.
+2. chip-icono de "Agitación" (36px/radio10 con override inline) ahora igual a "Problema" (44px/
+   radio12 por defecto) — se quitó el override.
+3. `Landing.tsx` ya no retorna `null` mientras verifica la sesión — muestra el isotipo centrado.
+4. El supuesto "hueco en blanco antes de La app por dentro" (defecto #2 del revisor) se investigó
+   y era un ARTEFACTO de la herramienta de captura: el viewport había vuelto a 1280px de ancho sin
+   detectarse a mitad de una larga sesión de screenshots — confirmado normal recapturando con
+   innerWidth=375 verificado antes de cada captura. Lección anotada en memoria del agente.
+5. Sin prueba social real (defecto #4) — NO se tocó, sigue siendo limitación real conocida (sin
+   usuarios/ventas aún) — ver más abajo en "Problemas conocidos".
+Se re-lanzó el revisor-visual con las 9 capturas corregidas — veredicto pendiente.
+
 ## Avance de landing: carrusel realista + animación de entrada robusta, revisor-visual en curso (2026-11-25)
 A pedido de la usuaria ("quiero que la landing sea un 10/10"), con el skill `/landing`: se revisó
 el estado real contra el último veredicto (16-nov, 34/40) y se encontró que 2 de 3 defectos ya
