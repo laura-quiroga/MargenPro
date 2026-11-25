@@ -1,6 +1,24 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-25 | Sesión actual: 6
 
+## ✅ LANDING: VEREDICTO "LISTA" — 36/40 usabilidad · 16/20 craft · 18/20 copy (2026-11-25)
+Tras 4 pasadas del revisor-visual (29→34→35→36 en usabilidad, 15→16→16→16 en craft), la landing
+alcanzó el gate del SO (≥36/40 usabilidad, ≥16/20 craft, ≥16/20 copy). Última ronda de 3 fixes
+(commit `4634cc5`, ya en `margenpro-ochre.vercel.app`):
+1. Carrusel "La app por dentro" — "Torta de chocolate" se partía en 3 líneas de una palabra;
+   ensanchado el espacio (menos padding, chip más chico) — ahora envuelve en 2 líneas limpias.
+2. `strokeWidth` de íconos unificado a 2 en toda la página (antes 2.4 en flechas del carrusel y
+   1.8 en el ícono de testimonios).
+3. El enlace "Precios" del header, agregado en la ronda anterior, quedaba oculto también en móvil
+   por un error en la media query — ahora sí se ve a 375px (compacto, junto al logo y "Entrar").
+⚠️ **Los dos gates quedaron justo en el borde exacto (36/40 y 16/20), sin colchón** — cualquier
+cambio futuro a `Landing.tsx`/`Landing.css` debe recapturar y re-puntuar con el revisor-visual
+antes de darse por bueno, no asumir que "un cambio chico no afecta".
+**Pendiente de seguimiento (no bloquea el veredicto, ya documentado abajo en "Problemas
+conocidos")**: sin prueba social real (testimonios) — sumar en cuanto haya early adopters o
+primeras ventas; es el eje con menos recorrido de la rúbrica de copy (2/4).
+Veredicto completo + historial de las 4 pasadas: `docs/revisiones/landing-veredicto.md`.
+
 ## Landing: 4 correcciones tras el 2do veredicto del revisor (34/40), 3ra revisión en curso (2026-11-25)
 Segunda pasada del revisor-visual: 34/40 usabilidad · 16/20 craft · 18/20 copy, NO LISTA (2 puntos
 bajo el umbral de 36/40). Corregido (commit `cca4593`):
