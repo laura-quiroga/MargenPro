@@ -140,7 +140,7 @@ const CARRUSEL_APP = [
 
 const FAQ = [
   { q: '¿Necesito saber de tecnología o matemáticas para usar esto?', a: 'No. Escribes el nombre y precio de lo que compras, o le tomas una foto al recibo y la app hace el resto.' },
-  { q: '¿Y si pago y no me sirve?', a: 'Tienes 7 días de prueba antes de que te cobremos algo, y la Garantía del Primer Precio Real si aun así no te sirve.' },
+  { q: '¿Y si pago y no me sirve?', a: 'Tienes 7 días de prueba antes de que te cobremos algo. Y si ya pagaste y aun así no te sirve, tienes 15 días más con la Garantía del Primer Precio Real — te devolvemos todo.' },
   { q: 'Ya probé Excel y apps de notas y las abandono a los pocos días', a: 'MargenPro está hecha para usarse con una mano mientras trabajas en tu cocina o tu local — sin fórmulas que se rompan.' },
   { q: 'Mis ingredientes cambian de precio cada semana en mi país, ¿se adapta?', a: 'Sí: registras TUS precios reales. Cuando uno sube, actualizas ese insumo y todas tus recetas se recalculan solas.' },
   { q: '¿Es seguro pagar?', a: 'El pago se procesa por Hotmart, una plataforma reconocida en Latinoamérica. Nunca guardamos tu tarjeta dentro de la app.' },
@@ -270,7 +270,17 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', actualizar)
   }, [])
 
-  if (revisandoSesion) return null
+  // Mientras se revisa si ya hay sesión (normalmente es instantáneo, lee la sesión guardada en
+  // el dispositivo, no un viaje de red) se muestra el mismo tratamiento de marca que la pantalla
+  // de carga de index.html, nunca una pantalla en blanco — esta es la puerta de entrada de todo
+  // el embudo de venta.
+  if (revisandoSesion) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <img src="/isotipo.svg" alt="MargenPro" style={{ width: 56, height: 56, borderRadius: 16 }} />
+      </div>
+    )
+  }
 
   return (
     <div className="landing">
@@ -359,20 +369,20 @@ export default function Landing() {
           <h2>Lo que te está costando <span className="acento">no saberlo</span></h2>
           <ul className="agitacion-lista">
             <li>
-              <div className="chip-icono" style={{ width: 36, height: 36, borderRadius: 10 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
+              <div className="chip-icono">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
               </div>
               <span>Cada semana que cobras <strong>a ojo</strong> puede estar regalando parte de tu ganancia sin darte cuenta.</span>
             </li>
             <li>
-              <div className="chip-icono" style={{ width: 36, height: 36, borderRadius: 10 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 6v6l4 2" /><circle cx="12" cy="12" r="9" /></svg>
+              <div className="chip-icono">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 6v6l4 2" /><circle cx="12" cy="12" r="9" /></svg>
               </div>
               <span>En un año, eso puede ser <span className="acento" style={{ fontWeight: 800 }}>meses enteros de trabajo</span> que ya hiciste — y que nadie te pagó.</span>
             </li>
             <li>
-              <div className="chip-icono" style={{ width: 36, height: 36, borderRadius: 10 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 2a7 7 0 00-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 00-7-7z" /><path d="M9 21h6" /></svg>
+              <div className="chip-icono">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round"><path d="M12 2a7 7 0 00-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 00-7-7z" /><path d="M9 21h6" /></svg>
               </div>
               <span>Mientras tanto, sigues cargando la ansiedad de acostarte sin saber si hoy trabajaste gratis.</span>
             </li>
@@ -505,8 +515,8 @@ export default function Landing() {
           <h2>Imagina cerrar el mes <span className="acento">sabiendo cuánto ganaste</span></h2>
           <p className="pacing">Terminas de preparar tu producto, lo armas en la app, y en segundos ya sabes cuánto cobrar — sin dudas, sin culpa, sin regalar tu trabajo.</p>
           <Link className="btn-cta" to="/onboarding">Calcular mi primer precio gratis →</Link>
-          <div className="recap">Garantía del Primer Precio Real · 7 días de prueba antes de pagar</div>
-          <p className="ps">PS: MargenPro convierte tus recetas en precios con ganancia real gracias al Radar de Ganancia. Hoy entras con 7 días de prueba — no te cobramos nada hasta el día 7, y te avisamos antes con la fecha y el monto exactos — más la Garantía del Primer Precio Real.</p>
+          <div className="recap">7 días de prueba antes de pagar · Garantía del Primer Precio Real de 15 días después</div>
+          <p className="ps">PS: MargenPro convierte tus recetas en precios con ganancia real gracias al Radar de Ganancia. Hoy entras con 7 días de prueba — no te cobramos nada hasta el día 7, y te avisamos antes con la fecha y el monto exactos. Y si ya pagaste, tienes 15 días más con la Garantía del Primer Precio Real: si no tienes clara tu primera receta costeada, te devolvemos todo.</p>
         </div>
       </section>
 
