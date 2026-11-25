@@ -1,14 +1,14 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
-## ⚠️ PRUEBA TEMPORAL activa: pantalla de carga en 5 segundos (2026-11-24)
-La usuaria entendió el argumento de no alargarla (afecta a todo futuro cliente, no solo a ella),
-pero quiso probarla igual a 5s "a ver qué tal se siente, si no me gusta la quitamos" — decisión
-suya, informada, se implementó tal cual. `src/main.tsx`: `MINIMO_MS = 5000` (commit `6d8228e`,
-deploy `dpl_rjcUEwsUSeitr6J4PUUUgCY5ErGv`, ya en producción). **El valor recomendado es 600ms** —
-si en la próxima sesión ella no ha dicho nada sobre si le gustó o no, preguntar directamente antes
-de asumir que se queda así; si dice que no le gustó, bajarlo a 600 (el comentario del código ya lo
-deja anotado para revertir fácil).
+## DECISIÓN CERRADA: pantalla de carga en 4 segundos + entrada suave con cross-fade (2026-11-24)
+La usuaria probó la prueba temporal de 5s, le encantó ("siento más identidad con la marca") y
+pidió bajarla a 4s — ya no es una prueba, es la duración definitiva: `src/main.tsx`,
+`MINIMO_MS = 4000`. Además notó que el paso de la pantalla de carga a la app se sentía "abrupto" —
+se agregó un cross-fade con la View Transition API del navegador (`document.startViewTransition`),
+.45s de duración, con fallback automático si el navegador no la soporta. Todo desplegado (commit
+`5188d3a`, deploy `dpl_Dcqfc5eKkq4Gecy2Vzxb6b9saQoZ`). **Ya NO replantear esta duración ni el
+cross-fade sin que ella lo pida — quedó decidido y es cosa juzgada, como el resto de FICHA-ARTE.**
 
 ## Novena ronda: causa raíz REAL del desfase (solo con letra grande) + copy de Ajustes (2026-11-24)
 La usuaria aclaró el dato clave que faltaba: el desfase del indicador "solo pasa con la letra
