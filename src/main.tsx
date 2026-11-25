@@ -11,12 +11,12 @@ function montar() {
   )
 }
 
-// La pantalla de carga de index.html (logo + "MargenPro") se queda visible un mínimo de 600ms
-// desde que arrancó la navegación — con internet rápida, el bundle carga tan rápido que esa
-// pantalla parpadeaba y desaparecía antes de que se alcanzara a ver. `performance.now()` ya mide
-// desde el inicio de la navegación (no desde que corre este script), así que cuenta el tiempo que
-// ya tardó en cargar el bundle.
-const MINIMO_MS = 600
+// La pantalla de carga de index.html (logo + "MargenPro") se queda visible un mínimo de MINIMO_MS
+// desde que arrancó la navegación. `performance.now()` ya mide desde el inicio de la navegación
+// (no desde que corre este script), así que cuenta el tiempo que ya tardó en cargar el bundle.
+// ⚠️ PRUEBA TEMPORAL a pedido de la usuaria: 5000ms (5s) en vez de los 600ms originales, para ver
+// cómo se siente — si no le gusta, bajarlo de nuevo (600ms ya probado y es lo recomendado).
+const MINIMO_MS = 5000
 const faltante = MINIMO_MS - performance.now()
 if (faltante > 0) setTimeout(montar, faltante)
 else montar()
