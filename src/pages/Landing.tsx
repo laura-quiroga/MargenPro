@@ -178,18 +178,37 @@ function Carrusel() {
 }
 
 /** Agrega la clase "visto" a un elemento la PRIMERA vez que entra en pantalla al hacer scroll
- * — dispara la animación de entrada con stagger definida en Landing.css (.aparece.visto). */
+ * — dispara la animación de entrada con stagger definida en Landing.css (.aparece.visto).
+ * `threshold:0` (cualquier intersección, no 15%) + `rootMargin` que dispara un poco antes de que
+ * la sección entre del todo: así un scroll rápido/con inercia en un celular real no puede "saltarse"
+ * la ventana de detección. Además, un chequeo manual en cada evento de scroll (geometría real con
+ * `getBoundingClientRect`) sirve de RESPALDO si por lo que sea el observer nunca dispara — esta es
+ * una pantalla de dinero: una sección que se queda en blanco PARA SIEMPRE porque el observer falló
+ * es mucho peor que perderse la animación de entrada. */
 function useAparecerAlScroll<T extends HTMLElement>() {
   const ref = useRef<T>(null)
   const [visto, setVisto] = useState(false)
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    let activo = true
+    function revelar() {
+      if (!activo) return
+      activo = false
+      setVisto(true)
+      obs.disconnect()
+      window.removeEventListener('scroll', chequeoManual)
+    }
     const obs = new IntersectionObserver(([entrada]) => {
-      if (entrada.isIntersecting) { setVisto(true); obs.disconnect() }
-    }, { threshold: 0.15 })
+      if (entrada.isIntersecting) revelar()
+    }, { threshold: 0, rootMargin: '0px 0px -5% 0px' })
     obs.observe(el)
-    return () => obs.disconnect()
+    function chequeoManual() {
+      if (el!.getBoundingClientRect().top < window.innerHeight * 0.92) revelar()
+    }
+    window.addEventListener('scroll', chequeoManual, { passive: true })
+    chequeoManual()
+    return () => { activo = false; obs.disconnect(); window.removeEventListener('scroll', chequeoManual) }
   }, [])
   return { ref, visto }
 }
