@@ -22,11 +22,12 @@ function montarConTransicion() {
   else montar()
 }
 
-// La pantalla de carga de index.html (logo + "MargenPro") se queda visible un mínimo de MINIMO_MS
-// desde que arrancó la navegación. `performance.now()` ya mide desde el inicio de la navegación
-// (no desde que corre este script), así que cuenta el tiempo que ya tardó en cargar el bundle.
-// 4s elegidos a propósito por la usuaria (probó 5s primero) — le da identidad de marca.
+// La pantalla de carga (logo + "MargenPro") se queda visible 4s FIJOS desde que arranca este
+// script — no 4s desde que arrancó la navegación completa. Antes se restaba lo que ya había
+// tardado la red en traer el bundle (`MINIMO_MS - performance.now()`), pensado para no sumar un
+// retraso de más sobre una carga ya lenta — pero eso significa que si la pantalla previa del
+// celular (el ícono nativo de Android) o la red tardan más de lo normal, a esta pantalla le queda
+// MENOS tiempo visible, justo lo contrario de lo que se quiere (la usuaria vio esto en vivo: la
+// primera pantalla tardó más y la segunda solo se vio 1s). 4s fijos, siempre, pase lo que pase antes.
 const MINIMO_MS = 4000
-const faltante = MINIMO_MS - performance.now()
-if (faltante > 0) setTimeout(montarConTransicion, faltante)
-else montarConTransicion()
+setTimeout(montarConTransicion, MINIMO_MS)
