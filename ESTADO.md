@@ -1,5 +1,28 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-24 | Sesión actual: 6
+Última actualización: 2026-11-25 | Sesión actual: 6
+
+## ⚠️ CRÍTICO — HALLAZGO Y FIX: la View Transition API podía dejar la app colgada para siempre (2026-11-25)
+Al retomar la sesión para trabajar en la landing, se probó la app en un navegador real (no solo
+inspección de código) y se encontró que la entrada suave agregada el día anterior
+(`document.startViewTransition`, commit `5188d3a`) **podía dejar la app congelada en la pantalla
+de carga PARA SIEMPRE**, sin ningún error visible. Confirmado con una prueba directa en consola:
+`document.startViewTransition(() => { document.title = 'x' })` — su promesa JAMÁS se resuelve en
+este entorno de navegador, y lo mismo bloqueaba el montaje real de React (`setTimeout` esperando
+adentro de la transición que nunca llega a "lista"). Esto es grave porque el entorno donde se
+detectó (navegador automatizado/headless) comparte comportamiento de renderizado con el que más
+importa en la práctica: WebViews de Android con soporte parcial o inconsistente de esta API
+experimental — exactamente donde vive la app instalada de la usuaria.
+**Corregido de raíz (commit `bdcc7b2`, deploy `dpl_8bekQPjJidXQmVKLagZhkpdrYY1K`, ya en
+producción)**: se quitó la View Transition API por completo. La entrada suave ahora es un fade con
+CSS puro, sin ninguna dependencia de una promesa del navegador: `#carga-inicial` se movió a vivir
+FUERA de `#root` (hermano, no hijo, en `index.html`) — así montar React adentro de `#root` nunca
+lo toca, la app ya se dibuja debajo mientras el overlay se desvanece encima con un `setTimeout`
+fijo de 450ms. Verificado funcionando en vivo (build de producción local).
+⚠️ **Regla para el futuro**: NUNCA usar APIs experimentales/recientes del navegador (View
+Transitions, y cualquier otra marcada "Baseline: recién disponible" o similar) en el camino
+crítico de que la app cargue — siempre verificar en un navegador real antes de dar por buena una
+pieza así, no solo revisar que `tsc`/`build` pasen (eso no prueba que el comportamiento en tiempo
+de ejecución sea correcto).
 
 ## DECISIÓN CERRADA: pantalla de carga en 4 segundos + entrada suave con cross-fade (2026-11-24)
 La usuaria probó la prueba temporal de 5s, le encantó ("siento más identidad con la marca") y
