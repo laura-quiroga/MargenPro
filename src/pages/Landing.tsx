@@ -70,11 +70,72 @@ const TABS_MINI = [
   { label: 'Ajustes', activo: false, icono: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 003.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H8a1.65 1.65 0 001-1.51V2a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H22a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></> },
 ]
 
+const ICONO_RECETA = <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+const ICONO_CAMARA = <><path d="M4 7h3l2-3h6l2 3h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z" /><circle cx="12" cy="13" r="3.5" /></>
+const ICONO_COTIZA = <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+
+/** Cada tarjeta del carrusel es una vista en miniatura de la pantalla REAL de la app — mismo
+ * vocabulario visual que usa toda la app (chip con ícono + nombre/meta + cifra + estado), no un
+ * ícono abstracto con un dato suelto — para que se lea como producto real, no como marcador de
+ * posición (pedido del revisor-visual: "no se parecen a una pantalla real"). */
 const CARRUSEL_APP = [
-  { icono: <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />, nombre: 'Costeo', dato: '$8.100 · 40% ganancia', label: 'Tu primer precio calculado' },
-  { icono: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 7h6M9 11h6M9 15h3" /></>, nombre: 'Escaneo', dato: 'Facturas escaneadas', label: 'Ingredientes y precios siempre al día' },
-  { icono: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>, nombre: 'Cotización', dato: '$54.500 enviada', label: 'Tu cotización lista para enviar' },
-  { icono: <path d="M3 3v18h18M7 15l3-3 3 2 5-6" />, nombre: 'Resumen', dato: '+$680.000 este mes', label: 'Tu mes, en números claros' },
+  {
+    nombre: 'Costeo', label: 'Tu primer precio calculado',
+    mock: (
+      <div className="mini-pantalla">
+        <div className="mini-fila">
+          <div className="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{ICONO_RECETA}</svg></div>
+          <div className="mini-texto"><div className="mini-nombre">Torta de chocolate</div><div className="mini-meta">costo real $48.000</div></div>
+        </div>
+        <div className="mini-precio-grande">$84.000</div>
+        <div className="mini-sub">precio sugerido · 43% ganancia</div>
+      </div>
+    ),
+  },
+  {
+    nombre: 'Escaneo', label: 'Ingredientes y precios siempre al día',
+    mock: (
+      <div className="mini-pantalla">
+        <div className="mini-fila">
+          <div className="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{ICONO_CAMARA}</svg></div>
+          <div className="mini-texto"><div className="mini-nombre">Harina de trigo</div><div className="mini-meta">detectada en tu factura</div></div>
+          <span className="mini-check">✓</span>
+        </div>
+        <div className="mini-fila">
+          <div className="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{ICONO_CAMARA}</svg></div>
+          <div className="mini-texto"><div className="mini-nombre">Azúcar</div><div className="mini-meta">detectada en tu factura</div></div>
+          <span className="mini-check">✓</span>
+        </div>
+        <div className="mini-sub">6 insumos reconocidos en 8 segundos</div>
+      </div>
+    ),
+  },
+  {
+    nombre: 'Cotización', label: 'Tu cotización lista para enviar',
+    mock: (
+      <div className="mini-pantalla">
+        <div className="mini-fila">
+          <div className="mini-chip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">{ICONO_COTIZA}</svg></div>
+          <div className="mini-texto"><div className="mini-nombre">Combo hamburguesa x10</div><div className="mini-meta">Catering Luna</div></div>
+        </div>
+        <div className="mini-precio-grande">$54.500</div>
+        <span className="mini-badge pendiente">Pendiente</span>
+      </div>
+    ),
+  },
+  {
+    nombre: 'Resumen', label: 'Tu mes, en números claros',
+    mock: (
+      <div className="mini-pantalla">
+        <div className="mini-sub" style={{ marginBottom: 4 }}>Ganancia real este mes</div>
+        <div className="mini-precio-grande acento">+$680.000</div>
+        <div className="mini-fila" style={{ marginTop: 12, justifyContent: 'space-between' }}>
+          <div className="mini-texto"><div className="mini-meta">Ingresos</div><div className="mini-nombre">$1.240.000</div></div>
+          <div className="mini-texto" style={{ textAlign: 'right' }}><div className="mini-meta">Gastos</div><div className="mini-nombre">$560.000</div></div>
+        </div>
+      </div>
+    ),
+  },
 ]
 
 const FAQ = [
@@ -100,9 +161,8 @@ function Carrusel() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
       <div className="carrusel-tarjeta" key={item.nombre}>
-        <div className="chip-icono-grande"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.6">{item.icono}</svg></div>
         <span className="nombre">{item.nombre}</span>
-        <span className="dato">{item.dato}</span>
+        {item.mock}
         <p className="label">{item.label}</p>
       </div>
       <button type="button" className="carrusel-flecha der" aria-label="Ver siguiente" disabled={activo === CARRUSEL_APP.length - 1} onClick={() => irA(activo + 1)}>
