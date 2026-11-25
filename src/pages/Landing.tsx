@@ -158,7 +158,7 @@ function Carrusel() {
   return (
     <div className="carrusel-wrap">
       <button type="button" className="carrusel-flecha izq" aria-label="Ver anterior" disabled={activo === 0} onClick={() => irA(activo - 1)}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
       <div className="carrusel-tarjeta" key={item.nombre}>
         <span className="nombre">{item.nombre}</span>
@@ -166,7 +166,7 @@ function Carrusel() {
         <p className="label">{item.label}</p>
       </div>
       <button type="button" className="carrusel-flecha der" aria-label="Ver siguiente" disabled={activo === CARRUSEL_APP.length - 1} onClick={() => irA(activo + 1)}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
       </button>
       <div className="dots">
         {CARRUSEL_APP.map((_, i) => (
@@ -289,7 +289,7 @@ export default function Landing() {
           <Link className="logo" to="/"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> MargenPro</Link>
           <nav className="nav-rapida" aria-label="Enlaces rápidos">
             <a href="#oferta">Precios</a>
-            <a href="#faq">Preguntas</a>
+            <a className="solo-desktop" href="#faq">Preguntas</a>
           </nav>
           <Link className="entrar" to="/login">Entrar</Link>
         </div>
@@ -339,7 +339,7 @@ export default function Landing() {
                 <div className="tabbar-mini">
                   {TABS_MINI.map((t) => (
                     <div key={t.label} className={`tab-mini${t.activo ? ' activo' : ''}`}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{t.icono}</svg>
                       <span>{t.label}</span>
                     </div>
                   ))}
