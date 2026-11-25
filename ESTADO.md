@@ -1,6 +1,15 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-24 | Sesión actual: 6
 
+## ⚠️ PRUEBA TEMPORAL activa: pantalla de carga en 5 segundos (2026-11-24)
+La usuaria entendió el argumento de no alargarla (afecta a todo futuro cliente, no solo a ella),
+pero quiso probarla igual a 5s "a ver qué tal se siente, si no me gusta la quitamos" — decisión
+suya, informada, se implementó tal cual. `src/main.tsx`: `MINIMO_MS = 5000` (commit `6d8228e`,
+deploy `dpl_rjcUEwsUSeitr6J4PUUUgCY5ErGv`, ya en producción). **El valor recomendado es 600ms** —
+si en la próxima sesión ella no ha dicho nada sobre si le gustó o no, preguntar directamente antes
+de asumir que se queda así; si dice que no le gustó, bajarlo a 600 (el comentario del código ya lo
+deja anotado para revertir fácil).
+
 ## Novena ronda: causa raíz REAL del desfase (solo con letra grande) + copy de Ajustes (2026-11-24)
 La usuaria aclaró el dato clave que faltaba: el desfase del indicador "solo pasa con la letra
 grande y muy grande". Reproducido y corregido de raíz (commit `c8ca39a`, deploy
