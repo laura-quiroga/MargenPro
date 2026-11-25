@@ -61,6 +61,12 @@
   transition:background .15s ease-out;
 }
 .landing .entrar:hover { background:rgb(var(--accent-tint)/.1); }
+/* Enlaces rápidos del header (saltan directo a precio/preguntas, sin tener que hacer scroll) —
+   se ocultan en celular angosto para no apretar el header; el logo ya es un <Link> a /. */
+.landing .nav-rapida { display:flex; gap:24px; }
+.landing .nav-rapida a { font-size:14px; font-weight:600; color:var(--text-2); transition:color .15s ease-out; }
+.landing .nav-rapida a:hover { color:var(--accent); }
+@media (max-width:640px) { .landing .nav-rapida { display:none; } }
 
 /* HERO */
 .landing .hero { padding-top:56px; }
@@ -167,7 +173,8 @@
 @media (prefers-reduced-motion: reduce) { .landing .carrusel-tarjeta { animation:none; } }
 
 /* OFERTA */
-.landing .planes { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:28px; align-items:stretch; }
+.landing .separador-planes { text-align:center; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); margin-top:8px; }
+.landing .planes { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:16px; align-items:stretch; }
 @media (max-width:720px){ .landing .planes{ grid-template-columns:1fr; } }
 .landing .plan { border-radius:var(--radius-card); padding:26px; background:var(--surface); box-shadow:var(--shadow-1); display:flex; flex-direction:column; }
 .landing .plan.recomendado { padding:1.5px; background:linear-gradient(135deg, rgb(var(--accent-tint)/.6), transparent 70%); box-shadow:var(--shadow-2); }
@@ -192,7 +199,7 @@
 .landing .escudo { width:56px; height:56px; border-radius:16px; background:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .landing .garantia-box h3 { font-size:19px; margin-bottom:8px; }
 .landing .garantia-box p { font-size:14.5px; color:var(--text-2); }
-.landing .garantia-box .piso { font-size:12.5px; color:var(--text-2); margin-top:10px; font-style:italic; }
+.landing .garantia-box .piso { font-size:14px; font-weight:700; color:var(--accent); margin-top:10px; }
 
 /* FAQ */
 .landing .faq-item { border-bottom:1px solid var(--sunken); }

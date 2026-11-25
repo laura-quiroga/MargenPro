@@ -286,7 +286,11 @@ export default function Landing() {
     <div className="landing">
       <header className="top">
         <div className="wrap topbar">
-          <div className="logo"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> MargenPro</div>
+          <Link className="logo" to="/"><img className="mark" src="/isotipo.svg" alt="MargenPro" /> MargenPro</Link>
+          <nav className="nav-rapida" aria-label="Enlaces rápidos">
+            <a href="#oferta">Precios</a>
+            <a href="#faq">Preguntas</a>
+          </nav>
           <Link className="entrar" to="/login">Entrar</Link>
         </div>
       </header>
@@ -451,6 +455,7 @@ export default function Landing() {
             <div className="total"><span>Valor total al año</span><span><span className="tachado">$146</span> hoy $83.88/año</span></div>
           </div>
           <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-2)', marginBottom: 14 }}>Los dos planes empiezan con 7 días de prueba gratis — no pagas nada hoy, elijas el que elijas.</p>
+          <h3 className="separador-planes">Elige tu plan</h3>
           <div className="planes">
             <div className="plan recomendado"><div className="inner">
               <span className="badge">MÁS POPULAR</span>
