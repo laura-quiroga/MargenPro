@@ -1,6 +1,19 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-25 | Sesión actual: 6
 
+## Avance de landing: carrusel realista + animación de entrada robusta, revisor-visual en curso (2026-11-25)
+A pedido de la usuaria ("quiero que la landing sea un 10/10"), con el skill `/landing`: se revisó
+el estado real contra el último veredicto (16-nov, 34/40) y se encontró que 2 de 3 defectos ya
+estaban corregidos de sesiones anteriores (dispositivo "Radar de Ganancia" ya en hero+oferta,
+ambigüedad del plan mensual ya aclarada) — solo quedaba el carrusel "La app por dentro" con íconos
+abstractos. Corregido (commit `83c6ef9`): cada tarjeta ahora es una mini-pantalla realista con el
+mismo vocabulario visual de la app de verdad (chip+nombre+cifra+estado) en vez de un ícono suelto.
+Además, verificando en vivo se encontró que `useAparecerAlScroll` (la animación de entrada al
+hacer scroll) podía quedarse sin disparar nunca bajo ciertas condiciones de renderizado — se hizo
+más robusta con `threshold:0` + `rootMargin` + un chequeo manual de respaldo por evento de scroll
+(commit `e02962f`). Se tomaron las 9 capturas a 375px y se lanzó el subagente `revisor-visual` con
+contexto limpio — su veredicto queda pendiente, se documentará en la próxima actualización.
+
 ## ⚠️ CRÍTICO — HALLAZGO Y FIX: la View Transition API podía dejar la app colgada para siempre (2026-11-25)
 Al retomar la sesión para trabajar en la landing, se probó la app en un navegador real (no solo
 inspección de código) y se encontró que la entrada suave agregada el día anterior
