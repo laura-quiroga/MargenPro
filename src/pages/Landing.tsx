@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import './Landing.css'
@@ -184,13 +184,20 @@ function Carrusel() {
  * la ventana de detección. Además, un chequeo manual en cada evento de scroll (geometría real con
  * `getBoundingClientRect`) sirve de RESPALDO si por lo que sea el observer nunca dispara — esta es
  * una pantalla de dinero: una sección que se queda en blanco PARA SIEMPRE porque el observer falló
- * es mucho peor que perderse la animación de entrada. */
+ * es mucho peor que perderse la animación de entrada.
+ * Usa un CALLBACK REF (no useRef + useEffect) a propósito: Landing() hace un early-return mientras
+ * `revisandoSesion` es true, así que el primer render de este hook ocurre antes de que el nodo real
+ * exista — con useEffect([]) esa instalación nunca se reintenta y la sección queda invisible para
+ * siempre en producción. El callback ref se dispara quando el nodo real se monta, sin importar en
+ * qué render ocurra. */
 function useAparecerAlScroll<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
   const [visto, setVisto] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
+  const limpiarRef = useRef<(() => void) | null>(null)
+  const ref = useCallback((nodo: T | null) => {
+    limpiarRef.current?.()
+    limpiarRef.current = null
+    if (!nodo) return
+    const el = nodo
     let activo = true
     function revelar() {
       if (!activo) return
@@ -204,12 +211,13 @@ function useAparecerAlScroll<T extends HTMLElement>() {
     }, { threshold: 0, rootMargin: '0px 0px -5% 0px' })
     obs.observe(el)
     function chequeoManual() {
-      if (el!.getBoundingClientRect().top < window.innerHeight * 0.92) revelar()
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.92) revelar()
     }
     window.addEventListener('scroll', chequeoManual, { passive: true })
     chequeoManual()
-    return () => { activo = false; obs.disconnect(); window.removeEventListener('scroll', chequeoManual) }
+    limpiarRef.current = () => { activo = false; obs.disconnect(); window.removeEventListener('scroll', chequeoManual) }
   }, [])
+  useEffect(() => () => limpiarRef.current?.(), [])
   return { ref, visto }
 }
 

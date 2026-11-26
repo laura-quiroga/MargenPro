@@ -1,6 +1,25 @@
 # ESTADO — MargenPro
 Última actualización: 2026-11-25 | Sesión actual: 6
 
+## 🐛 FIX CRÍTICO: secciones de la landing quedaban en blanco PARA SIEMPRE (2026-11-25)
+El usuario reportó "veo espacios en blanco" navegando la landing de verdad. Era un bug real, no un
+problema de carga: `useAparecerAlScroll` (el hook que revela Problema/Agitación/Solución/Oferta/
+Garantía/FAQ al hacer scroll) usaba `useRef` + `useEffect(..., [])`. Como `Landing()` hace un
+early-return (pantalla de marca) mientras `revisandoSesion` está en true, el primer render de ese
+efecto ocurre ANTES de que el nodo real exista — con `el` null se corta, y con deps `[]` nunca se
+reintenta cuando el contenido real se monta después. Resultado: el observer/listener de scroll NUNCA
+se instalaba en producción → esas 6 secciones quedaban invisibles para TODO visitante real, siempre
+(el gate del revisor no lo detectó porque, al capturar los screenshots, se forzaba `.visto` por
+consola como workaround de timing — un hábito que terminó ocultando el bug real).
+**Fix (causa raíz, no parche):** `useAparecerAlScroll` ahora usa un CALLBACK REF en vez de
+`useRef`+`useEffect([])` — así la instalación del observer ocurre cuando el nodo real se monta, sin
+importar en qué render React lo haga. Verificado en vivo: bajé scroll en el navegador real
+(no forzado por consola) y las 6 secciones revelan exactamente al cruzar el umbral, sin huecos.
+`src/pages/Landing.tsx` (función `useAparecerAlScroll`, ~línea 193). `tsc`/`build` ✓.
+⚠️ Esto invalida la evidencia de los 4 veredictos previos del revisor-visual (se basaron en
+screenshots con `.visto` forzado manualmente) — **re-lanzar `revisor-visual` sobre esta landing**
+antes de confiar de nuevo en su puntaje; con este fix el comportamiento real cambió.
+
 ## ✅ LANDING: VEREDICTO "LISTA" — 36/40 usabilidad · 16/20 craft · 18/20 copy (2026-11-25)
 Tras 4 pasadas del revisor-visual (29→34→35→36 en usabilidad, 15→16→16→16 en craft), la landing
 alcanzó el gate del SO (≥36/40 usabilidad, ≥16/20 craft, ≥16/20 copy). Última ronda de 3 fixes
