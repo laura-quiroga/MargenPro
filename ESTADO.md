@@ -1,5 +1,22 @@
 # ESTADO — MargenPro
-Última actualización: 2026-11-25 | Sesión actual: 6
+Última actualización: 2026-11-26 | Sesión actual: 6
+
+## ✅ Integradas las 3 ilustraciones que quedaron pendientes desde el 24-nov (2026-11-26)
+El usuario preguntó dónde habían quedado "las imágenes de la chica en la mesa y el radar" —
+revisando el historial, confirmé que el 2026-11-24 aprobamos 3 ilustraciones (medidor
+pérdida→ganancia, escena "antes" de noche/preocupada, escena "después" de día/tranquila) pero
+NUNCA se llegaron a instalar en el código — quedó pendiente sin que se avisara, tapado por el
+trabajo de grabar el GIF de la app. Copiadas a `public/ilustraciones/` (medidor-ganancia.webp,
+escena-antes.webp, escena-despues.webp) e integradas en `src/pages/Landing.tsx`:
+- Hero: el medidor reemplaza el dispositivo de círculos punteados — solo en escritorio ancho
+  (`@media (max-width:860px)` lo oculta), porque a su tamaño natural se encima con el H1 en
+  pantallas angostas/móvil.
+- Sección "Lo que te quita el sueño" (Problema): se agregó el bloque antes/después arriba de las
+  preguntas existentes (no se borró el copy aprobado, se sumó el visual).
+Verificado con `tsc`/`build` + revisión visual en vivo (375px y escritorio ancho), ambas limpias.
+⚠️ Esto vuelve a invalidar el veredicto de `revisor-visual` de la landing (ya estaba caducado por
+el fix del scroll-reveal) — falta re-lanzar el revisor sobre la landing actual antes de confiar en
+el puntaje.
 
 ## 🐛 FIX CRÍTICO: secciones de la landing quedaban en blanco PARA SIEMPRE (2026-11-25)
 El usuario reportó "veo espacios en blanco" navegando la landing de verdad. Era un bug real, no un

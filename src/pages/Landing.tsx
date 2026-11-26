@@ -305,7 +305,7 @@ export default function Landing() {
 
       {/* 1. HERO */}
       <section className="hero" id="hero" ref={heroRef}>
-        <div className="radar-firma" aria-hidden="true"><RadarFirma /></div>
+        <div className="radar-firma" aria-hidden="true"><img src="/ilustraciones/medidor-ganancia.webp" alt="" /></div>
         <div className="wrap hero-grid">
           <div>
             <h1 className="entrada">El precio justo para tu negocio, con <span className="acento">ganancia real</span></h1>
@@ -363,6 +363,16 @@ export default function Landing() {
         <div className={`wrap aparece${problemaScroll.visto ? ' visto' : ''}`} ref={problemaScroll.ref}>
           <div className="kicker">¿Te suena?</div>
           <h2>Lo que te quita el sueño cada fin de mes</h2>
+          <div className="antes-despues">
+            <div className="escena">
+              <img src="/ilustraciones/escena-antes.webp" alt="Antes: calculando precios de noche, a ojo y preocupada" />
+              <span className="etiqueta">Antes</span>
+            </div>
+            <div className="escena despues">
+              <img src="/ilustraciones/escena-despues.webp" alt="Con MargenPro: tranquila, con el precio ya resuelto" />
+              <span className="etiqueta despues">Con MargenPro</span>
+            </div>
+          </div>
           <div className="preguntas">
             {PREGUNTAS_PROBLEMA.map((p, i) => (
               <div className="pregunta-card" key={i}>
